@@ -1,0 +1,51 @@
+@model List<JAA.Models.ServiceRequest>
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["ShopIR.NoPendingRequests"].Value; ViewData["PageTitle"] = L["Shop.IncomingRequests"].Value; ViewData["PageSub"] = $"{Model.Count} {L["ShopDB.Incoming"].Value}"; }
+
+@if (!Model.Any())
+{
+    <div class="gc"><div class="es"><div class="es-icon"><i class="fas fa-inbox"></i></div><h5>@L["ShopIR.NoPendingRequests"]</h5><p>@L["ShopIR.RequestsAppearHere"]</p></div></div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var r in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="gc h-100 d-flex flex-column" style="cursor:default;">
+                    <div class="gc-head" style="flex-shrink:0;">
+                        <span class="gc-head-title"><i class="fas fa-car me-2" style="color:#f87171;"></i>Request #@r.Id</span>
+                        <span style="font-size:11px;color:var(--muted);">@((DateTime.UtcNow - r.CreatedAt).TotalMinutes < 60 ? $"{(int)(DateTime.UtcNow - r.CreatedAt).TotalMinutes}{L["Track.MinAgo"].Value}" : r.CreatedAt.ToLocalTime().ToString("t"))</span>
+                    </div>
+                    <div class="p-3 flex-grow-1">
+                        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">
+                            <i class="fas fa-user me-1" style="color:var(--accent);"></i>@r.Customer?.FullName
+                        </div>
+                        @if (r.Customer?.PhoneNumber != null)
+                        {
+                            <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">
+                                <i class="fas fa-phone me-1"></i>@r.Customer.PhoneNumber
+                            </div>
+                        }
+                        <a href="https://www.google.com/maps?q=@r.CustomerLatitude,@r.CustomerLongitude" target="_blank"
+                           style="font-size:12px;color:#f87171;display:block;margin-bottom:10px;">
+                            <i class="fas fa-map-marker-alt me-1"></i>@L["ShopIR.ViewLocationOnMap"]
+                        </a>
+                        <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text2);font-style:italic;">
+                            "@r.SituationDescription"
+                        </div>
+                    </div>
+                    <div class="p-3" style="border-top:1px solid var(--border);flex-shrink:0;">
+                        <form asp-action="AcceptRequest" asp-route-id="@r.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-sos w-100 justify-content-center" style="animation:none;">
+                                <i class="fas fa-handshake"></i> @L["ShopIR.AcceptRequest"]
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section Scripts { <script>setTimeout(() => location.reload(), 20000);</script> }

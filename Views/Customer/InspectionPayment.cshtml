@@ -1,0 +1,80 @@
+@model JAA.ViewModels.InspectionPaymentViewModel
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["Insp.PayInspectionFee"].Value; ViewData["PageTitle"] = L["Insp.FeePaymentTitle"].Value; ViewData["PageSub"] = L["Insp.FeePaymentSub"].Value; }
+
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+
+    <div class="card-jaa mb-4">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div style="width:50px;height:50px;background:rgba(230,57,70,.12);border:1px solid rgba(230,57,70,.25);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--red);"><i class="bi bi-credit-card-fill"></i></div>
+        <div>
+          <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">@L["Insp.Step1of2"]</div>
+          <div style="font-size:1rem;font-weight:700;color:var(--white);">@L["Insp.PayInspectionFee"]</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:1.5rem;">
+        <div style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;">@L["Insp.YourRequest"]</div>
+        <div style="font-size:.88rem;color:var(--text2);font-style:italic;">"@Model.SituationDescription"</div>
+      </div>
+
+      <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;">
+        <div style="background:rgba(63,185,80,.06);padding:.9rem 1.2rem;border-bottom:1px solid var(--border);">
+          <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem;">@L["Insp.FeeBreakdown"]</div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span style="font-size:.85rem;color:var(--text2);">@L["Insp.InspectionDispatchFee"]</span>
+            <span style="font-size:.95rem;font-weight:700;color:var(--white);">@Model.Fee.ToString("F2") JOD</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span style="font-size:.8rem;color:var(--muted);">@L["Insp.ShopReceives"]</span>
+            <span style="font-size:.82rem;color:var(--muted);">@Model.ShopShare.ToString("F2") JOD</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span style="font-size:.8rem;color:var(--muted);">@L["Insp.PlatformFee"]</span>
+            <span style="font-size:.82rem;color:var(--muted);">@Model.PlatformShare.ToString("F2") JOD</span>
+          </div>
+        </div>
+        <div style="padding:.7rem 1.2rem;background:rgba(255,255,255,.02);">
+          <div style="font-size:.75rem;color:var(--muted);line-height:1.55;">
+            <i class="bi bi-info-circle me-1"></i>
+            @L["Insp.FeeNote"]
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.9rem;">@L["Insp.ChoosePaymentMethod"]</div>
+
+      <div class="row g-3">
+        <div class="col-6">
+          <form asp-action="PayInspectionCash" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestId" value="@Model.ServiceRequestId" />
+            <button type="submit" class="w-100 h-100"
+              style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:1.3rem;cursor:pointer;transition:all .2s;text-align:center;color:var(--text2);"
+              onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(63,185,80,.06)'"
+              onmouseout="this.style.borderColor='var(--border)';this.style.background='rgba(255,255,255,.03)'">
+              <div style="font-size:1.6rem;margin-bottom:.5rem;"><i class="bi bi-cash-stack" style="color:#3fb950;"></i></div>
+              <div style="font-size:.9rem;font-weight:700;color:var(--white);">@L["Insp.Cash"]</div>
+              <div style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">@L["Insp.CashDesc"]</div>
+            </button>
+          </form>
+        </div>
+        <div class="col-6">
+          <form asp-action="PayInspectionOnline" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestId" value="@Model.ServiceRequestId" />
+            <button type="submit" class="w-100 h-100"
+              style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:1.3rem;cursor:pointer;transition:all .2s;text-align:center;color:var(--text2);"
+              onmouseover="this.style.borderColor='var(--red)';this.style.background='rgba(230,57,70,.06)'"
+              onmouseout="this.style.borderColor='var(--border)';this.style.background='rgba(255,255,255,.03)'">
+              <div style="font-size:1.6rem;margin-bottom:.5rem;"><i class="bi bi-credit-card-2-front" style="color:var(--red);"></i></div>
+              <div style="font-size:.9rem;font-weight:700;color:var(--white);">@L["Insp.Online"]</div>
+              <div style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">@L["Insp.OnlineDesc"]</div>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

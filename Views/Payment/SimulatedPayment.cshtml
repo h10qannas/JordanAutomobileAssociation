@@ -1,0 +1,80 @@
+@model JAA.ViewModels.SimulatedPaymentViewModel
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["Pay.SecurePayment"].Value; ViewData["PageTitle"] = L["Pay.SecurePayment"].Value; ViewData["PageSub"] = L["Pay.PageSub"].Value;
+   var jsProcessing = L["Pay.Processing"].Value;
+}
+
+<div class="row justify-content-center">
+  <div class="col-lg-5">
+    <div class="card-jaa">
+      <div style="text-align:center;margin-bottom:1.5rem;">
+        <div style="width:56px;height:56px;background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#3fb950;margin:0 auto .9rem;">
+          <i class="bi bi-shield-lock-fill"></i>
+        </div>
+        <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">@L["Pay.SecurePayment"]</div>
+        <div style="font-size:1.1rem;font-weight:800;color:var(--white);margin-top:.3rem;">@Model.Description</div>
+        <div style="font-size:1.6rem;font-weight:900;color:var(--red);margin-top:.4rem;">@Model.Amount.ToString("F2") JOD</div>
+      </div>
+
+      <div style="background:rgba(255,193,7,.06);border:1px solid rgba(255,193,7,.2);border-radius:10px;padding:.7rem 1rem;margin-bottom:1.5rem;font-size:.78rem;color:#f59e0b;">
+        <i class="bi bi-info-circle me-1"></i>
+        <strong>@L["Pay.DemoMode"]:</strong> @L["Pay.DemoDesc"]
+      </div>
+
+      <form asp-action="ProcessSimulatedPayment" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="requestId" value="@Model.ServiceRequestId" />
+        <input type="hidden" name="inspectionPaymentId" value="@Model.InspectionPaymentId" />
+        <input type="hidden" name="repairPaymentId" value="@Model.RepairPaymentId" />
+        <input type="hidden" name="paymentType" value="@Model.PaymentType" />
+        <input type="hidden" name="amount" value="@Model.Amount" />
+
+        <div class="mb-3">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.4px;">@L["Pay.CardNumber"]</label>
+          <input name="cardNumber" type="text" class="form-control"
+            style="background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2);border-radius:8px;"
+            placeholder="4111 1111 1111 1111" value="4111 1111 1111 1111" required />
+        </div>
+
+        <div class="mb-3">
+          <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.4px;">@L["Pay.CardholderName"]</label>
+          <input name="cardHolder" type="text" class="form-control"
+            style="background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2);border-radius:8px;"
+            placeholder="Full Name" required />
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.4px;">@L["Pay.Expiry"]</label>
+            <input name="expiry" type="text" class="form-control"
+              style="background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2);border-radius:8px;"
+              placeholder="MM/YY" value="12/28" required />
+          </div>
+          <div class="col-6">
+            <label style="font-size:.75rem;font-weight:700;color:var(--muted);display:block;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.4px;">@L["Pay.CVV"]</label>
+            <input name="cvv" type="text" class="form-control"
+              style="background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2);border-radius:8px;"
+              placeholder="123" value="123" required />
+          </div>
+        </div>
+
+        <button type="submit" class="btn-jaa btn-primary btn-full" id="payBtn"
+                data-processing="@L["Pay.Processing"].Value">
+          <i class="bi bi-lock-fill"></i> Pay @Model.Amount.ToString("F2") JOD
+        </button>
+        <a asp-action="Dashboard" asp-controller="Customer" class="btn-jaa btn-ghost btn-full mt-2">
+          <i class="bi bi-arrow-left"></i> @L["Pay.Cancel"]
+        </a>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    document.querySelector('form').addEventListener('submit', function() {
+      const btn = document.getElementById('payBtn');
+      btn.innerHTML = '<i class="bi bi-hourglass-split"></i> ' + btn.dataset.processing;
+      btn.disabled = true;
+    });
+  </script>
+}

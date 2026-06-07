@@ -1,0 +1,291 @@
+@model JAA.ViewModels.ShopsViewModel
+@{ ViewData["Title"] = L["Shops.FindAShop"].Value; Layout = "_Layout"; }
+
+@section Styles {
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+.shops-page { padding-top: 64px; background: var(--dark); min-height: 100vh; }
+
+/* ── Hero ── */
+.shops-hero {
+  padding: 60px 0 50px;
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.shops-hero::before {
+  content: '';
+  position: absolute; top: -100px; right: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(230,57,70,.08) 0%, transparent 65%);
+  border-radius: 50%; pointer-events: none;
+}
+.shops-hero h1 {
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 900;
+  color: var(--white); letter-spacing: -1px; margin-bottom: .4rem;
+}
+.shops-hero h1 span { color: var(--red); }
+.shops-hero p { font-size: .9rem; color: var(--muted); margin-bottom: 1.6rem; }
+
+/* ── Filter bar ── */
+.shops-filter {
+  display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+}
+.sf-select {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--white);
+  font-size: .88rem; font-family: var(--font);
+  padding: .6rem 2.2rem .6rem .95rem;
+  outline: none; cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .75rem center;
+  transition: border-color .2s;
+  min-width: 180px;
+}
+.sf-select:focus { border-color: var(--red); }
+.sf-select option { background: var(--card); }
+
+.sf-count {
+  font-size: .8rem; color: var(--muted);
+  margin-left: auto;
+}
+.sf-count strong { color: var(--white); }
+
+.btn-sf-clear {
+  display: inline-flex; align-items: center; gap: .35rem;
+  background: rgba(230,57,70,.09); border: 1px solid rgba(230,57,70,.22);
+  border-radius: 8px; color: var(--red);
+  font-size: .78rem; font-weight: 600; font-family: var(--font);
+  padding: .5rem .9rem; cursor: pointer; text-decoration: none;
+  transition: background .2s;
+}
+.btn-sf-clear:hover { background: rgba(230,57,70,.16); color: var(--red); }
+
+/* ── Grid ── */
+.shops-grid { padding: 40px 0 80px; }
+
+/* ── Shop card ── */
+.shop-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden; height: 100%;
+  display: flex; flex-direction: column;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
+}
+.shop-card:hover {
+  border-color: rgba(230,57,70,.3);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0,0,0,.35);
+}
+
+/* cover */
+.shop-cover {
+  height: 148px; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #161b22 0%, #1c2333 100%);
+  flex-shrink: 0;
+}
+.shop-cover img { width: 100%; height: 100%; object-fit: cover; }
+.shop-cover-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.8rem; color: rgba(230,57,70,.2);
+}
+.shop-cover::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(13,17,23,.6) 0%, transparent 60%);
+  pointer-events: none;
+}
+.shop-verified-badge {
+  position: absolute; top: 10px; right: 10px; z-index: 1;
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: rgba(35,134,54,.85); backdrop-filter: blur(6px);
+  color: #fff; border-radius: 999px;
+  font-size: .65rem; font-weight: 700; padding: .28rem .7rem;
+  letter-spacing: .4px;
+}
+
+/* body */
+.shop-body { padding: 1.1rem 1.2rem; flex: 1; display: flex; flex-direction: column; }
+
+.shop-name {
+  font-size: .98rem; font-weight: 800; color: var(--white);
+  margin-bottom: .3rem; letter-spacing: -.2px;
+}
+.shop-meta {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .76rem; color: var(--muted); margin-bottom: .6rem; flex-wrap: wrap;
+}
+.shop-meta i { font-size: .72rem; }
+.shop-meta-sep { color: var(--border); }
+
+/* stars */
+.shop-stars { display: flex; align-items: center; gap: .25rem; margin-bottom: .7rem; }
+.shop-stars i { font-size: .7rem; }
+.shop-stars .rating-num { font-size: .75rem; color: var(--muted); margin-left: .2rem; }
+.shop-no-rating { font-size: .75rem; color: var(--muted); font-style: italic; margin-bottom: .7rem; }
+
+.shop-desc {
+  font-size: .8rem; color: var(--muted); line-height: 1.6;
+  flex: 1; margin-bottom: 1rem;
+}
+
+.btn-shop-view {
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+  background: rgba(230,57,70,.09); border: 1px solid rgba(230,57,70,.22);
+  border-radius: 9px; color: var(--red);
+  font-size: .83rem; font-weight: 700; font-family: var(--font);
+  padding: .6rem; text-decoration: none;
+  transition: background .2s, border-color .2s;
+}
+.btn-shop-view:hover {
+  background: rgba(230,57,70,.16); border-color: rgba(230,57,70,.4);
+  color: var(--red);
+}
+
+/* ── Empty state ── */
+.shops-empty {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 4rem 2rem; text-align: center;
+}
+.shops-empty-icon {
+  width: 64px; height: 64px; margin: 0 auto 1.25rem;
+  background: rgba(230,57,70,.08); border: 1px solid rgba(230,57,70,.15);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; color: var(--muted);
+}
+.shops-empty h4 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: .4rem; }
+.shops-empty p  { font-size: .85rem; color: var(--muted); }
+</style>
+}
+
+<div class="shops-page">
+
+  <!-- ══ HERO + FILTER ══ -->
+  <div class="shops-hero">
+    <div class="container">
+      <h1>@Html.Raw(L["Shops.FindVerified"].Value)</h1>
+      <p>@L["Shops.HeroDesc"]</p>
+
+      <form method="get" class="shops-filter">
+        <div style="position:relative;">
+          <select name="city" class="sf-select" onchange="this.form.submit()">
+            <option value="">@L["Shops.AllCities"]</option>
+            @foreach (var city in Model.Cities)
+            {
+              if (city == Model.SelectedCity)
+              { <option value="@city" selected="selected">@city</option> }
+              else
+              { <option value="@city">@city</option> }
+            }
+          </select>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.SelectedCity))
+        {
+          <a asp-action="Shops" class="btn-sf-clear">
+            <i class="fas fa-times"></i> @L["Shops.ClearFilter"]
+          </a>
+        }
+
+        <div class="sf-count">
+          <strong>@Model.Shops.Count</strong> @(Model.Shops.Count != 1 ? L["Shops.ShopPlural"].Value : L["Shops.ShopSingular"].Value)
+          @if (!string.IsNullOrEmpty(Model.SelectedCity)) { <text>@L["Shops.In"] <strong>@Model.SelectedCity</strong></text> }
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══ GRID ══ -->
+  <div class="shops-grid">
+    <div class="container">
+      @if (!Model.Shops.Any())
+      {
+        <div class="shops-empty">
+          <div class="shops-empty-icon"><i class="fas fa-store-slash"></i></div>
+          <h4>@L["Shops.NoShopsFound"]</h4>
+          <p>@(string.IsNullOrEmpty(Model.SelectedCity) ? L["Shops.NoVerifiedShops"].Value : $"{L["Shops.NoShopsInCity"].Value} {Model.SelectedCity}. {L["Shops.TryDifferentCity"].Value}")</p>
+          @if (!string.IsNullOrEmpty(Model.SelectedCity))
+          {
+            <a asp-action="Shops" class="btn-jaa btn-outline" style="margin-top:1rem;display:inline-flex;">
+              <i class="fas fa-arrow-left"></i> @L["Shops.ShowAllCities"]
+            </a>
+          }
+        </div>
+      }
+      else
+      {
+        <div class="row g-4">
+          @foreach (var shop in Model.Shops)
+          {
+            var avg   = shop.Feedbacks.Any() ? shop.Feedbacks.Average(f => f.Rating) : 0.0;
+            var count = shop.Feedbacks.Count;
+            var desc  = string.IsNullOrEmpty(shop.Description) ? "No description available." : (shop.Description.Length > 88 ? shop.Description[..88] + "…" : shop.Description);
+            <div class="col-md-6 col-lg-4">
+              <div class="shop-card">
+
+                <!-- Cover -->
+                <div class="shop-cover">
+                  @if (!string.IsNullOrEmpty(shop.LogoUrl))
+                  {
+                    <img src="@shop.LogoUrl" alt="@shop.ShopName" />
+                  }
+                  else
+                  {
+                    <div class="shop-cover-placeholder"><i class="fas fa-store"></i></div>
+                  }
+                  @if (shop.IsVerified)
+                  {
+                    <span class="shop-verified-badge">
+                      <i class="fas fa-check-circle"></i> @L["Shops.Verified"]
+                    </span>
+                  }
+                </div>
+
+                <!-- Body -->
+                <div class="shop-body">
+                  <div class="shop-name">@shop.ShopName</div>
+
+                  <div class="shop-meta">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>@shop.City</span>
+                    @if (!string.IsNullOrEmpty(shop.PhoneNumber))
+                    {
+                      <span class="shop-meta-sep">·</span>
+                      <i class="fas fa-phone"></i>
+                      <span>@shop.PhoneNumber</span>
+                    }
+                  </div>
+
+                  @if (avg > 0)
+                  {
+                    <div class="shop-stars">
+                      @for (int i = 1; i <= 5; i++)
+                      {
+                        <i class="fas fa-star" style="color:@(i <= avg ? "#fbbf24" : "rgba(255,255,255,.12)");"></i>
+                      }
+                      <span class="rating-num">@avg.ToString("F1") (@count)</span>
+                    </div>
+                  }
+                  else
+                  {
+                    <div class="shop-no-rating">@L["Shops.NoReviewsYet"]</div>
+                  }
+
+                  <p class="shop-desc">@desc</p>
+
+                  <a asp-action="ShopDetail" asp-route-id="@shop.Id" class="btn-shop-view">
+                    @L["Shops.ViewShop"] <i class="fas fa-arrow-right"></i>
+                  </a>
+                </div>
+
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+</div>

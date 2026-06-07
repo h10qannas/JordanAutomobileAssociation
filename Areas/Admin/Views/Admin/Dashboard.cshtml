@@ -1,0 +1,79 @@
+@model JAA.ViewModels.AdminDashboardViewModel
+@{ ViewData["Title"] = "Admin Dashboard"; ViewData["PageTitle"] = "Operations Dashboard"; ViewData["PageSub"] = $"Live overview · {DateTime.Now:dddd, d MMMM yyyy}"; Layout = "_DashboardLayout"; }
+
+<div class="row g-3 mb-4">
+  @{ var stats = new[]{
+      ("bi-send-fill","stat-icon-red",L["ADB.TotalRequests"].Value,Model.TotalRequests.ToString(),$"{Model.TotalRequests} {L["ADB.AllTime"].Value}"),
+      ("bi-hourglass-split","stat-icon-yellow",L["ADB.ActiveNow"].Value,Model.ActiveRequests.ToString(),L["ADB.InProgress"].Value),
+      ("bi-shop-window","stat-icon-green",L["ADB.Shops"].Value,Model.TotalShops.ToString(),$"{Model.VerifiedShops} {L["ADB.Approved"].Value}"),
+      ("bi-people-fill","stat-icon-blue",L["ADB.Users"].Value,Model.TotalUsers.ToString(),$"{Model.TotalCustomers} {L["ADB.Customers"].Value}"),
+  }; }
+  @foreach (var s in stats)
+  { <div class="col-6 col-xl-3"><div class="stat-card"><div class="stat-icon @s.Item2"><i class="bi @s.Item1"></i></div><div><div class="stat-num">@s.Item4</div><div class="stat-label">@s.Item3</div></div></div></div> }
+</div>
+
+@if (Model.PendingMechanicsCount > 0 || Model.PendingRefundsCount > 0 || Model.UnverifiedShops.Any())
+{
+  <div class="row g-3 mb-4">
+    @if (Model.UnverifiedShops.Any())
+    {
+      <div class="col-md-4">
+        <a asp-action="PendingShops" class="card-jaa d-block" style="cursor:pointer;text-decoration:none;border-color:rgba(255,193,7,.3);">
+          <div class="d-flex align-items-center gap-2">
+            <div style="width:38px;height:38px;background:rgba(255,193,7,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#f59e0b;"><i class="bi bi-shop-window"></i></div>
+            <div><div style="font-size:.95rem;font-weight:800;color:var(--white);">@Model.UnverifiedShops.Count @L["ADB.PendingShops"]</div><div style="font-size:.75rem;color:#f59e0b;">@L["ADB.AwaitingApproval"]</div></div>
+          </div>
+        </a>
+      </div>
+    }
+    @if (Model.PendingMechanicsCount > 0)
+    {
+      <div class="col-md-4">
+        <a asp-action="PendingMechanics" class="card-jaa d-block" style="cursor:pointer;text-decoration:none;border-color:rgba(91,138,245,.3);">
+          <div class="d-flex align-items-center gap-2">
+            <div style="width:38px;height:38px;background:rgba(91,138,245,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#5b8af5;"><i class="bi bi-person-gear"></i></div>
+            <div><div style="font-size:.95rem;font-weight:800;color:var(--white);">@Model.PendingMechanicsCount @L["ADB.PendingMechanics"]</div><div style="font-size:.75rem;color:#5b8af5;">@L["ADB.AwaitingApproval"]</div></div>
+          </div>
+        </a>
+      </div>
+    }
+    @if (Model.PendingRefundsCount > 0)
+    {
+      <div class="col-md-4">
+        <a asp-action="Refunds" class="card-jaa d-block" style="cursor:pointer;text-decoration:none;border-color:rgba(230,57,70,.3);">
+          <div class="d-flex align-items-center gap-2">
+            <div style="width:38px;height:38px;background:rgba(230,57,70,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--red);"><i class="bi bi-arrow-counterclockwise"></i></div>
+            <div><div style="font-size:.95rem;font-weight:800;color:var(--white);">@Model.PendingRefundsCount @L["ADB.PendingRefunds"]</div><div style="font-size:.75rem;color:var(--red);">@L["ADB.ActionRequired"]</div></div>
+          </div>
+        </a>
+      </div>
+    }
+  </div>
+}
+
+<div class="row g-3 mb-4">
+  @foreach (var n in new[]{
+      ("PendingShops","bi-shop-window",$"{Model.UnverifiedShops.Count} pending",L["ADB.ShopApprovals"].Value,L["ADB.AwaitingApproval"].Value),
+      ("PendingMechanics","bi-person-gear",$"{Model.PendingMechanicsCount} pending",L["ADB.MechanicApprovals"].Value,L["ADB.AwaitingApproval"].Value),
+      ("Requests","bi-list-ul",$"{Model.ActiveRequests} {L["ADB.Active"].Value}",L["ADB.AllRequestsDesc"].Value,L["ADB.AllRequestsDesc"].Value),
+      ("Reports","bi-bar-chart-line-fill",L["ADB.Finance"].Value,L["ADB.Finance"].Value,L["ADB.RevenueReports"].Value),
+  })
+  { <div class="col-6 col-lg"><a asp-area="Admin" asp-controller="Admin" asp-action="@n.Item1" class="card-jaa d-block" style="cursor:pointer;text-decoration:none;"><div style="width:40px;height:40px;background:rgba(230,57,70,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--red);margin-bottom:.8rem;"><i class="bi @n.Item2"></i></div><div style="font-size:.88rem;font-weight:700;color:var(--white);margin-bottom:.15rem;">@n.Item4</div><div class="fs-xs text-muted">@n.Item5</div><div style="font-size:.78rem;color:var(--red);font-weight:600;margin-top:.25rem;">@n.Item3</div></a></div> }
+</div>
+
+<div class="card-jaa" style="padding:0;overflow:hidden;">
+  <div class="section-head" style="padding:1.2rem 1.5rem 0;">
+    <h5>@L["ADB.LiveActiveRequests"] <span style="display:inline-flex;align-items:center;gap:.3rem;font-size:.72rem;color:var(--muted);font-weight:400;margin-left:.5rem;"><span class="pulse-dot"></span> @Model.ActiveRequests @L["ADB.Active"]</span></h5>
+    <a asp-area="Admin" asp-controller="Admin" asp-action="Requests" class="btn-jaa btn-outline btn-sm">@L["ADB.ViewAll"]</a>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="table-jaa">
+      <thead><tr><th style="padding-left:1.5rem;">@L["Adm.ID"]</th><th>@L["Adm.Customer"]</th><th>@L["Adm.Shop"]</th><th>@L["Adm.Situation"]</th><th>@L["Adm.Status"]</th><th>@L["Adm.Time"]</th></tr></thead>
+      <tbody>
+        @foreach (var r in Model.LiveRequests)
+        { <tr><td class="td-primary" style="padding-left:1.5rem;">#@r.Id</td><td>@r.Customer?.FullName</td><td>@(r.Shop?.ShopName ?? "—")</td><td class="td-truncate">@r.SituationDescription</td><td><span class="badge-jaa badge-@r.Status.ToString().ToLower()">@L["Status." + r.Status.ToString()]</span></td><td class="td-muted">@r.CreatedAt.ToLocalTime().ToString("HH:mm")</td></tr> }
+        @if (!Model.LiveRequests.Any()) { <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--muted);">@L["ADB.NoActiveRequests"]</td></tr> }
+      </tbody>
+    </table>
+  </div>
+</div>

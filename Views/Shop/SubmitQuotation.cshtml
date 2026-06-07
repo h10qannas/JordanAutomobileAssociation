@@ -1,0 +1,67 @@
+@model JAA.ViewModels.SubmitQuotationViewModel
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["ShopSQ.PageTitle"].Value; ViewData["PageTitle"] = L["ShopSQ.PageTitle"].Value; ViewData["PageSub"] = L["ShopSQ.PageSub"].Value; }
+
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card-jaa">
+
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:.8rem 1rem;margin-bottom:1.5rem;">
+        <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:.3rem;">@L["ShopSQ.Customer"]: @Model.CustomerName</div>
+        <div style="font-size:.85rem;color:var(--text2);font-style:italic;">"@Model.SituationDescription"</div>
+      </div>
+
+      <form asp-action="SubmitQuotation" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="ServiceRequestId" />
+
+        <div class="mb-4">
+          <label class="form-label-jaa" asp-for="DiagnosisNotes">@L["ShopSQ.DiagnosisNotes"]</label>
+          <textarea asp-for="DiagnosisNotes" rows="4" class="form-control-jaa"
+            placeholder="@L["ShopSQ.DiagnosisPlaceholder"]"></textarea>
+          <span asp-validation-for="DiagnosisNotes" class="val-msg"></span>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label-jaa" asp-for="QuotedAmount">@L["ShopSQ.RepairCost"]</label>
+          <div style="position:relative;">
+            <input asp-for="QuotedAmount" type="number" step="0.01" min="0.01" class="form-control-jaa"
+              placeholder="0.00" style="padding-right:3.5rem;" id="quotedInput" />
+            <span style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:.78rem;font-weight:700;color:var(--muted);">JOD</span>
+          </div>
+          <span asp-validation-for="QuotedAmount" class="val-msg"></span>
+        </div>
+
+        <div id="previewBox" style="display:none;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1.3rem;font-size:.82rem;">
+          <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:.6rem;">@L["ShopSQ.CustomerSees"]</div>
+          <div class="d-flex justify-content-between mb-1"><span style="color:var(--text2);">@L["ShopSQ.RepairCostLine"]</span><span id="previewBase" style="color:var(--white);font-weight:600;"></span></div>
+          <div class="d-flex justify-content-between mb-1"><span style="color:var(--muted);">@L["ShopSQ.VAT16"]</span><span id="previewVat" style="color:var(--muted);"></span></div>
+          <div style="border-top:1px solid var(--border);margin:.5rem 0;"></div>
+          <div class="d-flex justify-content-between"><span style="color:var(--white);font-weight:700;">@L["ShopSQ.Total"]</span><span id="previewTotal" style="color:var(--red);font-weight:800;"></span></div>
+        </div>
+
+        <button type="submit" class="btn-jaa btn-primary btn-full">
+          <i class="bi bi-send-fill"></i> @L["ShopSQ.SendQuotation"]
+        </button>
+        <a asp-action="ActiveJobs" class="btn-jaa btn-ghost btn-full mt-2">@L["ShopSQ.Cancel"]</a>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+  <script>
+    const VAT = 0.16;
+    document.getElementById('quotedInput').addEventListener('input', function() {
+      const val = parseFloat(this.value) || 0;
+      if (val > 0) {
+        document.getElementById('previewBox').style.display = 'block';
+        document.getElementById('previewBase').textContent  = val.toFixed(2) + ' JOD';
+        document.getElementById('previewVat').textContent   = (val * VAT).toFixed(2) + ' JOD';
+        document.getElementById('previewTotal').textContent = (val + val * VAT).toFixed(2) + ' JOD';
+      } else {
+        document.getElementById('previewBox').style.display = 'none';
+      }
+    });
+  </script>
+}

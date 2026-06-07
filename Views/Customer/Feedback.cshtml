@@ -1,0 +1,273 @@
+@model JAA.ViewModels.FeedbackViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = L["FB.RateExperience"].Value;
+    var jsLabel1 = L["FB.Label1"].Value;
+    var jsLabel2 = L["FB.Label2"].Value;
+    var jsLabel3 = L["FB.Label3"].Value;
+    var jsLabel4 = L["FB.Label4"].Value;
+    var jsLabel5 = L["FB.Label5"].Value;
+}
+
+@section Styles {
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+/* ── Page shell ── */
+.fb-page {
+    min-height: 100vh;
+    padding: 90px 1rem 4rem;
+    background: var(--dark);
+    display: flex; align-items: flex-start; justify-content: center;
+}
+.fb-wrap { width: 100%; max-width: 500px; }
+
+/* ── Back link ── */
+.fb-back {
+    display: inline-flex; align-items: center; gap: .4rem;
+    color: var(--muted); font-size: .78rem; text-decoration: none;
+    margin-bottom: 1.3rem; transition: color .2s;
+}
+.fb-back:hover { color: var(--light); }
+
+/* ── Shop header ── */
+.fb-shop-header {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.4rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1rem; position: relative; overflow: hidden;
+}
+.fb-shop-header::before {
+    content: ''; position: absolute; top: -50px; right: -50px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(230,57,70,.07) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+.fb-avatar {
+    width: 52px; height: 52px; flex-shrink: 0;
+    background: rgba(230,57,70,.12); border: 1px solid rgba(230,57,70,.2);
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; font-weight: 900; color: var(--red);
+}
+.fb-shop-name  { font-size: 1rem; font-weight: 800; color: var(--white); letter-spacing: -.2px; }
+.fb-shop-badge {
+    display: inline-flex; align-items: center; gap: .3rem;
+    background: rgba(35,134,54,.1); border: 1px solid rgba(35,134,54,.2);
+    color: var(--green-t); border-radius: 999px;
+    font-size: .62rem; font-weight: 700; padding: .18rem .6rem; margin-top: .25rem;
+}
+
+/* ── Situation card ── */
+.fb-situation {
+    background: rgba(255,255,255,.02); border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: 0 12px 12px 0;
+    padding: .75rem 1rem; margin-bottom: 1rem;
+}
+.fb-sit-label { font-size: .65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .25rem; }
+.fb-sit-text  { font-size: .88rem; color: var(--light); font-style: italic; line-height: 1.5; }
+
+/* ── Main form card ── */
+.fb-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.75rem 1.75rem 1.5rem;
+    margin-bottom: 1rem;
+}
+.fb-section-title {
+    font-size: .72rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .6px; margin-bottom: 1.1rem;
+    display: flex; align-items: center; gap: .4rem;
+}
+.fb-section-title i { color: var(--red); }
+
+/* ── Star rating ── */
+.fb-stars-wrap { text-align: center; margin-bottom: 1.5rem; }
+.fb-stars {
+    display: inline-flex; gap: .3rem;
+    justify-content: center; margin-bottom: .65rem;
+}
+.fb-star {
+    font-size: 2.5rem; cursor: pointer; color: rgba(255,255,255,.1);
+    transition: color .12s, transform .1s;
+    line-height: 1; user-select: none;
+}
+.fb-star.filled  { color: #fbbf24; }
+.fb-star.hovered { color: #fde68a; transform: scale(1.15); }
+.fb-star:hover   { transform: scale(1.18); }
+
+/* Rating label */
+.fb-rating-label {
+    font-size: .88rem; font-weight: 700; color: var(--muted);
+    min-height: 1.3rem; transition: color .15s;
+    letter-spacing: .3px;
+}
+.fb-rating-label.active { color: var(--white); }
+
+/* ── Divider ── */
+.fb-divider { height: 1px; background: var(--border); margin: 1.4rem 0; }
+
+/* ── Comment field ── */
+.fb-textarea {
+    width: 100%; background: var(--dark); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--white); font-size: .9rem; font-family: var(--font);
+    padding: .8rem 1rem; resize: vertical; min-height: 110px; line-height: 1.65;
+    outline: none; transition: border-color .2s, box-shadow .2s;
+}
+.fb-textarea:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(230,57,70,.12); }
+.fb-textarea::placeholder { color: #3d444e; }
+.fb-char-count { font-size: .68rem; color: var(--muted); text-align: right; margin-top: .3rem; }
+
+/* ── Submit ── */
+.btn-fb-submit {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: .5rem;
+    background: var(--red); color: #fff; border: none; border-radius: 10px;
+    font-size: .95rem; font-weight: 700; font-family: var(--font);
+    padding: .85rem; cursor: pointer; margin-top: .25rem;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    letter-spacing: .1px;
+}
+.btn-fb-submit:hover { background: var(--red-d); transform: translateY(-1px); box-shadow: 0 8px 22px rgba(230,57,70,.32); }
+.btn-fb-submit:active { transform: translateY(0); }
+.btn-fb-submit:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+.fb-submit-note { font-size: .72rem; color: var(--muted); text-align: center; margin-top: .65rem; }
+
+/* ── Validation ── */
+.fb-alert {
+    background: rgba(230,57,70,.08); border: 1px solid rgba(230,57,70,.2);
+    border-radius: 10px; padding: .7rem 1rem; font-size: .8rem; color: #ff6b74;
+    margin-bottom: 1rem;
+}
+</style>
+}
+
+<div class="fb-page">
+<div class="fb-wrap">
+
+    <a asp-action="History" class="fb-back">
+        <i class="fas fa-arrow-left"></i> @L["FB.BackToHistory"]
+    </a>
+
+    <!-- Shop header -->
+    <div class="fb-shop-header">
+        <div class="fb-avatar">
+            @(Model.ShopName.Length > 0 ? char.ToUpper(Model.ShopName[0]).ToString() : "S")
+        </div>
+        <div>
+            <div class="fb-shop-name">@Model.ShopName</div>
+            <div class="fb-shop-badge"><i class="fas fa-check-circle"></i> @L["FB.VerifiedShop"]</div>
+        </div>
+    </div>
+
+    <!-- Situation summary -->
+    <div class="fb-situation">
+        <div class="fb-sit-label"><i class="fas fa-car me-1"></i> @L["FB.YourSituation"]</div>
+        <div class="fb-sit-text">"@Model.SituationDescription"</div>
+    </div>
+
+    <!-- Form card -->
+    <div class="fb-card">
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="fb-alert">
+                <i class="fas fa-exclamation-circle me-2"></i>@Html.ValidationSummary(true)
+            </div>
+        }
+
+        <form asp-action="Feedback" method="post" novalidate>
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ServiceRequestId" />
+
+            <!-- Star rating -->
+            <div class="fb-section-title"><i class="fas fa-star"></i> @L["FB.YourRating"]</div>
+            <input type="hidden" name="Rating" id="ratingInput" value="5" />
+            <div class="fb-stars-wrap">
+                <div class="fb-stars" id="starGroup">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <span class="fb-star @(i <= 5 ? "filled" : "")"
+                              data-val="@i"
+                              onmouseenter="starHover(@i)"
+                              onmouseleave="starLeave()"
+                              onclick="starClick(@i)">
+                            <i class="fas fa-star"></i>
+                        </span>
+                    }
+                </div>
+                <div class="fb-rating-label active" id="ratingLabel">@L["FB.Label5"]</div>
+            </div>
+
+            <div class="fb-divider"></div>
+
+            <!-- Comment -->
+            <div class="fb-section-title"><i class="fas fa-comment-alt"></i> @L["FB.Comment"] <span style="font-weight:400;color:#3d444e;text-transform:none;letter-spacing:0;">@L["FB.CommentOptional"]</span></div>
+            <textarea asp-for="Comment" class="fb-textarea" rows="4"
+                      maxlength="1000"
+                      placeholder="@L["FB.CommentPlaceholder"]"
+                      oninput="updateCount(this)"></textarea>
+            <div class="fb-char-count"><span id="charCount">0</span> / 1000</div>
+            <span asp-validation-for="Comment" style="font-size:.72rem;color:#ff6b74;display:block;margin-top:.25rem;"></span>
+
+            <button type="submit" class="btn-fb-submit" id="submitBtn">
+                <i class="fas fa-paper-plane"></i> @L["FB.SubmitFeedback"]
+            </button>
+
+            <div class="fb-submit-note">
+                <i class="fas fa-shield-alt me-1"></i>
+                @L["FB.SubmitNote"]
+            </div>
+        </form>
+    </div>
+
+</div>
+</div>
+
+@section Scripts {
+<script>
+const LABELS  = {
+    1: '@Html.Raw(jsLabel1.Replace("'", "\\'"))',
+    2: '@Html.Raw(jsLabel2.Replace("'", "\\'"))',
+    3: '@Html.Raw(jsLabel3.Replace("'", "\\'"))',
+    4: '@Html.Raw(jsLabel4.Replace("'", "\\'"))',
+    5: '@Html.Raw(jsLabel5.Replace("'", "\\'"))'
+};
+const stars   = Array.from(document.querySelectorAll('.fb-star'));
+const labelEl = document.getElementById('ratingLabel');
+const input   = document.getElementById('ratingInput');
+let selected  = 5;
+
+function paint(upTo, hovering) {
+    stars.forEach(function(s, idx) {
+        const n = idx + 1;
+        s.classList.remove('filled', 'hovered');
+        if (n <= upTo) s.classList.add(hovering ? 'hovered' : 'filled');
+    });
+}
+
+function starHover(n) {
+    paint(n, true);
+    labelEl.textContent = LABELS[n];
+    labelEl.classList.add('active');
+}
+
+function starLeave() {
+    paint(selected, false);
+    labelEl.textContent = LABELS[selected];
+}
+
+function starClick(n) {
+    selected = n;
+    input.value = n;
+    paint(n, false);
+    labelEl.textContent = LABELS[n];
+}
+
+function updateCount(el) {
+    document.getElementById('charCount').textContent = el.value.length;
+}
+
+// Init
+paint(selected, false);
+</script>
+@await Html.PartialAsync("_ValidationScriptsPartial")
+}

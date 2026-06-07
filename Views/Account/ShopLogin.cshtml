@@ -1,0 +1,318 @@
+@model JAA.ViewModels.LoginViewModel
+@{ Layout = "_Layout"; ViewData["Title"] = "Shop Sign In"; }
+
+@section Styles {
+<style>
+.shop-auth-page {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 80px 1.25rem 3rem;
+  background: var(--dark);
+  position: relative; overflow: hidden;
+}
+.shop-auth-page::before {
+  content: ''; position: fixed; top: -200px; left: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(230,57,70,.1) 0%, transparent 60%);
+  border-radius: 50%; pointer-events: none;
+}
+.shop-auth-page::after {
+  content: ''; position: fixed; bottom: -150px; right: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(88,166,255,.06) 0%, transparent 60%);
+  border-radius: 50%; pointer-events: none;
+}
+
+/* ── Outer wrap ── */
+.shop-wrap {
+  width: 100%; max-width: 900px;
+  position: relative; z-index: 1;
+}
+.shop-back {
+  display: inline-flex; align-items: center; gap: .4rem;
+  color: var(--muted); font-size: .78rem; text-decoration: none;
+  margin-bottom: 1.25rem; transition: color .2s;
+}
+.shop-back:hover { color: var(--light); }
+
+/* ── Split card ── */
+.shop-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(230,57,70,.06), 0 32px 80px rgba(0,0,0,.6);
+}
+
+/* ── Left panel ── */
+.shop-left {
+  background: linear-gradient(160deg, #1a0a0d 0%, #110f1a 50%, #0d1117 100%);
+  padding: 2.75rem 2.25rem;
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+  border-right: 1px solid var(--border);
+}
+.shop-left::before {
+  content: '';
+  position: absolute; top: -80px; right: -80px;
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(230,57,70,.15) 0%, transparent 65%);
+  border-radius: 50%; pointer-events: none;
+}
+.shop-left::after {
+  content: '';
+  position: absolute; bottom: -60px; left: -60px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(88,166,255,.08) 0%, transparent 65%);
+  border-radius: 50%; pointer-events: none;
+}
+.sl-logo {
+  display: flex; align-items: center; gap: .75rem; margin-bottom: 2.5rem; position: relative; z-index: 1;
+}
+.sl-logo-icon {
+  width: 44px; height: 44px; background: var(--red); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; font-weight: 900; color: #fff; letter-spacing: -1px;
+  box-shadow: 0 4px 16px rgba(230,57,70,.4);
+}
+.sl-logo-text { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+.sl-heading { font-size: 1.55rem; font-weight: 900; color: var(--white); letter-spacing: -.5px; line-height: 1.2; margin-bottom: .6rem; position: relative; z-index: 1; }
+.sl-heading span { color: var(--red); }
+.sl-sub { font-size: .83rem; color: var(--muted); line-height: 1.6; margin-bottom: 2rem; position: relative; z-index: 1; }
+
+.sl-features { display: flex; flex-direction: column; gap: .85rem; position: relative; z-index: 1; flex: 1; }
+.sl-feature {
+  display: flex; align-items: flex-start; gap: .85rem;
+}
+.sl-feat-icon {
+  width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: .88rem;
+}
+.sfi-red    { background: rgba(230,57,70,.12);  border: 1px solid rgba(230,57,70,.22);  color: var(--red); }
+.sfi-blue   { background: rgba(88,166,255,.1);  border: 1px solid rgba(88,166,255,.2);  color: var(--blue); }
+.sfi-green  { background: rgba(63,185,80,.1);   border: 1px solid rgba(63,185,80,.2);   color: var(--green-t); }
+.sfi-yellow { background: rgba(210,153,34,.1);  border: 1px solid rgba(210,153,34,.2);  color: var(--yellow-t); }
+.sl-feat-body { flex: 1; }
+.sl-feat-title { font-size: .83rem; font-weight: 700; color: var(--white); margin-bottom: .1rem; }
+.sl-feat-desc  { font-size: .73rem; color: var(--muted); line-height: 1.45; }
+
+.sl-stats {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: .6rem; margin-top: 2rem; position: relative; z-index: 1;
+}
+.sl-stat {
+  background: rgba(255,255,255,.04); border: 1px solid var(--border);
+  border-radius: 10px; padding: .65rem .5rem; text-align: center;
+}
+.sl-stat-val { font-size: 1.1rem; font-weight: 900; color: var(--white); display: block; letter-spacing: -.5px; }
+.sl-stat-lbl { font-size: .6rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-top: .15rem; }
+
+/* ── Right panel ── */
+.shop-right {
+  padding: 2.75rem 2.25rem;
+  display: flex; flex-direction: column; justify-content: center;
+}
+
+.sr-badge {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: rgba(230,57,70,.09); border: 1px solid rgba(230,57,70,.22);
+  border-radius: 20px; color: var(--red);
+  font-size: .68rem; font-weight: 700; padding: .28rem .8rem;
+  text-transform: uppercase; letter-spacing: .6px;
+  margin-bottom: .9rem; width: fit-content;
+}
+.sr-title { font-size: 1.4rem; font-weight: 800; color: var(--white); margin-bottom: .25rem; letter-spacing: -.4px; }
+.sr-sub   { font-size: .83rem; color: var(--muted); margin-bottom: 1.75rem; }
+.sr-divider { height: 1px; background: var(--border); margin: 0 0 1.75rem; }
+
+/* Fields */
+.field-wrap  { margin-bottom: 1.1rem; }
+.field-label { display: block; font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .45rem; }
+.field-box   { position: relative; }
+.field-box .fi { position: absolute; left: .95rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .9rem; pointer-events: none; transition: color .2s; }
+.field-box:focus-within .fi { color: var(--red); }
+.field-in {
+  width: 100%; background: rgba(13,17,23,.7); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--white); font-size: .9rem; font-family: var(--font);
+  padding: .75rem 2.8rem .75rem 2.65rem;
+  transition: border-color .2s, box-shadow .2s; outline: none;
+}
+.field-in:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(230,57,70,.13); background: var(--dark); }
+.field-in::placeholder { color: #3d444e; }
+.field-toggle { position: absolute; right: .75rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); font-size: .9rem; padding: .25rem; transition: color .2s; line-height: 1; }
+.field-toggle:hover { color: var(--light); }
+.field-err { font-size: .72rem; color: #ff6b74; margin-top: .3rem; display: block; }
+
+.btn-shop-signin {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: .5rem;
+  background: var(--red); color: #fff; border: none; border-radius: 10px;
+  font-size: .95rem; font-weight: 700; font-family: var(--font);
+  padding: .82rem; cursor: pointer; margin-top: .9rem;
+  transition: background .2s, transform .15s, box-shadow .2s; letter-spacing: .1px;
+}
+.btn-shop-signin:hover { background: var(--red-d); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(230,57,70,.35); }
+.btn-shop-signin:active { transform: translateY(0); box-shadow: none; }
+
+.sr-footer { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+.sr-footer-row { display: flex; align-items: center; justify-content: space-between; font-size: .79rem; color: var(--muted); }
+.sr-footer-row + .sr-footer-row { margin-top: .6rem; }
+.sr-footer-row a { color: var(--red); font-weight: 600; text-decoration: none; }
+.sr-footer-row a:hover { text-decoration: underline; }
+
+.auth-alert { background: rgba(230,57,70,.08); border: 1px solid rgba(230,57,70,.2); border-radius: 10px; padding: .72rem .9rem; font-size: .8rem; color: #ff6b74; display: flex; align-items: flex-start; gap: .5rem; margin-bottom: 1.25rem; }
+
+/* Mobile: stack panels */
+@@media (max-width: 700px) {
+  .shop-card { grid-template-columns: 1fr; }
+  .shop-left { display: none; }
+  .shop-right { padding: 2rem 1.5rem; }
+}
+</style>
+}
+
+<div class="shop-auth-page">
+  <div class="shop-wrap">
+
+    <a asp-controller="Home" asp-action="Index" class="shop-back">
+      <i class="bi bi-arrow-left"></i> @L["ShopLogin.BackToHome"]
+    </a>
+
+    <div class="shop-card">
+
+      <!-- ── Left: Branding & features ── -->
+      <div class="shop-left">
+        <div>
+          <div class="sl-logo">
+            <div class="sl-logo-icon">JAA</div>
+            <div class="sl-logo-text">@L["ShopLogin.ShopOwnerPortal"]</div>
+          </div>
+
+          <div class="sl-heading">@L["ShopLogin.GrowBusiness"]</div>
+          <div class="sl-sub">@L["ShopLogin.AccessDashboard"]</div>
+
+          <div class="sl-features">
+            <div class="sl-feature">
+              <div class="sl-feat-icon sfi-red"><i class="bi bi-lightning-charge-fill"></i></div>
+              <div class="sl-feat-body">
+                <div class="sl-feat-title">@L["ShopLogin.InstantJobAlerts"]</div>
+                <div class="sl-feat-desc">@L["ShopLogin.InstantJobAlertsDesc"]</div>
+              </div>
+            </div>
+            <div class="sl-feature">
+              <div class="sl-feat-icon sfi-blue"><i class="bi bi-bar-chart-line-fill"></i></div>
+              <div class="sl-feat-body">
+                <div class="sl-feat-title">@L["ShopLogin.EarningsTracking"]</div>
+                <div class="sl-feat-desc">@L["ShopLogin.EarningsTrackingDesc"]</div>
+              </div>
+            </div>
+            <div class="sl-feature">
+              <div class="sl-feat-icon sfi-green"><i class="bi bi-star-fill"></i></div>
+              <div class="sl-feat-body">
+                <div class="sl-feat-title">@L["ShopLogin.CustomerReviews"]</div>
+                <div class="sl-feat-desc">@L["ShopLogin.CustomerReviewsDesc"]</div>
+              </div>
+            </div>
+            <div class="sl-feature">
+              <div class="sl-feat-icon sfi-yellow"><i class="bi bi-shield-check-fill"></i></div>
+              <div class="sl-feat-body">
+                <div class="sl-feat-title">@L["ShopLogin.VerifiedBadge"]</div>
+                <div class="sl-feat-desc">@L["ShopLogin.VerifiedBadgeDesc"]</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sl-stats">
+          <div class="sl-stat">
+            <span class="sl-stat-val">500+</span>
+            <div class="sl-stat-lbl">@L["ShopLogin.Shops"]</div>
+          </div>
+          <div class="sl-stat">
+            <span class="sl-stat-val">24/7</span>
+            <div class="sl-stat-lbl">@L["ShopLogin.Active"]</div>
+          </div>
+          <div class="sl-stat">
+            <span class="sl-stat-val">4.8★</span>
+            <div class="sl-stat-lbl">@L["ShopLogin.Rating"]</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Right: Login form ── -->
+      <div class="shop-right">
+
+        <div class="sr-badge"><i class="bi bi-shop-window"></i> @L["ShopLogin.ShopOwnerPortal"]</div>
+        <div class="sr-title">@L["ShopLogin.WelcomeBack"]</div>
+        <div class="sr-sub">@L["ShopLogin.SignInToShopAccount"]</div>
+        <div class="sr-divider"></div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+          <div class="auth-alert">
+            <i class="bi bi-exclamation-circle-fill" style="flex-shrink:0;margin-top:.05rem;"></i>
+            <div>@Html.ValidationSummary(true)</div>
+          </div>
+        }
+
+        <form asp-action="Login" method="post" novalidate>
+          @Html.AntiForgeryToken()
+          <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+          <div class="field-wrap">
+            <label class="field-label">@L["Login.PhoneNumber"]</label>
+            <div class="field-box">
+              <i class="bi bi-telephone-fill fi"></i>
+              <input asp-for="Identifier" class="field-in" placeholder="+962 7x xxx xxxx" autocomplete="tel" inputmode="tel" />
+            </div>
+            <span asp-validation-for="Identifier" class="field-err"></span>
+          </div>
+
+          <div class="field-wrap">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.45rem;">
+              <label class="field-label" style="margin-bottom:0;">@L["Login.Password"]</label>
+              <a asp-action="ForgotPassword" style="font-size:.72rem;color:var(--red);text-decoration:none;font-weight:600;">@L["Login.ForgotPassword"]</a>
+            </div>
+            <div class="field-box">
+              <i class="bi bi-lock-fill fi"></i>
+              <input asp-for="Password" class="field-in" placeholder="••••••••" autocomplete="current-password" id="pwdInput" />
+              <button type="button" class="field-toggle" onclick="togglePwd()" tabindex="-1" aria-label="Show/hide password">
+                <i class="bi bi-eye" id="pwdIcon"></i>
+              </button>
+            </div>
+            <span asp-validation-for="Password" class="field-err"></span>
+          </div>
+
+          <button type="submit" class="btn-shop-signin">
+            <i class="bi bi-shop-window"></i> @L["ShopLogin.SignInToShopPortal"]
+          </button>
+        </form>
+
+        <div class="sr-footer">
+          <div class="sr-footer-row">
+            <span>@L["ShopLogin.NewShopOwner"]</span>
+            <a asp-action="ShopRegister"><i class="bi bi-plus-circle-fill"></i> @L["ShopLogin.RegisterYourShopLink"]</a>
+          </div>
+          <div class="sr-footer-row">
+            <span>@L["ShopLogin.NotAShop"]</span>
+            <a asp-action="Login">@L["ShopLogin.CustomerSignIn"]</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+function togglePwd() {
+  const inp = document.getElementById('pwdInput');
+  const ico = document.getElementById('pwdIcon');
+  if (inp.type === 'password') { inp.type = 'text'; ico.className = 'bi bi-eye-slash'; }
+  else { inp.type = 'password'; ico.className = 'bi bi-eye'; }
+}
+</script>
+@await Html.PartialAsync("_ValidationScriptsPartial") }

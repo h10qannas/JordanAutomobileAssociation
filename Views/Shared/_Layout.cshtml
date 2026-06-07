@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+@{
+  var htmlLang = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("ar") ? "ar" : "en";
+  var htmlDir  = htmlLang == "ar" ? "rtl" : "ltr";
+}
+<html lang="@htmlLang" dir="@htmlDir">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@(ViewData["Title"] != null ? ViewData["Title"] + " — JAA" : "JAA – Jordan Automobile Association")</title>
+  <!-- Anti-flash: apply saved theme before CSS paints -->
+  <script>(function(){try{var t=localStorage.getItem('jaa-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})()</script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  @if (htmlLang == "ar")
+  {
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
+  }
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  @if (htmlLang == "ar")
+  {
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  }
+  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/themes.css" asp-append-version="true" />
+  @if (htmlLang == "ar")
+  {
+    <style>
+      body, button, input, select, textarea { font-family: 'Cairo', 'Inter', sans-serif !important; }
+    </style>
+  }
+  @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+  <nav class="navbar-jaa" id="mainNav">
+    <div class="navbar-inner">
+      <a href="/" class="nav-brand">JAA<span>.</span></a>
+      <div class="nav-links">
+        <a asp-controller="Home" asp-action="Index">@L["Nav.Home"]</a>
+        <a asp-controller="Home" asp-action="Shops">@L["Nav.FindShop"]</a>
+        <a asp-controller="Home" asp-action="About">@L["Nav.About"]</a>
+        <a asp-controller="Home" asp-action="Contact">@L["Nav.Contact"]</a>
+      </div>
+      <div class="nav-actions">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+          var dashCtrl = User.IsInRole("Admin") ? "Admin" : User.IsInRole("ShopOwner") ? "Shop" : "Customer";
+          var dashArea = User.IsInRole("Admin") ? "Admin" : "";
+          <a asp-controller="@dashCtrl" asp-action="Dashboard" asp-area="@dashArea" class="btn-jaa btn-outline" style="font-size:.82rem;padding:.45rem 1rem;">
+            <i class="bi bi-grid-fill"></i> @L["Nav.Dashboard"]
+          </a>
+          <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn-jaa btn-ghost" style="font-size:.82rem;">@L["Nav.SignOut"]</button>
+          </form>
+        }
+        else
+        {
+          <div class="shop-nav-drop" id="shopNavDrop">
+            <button class="btn-jaa btn-ghost shop-drop-toggle" onclick="toggleShopDrop(event)" style="font-size:.78rem;padding:.4rem .85rem;gap:.35rem;">
+              <i class="bi bi-shop-window"></i> @L["Nav.ForShops"] <i class="bi bi-chevron-down" id="shopDropCaret" style="font-size:.65rem;transition:transform .2s;"></i>
+            </button>
+            <div class="shop-drop-menu" id="shopDropMenu">
+              <a asp-controller="Account" asp-action="ShopLogin" class="shop-drop-item">
+                <i class="bi bi-box-arrow-in-right"></i>
+                <span>@L["Nav.ShopLogin"]</span>
+              </a>
+              <a asp-controller="Account" asp-action="ShopRegister" class="shop-drop-item">
+                <i class="bi bi-plus-circle-fill"></i>
+                <span>@L["Nav.RegisterShop"]</span>
+              </a>
+            </div>
+          </div>
+          <a asp-controller="Account" asp-action="Login"     class="btn-jaa btn-outline" style="font-size:.82rem;padding:.45rem 1rem;">@L["Nav.SignIn"]</a>
+          <a asp-controller="Customer" asp-action="RequestHelp" class="btn-jaa btn-primary btn-glow" style="font-size:.82rem;padding:.45rem 1rem;position:relative;z-index:1;">
+            <i class="bi bi-exclamation-triangle-fill"></i> @L["Nav.GetHelp"]
+          </a>
+        }
+        <!-- Language + Theme toggles -->
+        @{
+          var isAr = htmlLang == "ar";
+          var langSwitch = isAr ? "en" : "ar";
+          var langLabel  = isAr ? "EN" : "ع";
+        }
+        <a asp-controller="Account" asp-action="SetLanguage"
+           asp-route-culture="@langSwitch" asp-route-returnUrl="@Context.Request.Path"
+           class="btn-jaa btn-ghost" style="font-size:.78rem;font-weight:700;padding:.35rem .7rem;min-width:32px;text-align:center;">@langLabel</a>
+        <button id="themeToggleBtn" class="btn-jaa btn-ghost" onclick="toggleTheme()" style="font-size:.85rem;padding:.35rem .55rem;" title="Toggle theme">
+          <i class="bi bi-sun-fill" id="themeIcon"></i>
+        </button>
+        <button class="hamburger" id="hamburger" aria-label="Menu"><i class="bi bi-list"></i></button>
+      </div>
+    </div>
+    <div class="mobile-menu" id="mobileMenu">
+      <a asp-controller="Home" asp-action="Index">@L["Nav.Home"]</a>
+      <a asp-controller="Home" asp-action="Shops">@L["Nav.FindShop"]</a>
+      <a asp-controller="Home" asp-action="About">@L["Nav.About"]</a>
+      <a asp-controller="Home" asp-action="Contact">@L["Nav.Contact"]</a>
+      @if (User.Identity?.IsAuthenticated == true)
+      {
+        var dc = User.IsInRole("Admin") ? "Admin" : User.IsInRole("ShopOwner") ? "Shop" : "Customer";
+        <a asp-controller="@dc" asp-action="Dashboard">@L["Nav.Dashboard"]</a>
+      }
+      else
+      {
+        <a asp-controller="Account" asp-action="Login">@L["Nav.SignIn"]</a>
+        <a asp-controller="Account" asp-action="Register">@L["Auth.Register"]</a>
+        <a asp-controller="Account" asp-action="ShopLogin">@L["Nav.ShopLogin"]</a>
+        <a asp-controller="Account" asp-action="ShopRegister">@L["Nav.RegisterShop"]</a>
+      }
+    </div>
+  </nav>
+
+  @if (Context.Items["IsSuspended"] is true)
+  {
+    <div class="suspension-banner suspension-banner-top">
+      <div class="suspension-banner-icon"><i class="bi bi-shield-exclamation"></i></div>
+      <div class="suspension-banner-body">
+        <div class="suspension-banner-title">@L["Suspend.Title"]</div>
+        <div class="suspension-banner-msg">@L["Suspend.Msg"]</div>
+      </div>
+    </div>
+  }
+
+  @RenderBody()
+
+  <footer class="footer-jaa">
+    <div class="container">
+      <div class="row g-5">
+        <div class="col-lg-4">
+          <div class="footer-brand-name">JAA<span>.</span></div>
+          <p class="footer-desc">@L["Footer.Desc"]</p>
+          <div class="mt-3">
+            <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
+            <a href="#" class="social-icon"><i class="bi bi-twitter-x"></i></a>
+            <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+            <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+          </div>
+        </div>
+        <div class="col-6 col-lg-2">
+          <div class="footer-heading">@L["Footer.Platform"]</div>
+          <a asp-controller="Home" asp-action="Index" class="footer-link">@L["Nav.Home"]</a>
+          <a asp-controller="Home" asp-action="Shops" class="footer-link">@L["Nav.FindShop"]</a>
+          <a asp-controller="Home" asp-action="About" class="footer-link">@L["Nav.About"]</a>
+          <a asp-controller="Home" asp-action="Contact" class="footer-link">@L["Nav.Contact"]</a>
+        </div>
+        <div class="col-6 col-lg-2">
+          <div class="footer-heading">@L["Footer.GetHelp"]</div>
+          <a asp-controller="Customer" asp-action="RequestHelp" class="footer-link">@L["Footer.RequestAssistance"]</a>
+          <a asp-controller="Account" asp-action="Register" class="footer-link">@L["Footer.JoinProvider"]</a>
+          <a asp-controller="Account" asp-action="Login"    class="footer-link">@L["Nav.SignIn"]</a>
+        </div>
+        <div class="col-lg-4">
+          <div class="footer-heading">@L["Nav.Contact"]</div>
+          <div class="footer-contact"><i class="bi bi-telephone-fill"></i><span>+962 6 000 0000</span></div>
+          <div class="footer-contact"><i class="bi bi-envelope-fill"></i><span>support@jaa.jo</span></div>
+          <div class="footer-contact"><i class="bi bi-geo-alt-fill"></i><span>@L["Footer.Address"]</span></div>
+          <div class="footer-contact"><i class="bi bi-clock-fill"></i><span>@L["Footer.Available247"]</span></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© @DateTime.Now.Year @L["Footer.Copyright"]</p>
+        <p>@L["Footer.Tagline"]</p>
+      </div>
+    </div>
+  </footer>
+
+  <button id="scrollTop" aria-label="Scroll to top"><i class="bi bi-arrow-up"></i></button>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="~/js/site.js" asp-append-version="true"></script>
+  <script src="~/js/jaa-anim.js" asp-append-version="true"></script>
+  <script src="~/js/theme.js" asp-append-version="true"></script>
+  @await RenderSectionAsync("Scripts", required: false)
+
+<style>
+.shop-nav-drop { position: relative; }
+.shop-drop-menu {
+  display: none; position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+  padding: .4rem; min-width: 200px; z-index: 9999;
+  box-shadow: 0 16px 48px rgba(0,0,0,.4);
+  animation: sdrop-in .15s ease;
+}
+[dir="rtl"] .shop-drop-menu { left: auto; right: 50%; transform: translateX(50%); }
+.shop-drop-menu.open { display: block; }
+@@keyframes sdrop-in { from { opacity:0; transform: translateX(-50%) translateY(-6px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+[dir="rtl"] @@keyframes sdrop-in { from { opacity:0; transform: translateX(50%) translateY(-6px); } to { opacity:1; transform: translateX(50%) translateY(0); } }
+.shop-drop-item {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .65rem .85rem; border-radius: 8px; text-decoration: none;
+  font-size: .83rem; font-weight: 600; color: var(--text-muted);
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+.shop-drop-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.shop-drop-item i { font-size: .88rem; width: 16px; text-align: center; }
+</style>
+<script>
+function toggleShopDrop(e) {
+  e.stopPropagation();
+  const menu  = document.getElementById('shopDropMenu');
+  const caret = document.getElementById('shopDropCaret');
+  const open  = menu.classList.toggle('open');
+  caret.style.transform = open ? 'rotate(180deg)' : '';
+}
+document.addEventListener('click', function() {
+  const menu  = document.getElementById('shopDropMenu');
+  const caret = document.getElementById('shopDropCaret');
+  if (menu && menu.classList.contains('open')) {
+    menu.classList.remove('open');
+    if (caret) caret.style.transform = '';
+  }
+});
+</script>
+
+<!-- ── Global Call Modal ── -->
+<style>
+.jaa-call-overlay {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg-overlay); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 1rem;
+}
+.jaa-call-overlay.open { display: flex; animation: cm-fade .18s ease; }
+@@keyframes cm-fade { from { opacity:0; } to { opacity:1; } }
+.jaa-call-box {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2rem 1.75rem 1.75rem;
+  width: 100%; max-width: 360px; text-align: center;
+  box-shadow: 0 24px 64px rgba(0,0,0,.4);
+  animation: cm-pop .2s ease;
+}
+@@keyframes cm-pop { from { transform:scale(.93); opacity:0; } to { transform:scale(1); opacity:1; } }
+.jaa-call-icon {
+  width: 60px; height: 60px; margin: 0 auto 1.1rem;
+  background: rgba(63,185,80,.12); border: 1px solid rgba(63,185,80,.25);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; color: var(--accent);
+}
+.jaa-call-label { font-size: .7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .3rem; }
+.jaa-call-name  { font-size: 1.05rem; font-weight: 800; color: var(--text-primary); margin-bottom: .2rem; letter-spacing: -.3px; }
+.jaa-call-num   { font-size: 1.3rem; font-weight: 900; color: var(--text-primary); letter-spacing: 1px; margin-bottom: 1.4rem; }
+.jaa-call-num span { font-size: .75rem; font-weight: 600; color: var(--text-muted); display: block; letter-spacing: 0; margin-top: .1rem; }
+.btn-cm-call {
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 10px;
+  font-size: .95rem; font-weight: 700; padding: .78rem; text-decoration: none;
+  margin-bottom: .6rem; transition: background .2s, transform .15s;
+  font-family: 'Inter', 'Cairo', sans-serif;
+}
+.btn-cm-call:hover { background: var(--green); transform: translateY(-1px); color: #fff; }
+.btn-cm-cancel {
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+  width: 100%; background: transparent; border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text-muted);
+  font-size: .88rem; font-weight: 600; padding: .72rem; cursor: pointer;
+  font-family: 'Inter', 'Cairo', sans-serif; transition: border-color .2s, color .2s;
+}
+.btn-cm-cancel:hover { border-color: var(--text-muted); color: var(--text-secondary); }
+</style>
+
+<div class="jaa-call-overlay" id="jaaCallModal" onclick="if(event.target===this)closeCallModal()">
+  <div class="jaa-call-box">
+    <div class="jaa-call-icon"><i class="bi bi-telephone-fill"></i></div>
+    <div class="jaa-call-label">@L["Modal.Contact"]</div>
+    <div class="jaa-call-name" id="cmName"></div>
+    <div class="jaa-call-num" id="cmNum"><span>@L["Modal.TapToCall"]</span></div>
+    <a id="cmCallBtn" href="#" class="btn-cm-call">
+      <i class="bi bi-telephone-fill"></i> @L["Modal.CallNow"]
+    </a>
+    <button class="btn-cm-cancel" onclick="closeCallModal()">
+      <i class="bi bi-x"></i> @L["Modal.Cancel"]
+    </button>
+  </div>
+</div>
+
+<script>
+function showCallModal(name, phone) {
+  document.getElementById('cmName').textContent = name;
+  document.getElementById('cmNum').childNodes[0].textContent = phone;
+  document.getElementById('cmCallBtn').href = 'tel:' + phone.replace(/\s/g, '');
+  document.getElementById('jaaCallModal').classList.add('open');
+  document.addEventListener('keydown', _cmEscClose);
+}
+function closeCallModal() {
+  document.getElementById('jaaCallModal').classList.remove('open');
+  document.removeEventListener('keydown', _cmEscClose);
+}
+function _cmEscClose(e) { if (e.key === 'Escape') closeCallModal(); }
+</script>
+</body>
+</html>

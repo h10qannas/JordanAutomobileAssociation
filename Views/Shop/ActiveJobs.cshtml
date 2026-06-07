@@ -1,0 +1,330 @@
+@model List<JAA.Models.ServiceRequest>
+@using JAA.Models
+@{
+    Layout = "_DashboardLayout";
+    var jsCancel      = L["ShopAJ.Cancel"].Value;
+    var jsAddDiag     = L["ShopAJ.AddDiagnosisPrice"].Value;
+    var jsMarkTitle   = L["ShopAJ.MarkAsCompleted"].Value;
+    var jsCannotUndo  = L["ShopAJ.CannotBeUndone"].Value;
+    ViewData["Title"]    = L["Shop.ActiveJobs"].Value;
+    ViewData["PageTitle"] = L["Shop.ActiveJobs"].Value;
+    ViewData["PageSub"]  = Model.Count > 0 ? $"{Model.Count} {L["Shop.ActiveJobs"].Value}" : L["ShopAJ.NoActiveJobs"].Value;
+}
+
+@section Styles {
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+.aj-badge {
+    display: inline-flex; align-items: center; gap: .3rem;
+    border-radius: 999px; font-size: .65rem; font-weight: 700;
+    padding: .25rem .7rem; text-transform: uppercase; letter-spacing: .4px;
+}
+.aj-badge.accepted        { background: rgba(88,166,255,.1);   color: var(--blue);    border: 1px solid rgba(88,166,255,.2); }
+.aj-badge.mechanicarrived { background: rgba(167,139,250,.1);  color: var(--purple);  border: 1px solid rgba(167,139,250,.2); }
+.aj-badge.inprogress      { background: rgba(230,57,70,.1);    color: var(--red);     border: 1px solid rgba(230,57,70,.2); }
+
+.aj-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden; height: 100%;
+    display: flex; flex-direction: column;
+    transition: border-color .2s, box-shadow .2s;
+}
+.aj-card:hover { border-color: rgba(230,57,70,.25); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+
+.aj-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .9rem 1.2rem; border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.aj-req-num { font-size: .82rem; font-weight: 800; color: var(--white); display: flex; align-items: center; gap: .45rem; }
+.aj-req-num i { color: var(--red); font-size: .8rem; }
+
+.aj-body { padding: 1.1rem 1.2rem; flex: 1; }
+
+.aj-customer {
+    display: flex; align-items: center; gap: .75rem;
+    margin-bottom: 1rem;
+}
+.aj-avatar {
+    width: 38px; height: 38px; flex-shrink: 0; border-radius: 50%;
+    background: rgba(88,166,255,.12); border: 1px solid rgba(88,166,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .82rem; font-weight: 700; color: var(--blue);
+}
+.aj-cust-name { font-size: .88rem; font-weight: 700; color: var(--white); }
+.aj-cust-phone {
+    display: inline-flex; align-items: center; gap: .3rem;
+    font-size: .75rem; color: var(--muted); text-decoration: none;
+    transition: color .2s;
+}
+.aj-cust-phone:hover { color: var(--green-t); }
+
+.aj-location-btn {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: rgba(230,57,70,.08); border: 1px solid rgba(230,57,70,.18);
+    border-radius: 8px; color: var(--red);
+    font-size: .75rem; font-weight: 600; font-family: var(--font);
+    padding: .38rem .8rem; text-decoration: none; margin-bottom: 1rem;
+    transition: background .2s;
+}
+.aj-location-btn:hover { background: rgba(230,57,70,.15); color: var(--red); }
+
+.aj-situation {
+    background: rgba(255,255,255,.03); border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: 0 10px 10px 0;
+    padding: .7rem .9rem;
+    font-size: .83rem; color: var(--light); font-style: italic; line-height: 1.55;
+    margin-bottom: .8rem;
+}
+
+.aj-diagnosis {
+    background: rgba(88,166,255,.05); border: 1px solid rgba(88,166,255,.15);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 10px 10px 0;
+    padding: .65rem .9rem;
+    font-size: .78rem; color: var(--light); line-height: 1.55;
+}
+.aj-diag-label { font-size: .65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: .2rem; }
+
+.aj-footer {
+    border-top: 1px solid var(--border);
+    padding: .9rem 1.2rem; flex-shrink: 0;
+    display: flex; flex-direction: column; gap: .6rem;
+}
+
+.btn-aj {
+    display: flex; align-items: center; justify-content: center; gap: .45rem;
+    width: 100%; border: none; border-radius: 10px;
+    font-size: .86rem; font-weight: 700; font-family: var(--font);
+    padding: .7rem; cursor: pointer; text-decoration: none;
+    transition: background .2s, transform .15s, box-shadow .2s;
+}
+.btn-aj:hover { transform: translateY(-1px); }
+.btn-aj:active { transform: translateY(0); }
+.btn-aj-blue   { background: rgba(88,166,255,.12);  color: var(--blue);    border: 1px solid rgba(88,166,255,.25); }
+.btn-aj-blue:hover   { background: rgba(88,166,255,.2); }
+.btn-aj-orange { background: rgba(210,153,34,.12);  color: var(--yellow-t); border: 1px solid rgba(210,153,34,.25); }
+.btn-aj-orange:hover { background: rgba(210,153,34,.2); }
+.btn-aj-green  { background: rgba(35,134,54,.15);   color: var(--green-t);  border: 1px solid rgba(35,134,54,.3); }
+.btn-aj-green:hover  { background: rgba(35,134,54,.25); box-shadow: 0 4px 14px rgba(35,134,54,.25); }
+.btn-aj-red    { background: rgba(230,57,70,.1);    color: var(--red);      border: 1px solid rgba(230,57,70,.25); }
+.btn-aj-red:hover    { background: rgba(230,57,70,.18); }
+
+.aj-diag-form {
+    background: rgba(255,255,255,.02); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem; margin-top: .25rem;
+    display: none;
+}
+.aj-diag-form.open { display: block; }
+.aj-form-label {
+    display: block; font-size: .68rem; font-weight: 700;
+    color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .35rem;
+}
+.aj-form-input,
+.aj-form-textarea {
+    width: 100%; background: var(--dark); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--white); font-size: .85rem; font-family: var(--font);
+    padding: .6rem .8rem; outline: none; margin-bottom: .65rem;
+    transition: border-color .2s, box-shadow .2s;
+}
+.aj-form-input:focus,
+.aj-form-textarea:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(230,57,70,.1); }
+.aj-form-input::placeholder,
+.aj-form-textarea::placeholder { color: #3d444e; }
+.aj-form-textarea { resize: vertical; line-height: 1.55; }
+
+.aj-empty {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 3.5rem 2rem; text-align: center;
+}
+.aj-empty-icon {
+    width: 60px; height: 60px; margin: 0 auto 1.1rem;
+    background: rgba(230,57,70,.07); border: 1px solid rgba(230,57,70,.14);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: var(--muted);
+}
+.aj-empty h5 { font-size: .95rem; font-weight: 700; color: var(--white); margin-bottom: .4rem; }
+.aj-empty p  { font-size: .82rem; color: var(--muted); margin-bottom: 1.1rem; }
+.btn-aj-outline {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 10px; color: var(--light);
+    font-size: .85rem; font-weight: 600; font-family: var(--font);
+    padding: .6rem 1.3rem; text-decoration: none;
+    transition: border-color .2s, color .2s, background .2s;
+}
+.btn-aj-outline:hover { border-color: var(--muted); color: var(--white); background: rgba(255,255,255,.04); }
+</style>
+}
+
+@if (!Model.Any())
+{
+    <div class="aj-empty">
+        <div class="aj-empty-icon"><i class="fas fa-wrench"></i></div>
+        <h5>@L["ShopAJ.NoActiveJobs"]</h5>
+        <p>@L["ShopAJ.AcceptRequestFirst"]</p>
+        <a asp-action="IncomingRequests" class="btn-aj-outline">
+            <i class="fas fa-inbox"></i> @L["ShopAJ.ViewIncomingRequests"]
+        </a>
+    </div>
+}
+else
+{
+    <div class="row g-4" style="max-width:@(Model.Count == 1 ? "560px" : "100%");">
+        @foreach (var job in Model)
+        {
+            var statusClass = job.Status.ToString().ToLower();
+            var initial = job.Customer?.FullName?.Length > 0 ? char.ToUpper(job.Customer.FullName[0]).ToString() : "C";
+
+            <div class="@(Model.Count == 1 ? "col-12" : "col-md-6 col-xl-4")"  >
+                <div class="aj-card">
+
+                    <div class="aj-card-head">
+                        <div class="aj-req-num">
+                            <i class="fas fa-car"></i> Request #@job.Id
+                        </div>
+                        <span class="aj-badge @statusClass">@L["Status." + job.Status.ToString()]</span>
+                    </div>
+
+                    <div class="aj-body">
+
+                        <div class="aj-customer">
+                            <div class="aj-avatar">@initial</div>
+                            <div>
+                                <div class="aj-cust-name">@job.Customer?.FullName</div>
+                                @if (!string.IsNullOrEmpty(job.Customer?.PhoneNumber))
+                                {
+                                    <button type="button" class="aj-cust-phone"
+                                            onclick="showCallModal('@job.Customer?.FullName', '@job.Customer?.PhoneNumber')"
+                                            style="background:none;border:none;cursor:pointer;padding:0;text-align:left;">
+                                        <i class="fas fa-phone" style="font-size:.7rem;"></i>
+                                        @job.Customer?.PhoneNumber
+                                    </button>
+                                }
+                            </div>
+                            @if (!string.IsNullOrEmpty(job.Customer?.PhoneNumber))
+                            {
+                                <button type="button"
+                                    onclick="showCallModal('@job.Customer?.FullName', '@job.Customer?.PhoneNumber')"
+                                    style="margin-left:auto;width:32px;height:32px;background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--green-t);font-size:.8rem;cursor:pointer;flex-shrink:0;transition:background .2s;"
+                                    title="@job.Customer?.FullName">
+                                    <i class="fas fa-phone"></i>
+                                </button>
+                            }
+                        </div>
+
+                        <a href="https://www.google.com/maps?q=@job.CustomerLatitude,@job.CustomerLongitude"
+                           target="_blank" rel="noopener" class="aj-location-btn">
+                            <i class="fas fa-map-marker-alt"></i> @L["ShopAJ.ViewCustomerLocation"]
+                        </a>
+
+                        <div class="aj-situation">"@job.SituationDescription"</div>
+
+                        @if (!string.IsNullOrEmpty(job.DiagnosisNotes))
+                        {
+                            <div class="aj-diagnosis">
+                                <div class="aj-diag-label"><i class="fas fa-stethoscope me-1"></i>@L["ShopAJ.Diagnosis"]</div>
+                                @job.DiagnosisNotes
+                            </div>
+                        }
+
+                        <div style="font-size:.7rem;color:var(--muted);margin-top:.75rem;">
+                            <i class="fas fa-clock me-1"></i>@job.CreatedAt.ToLocalTime().ToString("d MMM yyyy, h:mm tt")
+                        </div>
+                    </div>
+
+                    <div class="aj-footer">
+
+                        @if (job.Status == RequestStatus.Accepted)
+                        {
+                            <form asp-action="UpdateStatus" method="post" style="margin:0;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="requestId" value="@job.Id" />
+                                <input type="hidden" name="newStatus" value="@((int)RequestStatus.MechanicArrived)" />
+                                <button type="submit" class="btn-aj btn-aj-blue">
+                                    <i class="fas fa-map-marker-alt"></i> @L["ShopAJ.IveArrived"]
+                                </button>
+                            </form>
+                        }
+                        else if (job.Status == RequestStatus.MechanicArrived)
+                        {
+                            <button type="button" class="btn-aj btn-aj-orange aj-diag-toggle"
+                                    data-label-add="@L["ShopAJ.AddDiagnosisPrice"].Value"
+                                    data-label-cancel="@L["ShopAJ.Cancel"].Value"
+                                    onclick="toggleDiag(this)">
+                                <i class="fas fa-stethoscope"></i> @L["ShopAJ.AddDiagnosisPrice"]
+                            </button>
+
+                            <div class="aj-diag-form">
+                                <form asp-action="AddDiagnosis" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="requestId" value="@job.Id" />
+
+                                    <label class="aj-form-label">@L["ShopAJ.DiagnosisNotes"]</label>
+                                    <textarea name="diagnosisNotes" class="aj-form-textarea" rows="2"
+                                              placeholder="@L["ShopAJ.DiagnosisPlaceholder"]" required></textarea>
+
+                                    <label class="aj-form-label">@L["ShopAJ.Resolution"]</label>
+                                    <input name="resolution" class="aj-form-input"
+                                           placeholder="@L["ShopAJ.ResolutionPlaceholder"]" required />
+
+                                    <label class="aj-form-label">@L["ShopAJ.Amount"]</label>
+                                    <input name="amount" type="number" step="0.01" min="0"
+                                           class="aj-form-input" placeholder="0.00" required />
+
+                                    <button type="submit" class="btn-aj btn-aj-green" style="margin-top:.1rem;">
+                                        <i class="fas fa-check"></i> @L["ShopAJ.ConfirmStartWork"]
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                        else if (job.Status == RequestStatus.InProgress)
+                        {
+                            <form id="completeForm@job.Id" asp-action="UpdateStatus" method="post" style="margin:0;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="requestId" value="@job.Id" />
+                                <input type="hidden" name="newStatus" value="@((int)RequestStatus.Completed)" />
+                                <button type="button" class="btn-aj btn-aj-green"
+                                        data-form-id="completeForm@job.Id"
+                                        data-title="@L["ShopAJ.MarkAsCompleted"].Value"
+                                        data-body="Request #@job.Id — @(job.Customer?.FullName ?? ""). @L["ShopAJ.CannotBeUndone"].Value"
+                                        onclick="submitWithConfirm(this)">
+                                    <i class="fas fa-check-circle"></i> @L["ShopAJ.MarkCompleted"]
+                                </button>
+                            </form>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section Scripts {
+<script>
+function toggleDiag(btn) {
+    const form = btn.nextElementSibling;
+    const open = form.classList.toggle('open');
+    const labelAdd    = btn.dataset.labelAdd;
+    const labelCancel = btn.dataset.labelCancel;
+    if (open) {
+        btn.innerHTML = '<i class="fas fa-times"></i> ' + labelCancel;
+        btn.classList.remove('btn-aj-orange');
+        btn.classList.add('btn-aj-red');
+    } else {
+        btn.innerHTML = '<i class="fas fa-stethoscope"></i> ' + labelAdd;
+        btn.classList.remove('btn-aj-red');
+        btn.classList.add('btn-aj-orange');
+    }
+}
+function submitWithConfirm(btn) {
+    const title  = btn.dataset.title;
+    const body   = btn.dataset.body;
+    const formId = btn.dataset.formId;
+    showConfirmModal(title, body, function(){ document.getElementById(formId).submit(); }, 'green');
+}
+</script>
+}

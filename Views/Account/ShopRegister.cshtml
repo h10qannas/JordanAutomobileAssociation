@@ -1,0 +1,259 @@
+@model JAA.ViewModels.ShopRegisterViewModel
+@{ Layout = "_Layout"; ViewData["Title"] = "Register Your Shop"; }
+
+@section Styles {
+<style>
+.shop-auth-page {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 80px 1.25rem 3rem; background: var(--dark);
+  position: relative; overflow: hidden;
+}
+.shop-auth-page::before {
+  content: ''; position: fixed; top: -200px; left: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(230,57,70,.1) 0%, transparent 60%);
+  border-radius: 50%; pointer-events: none;
+}
+.shop-wrap { width: 100%; max-width: 980px; position: relative; z-index: 1; }
+.shop-back { display: inline-flex; align-items: center; gap: .4rem; color: var(--muted); font-size: .78rem; text-decoration: none; margin-bottom: 1.25rem; transition: color .2s; }
+.shop-back:hover { color: var(--light); }
+.shop-card { background: var(--card); border: 1px solid var(--border); border-radius: 22px; overflow: hidden; box-shadow: 0 0 0 1px rgba(230,57,70,.06), 0 32px 80px rgba(0,0,0,.6); }
+.sr-header { background: linear-gradient(135deg, #1a0a0d 0%, #0d1117 100%); border-bottom: 1px solid var(--border); padding: 2rem 2.25rem 1.75rem; }
+.sr-header-inner { display: flex; align-items: center; gap: 1.25rem; }
+.sr-header-icon { width: 52px; height: 52px; background: var(--red); border-radius: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: #fff; }
+.sr-header-title { font-size: 1.35rem; font-weight: 900; color: var(--white); letter-spacing: -.4px; }
+.sr-header-sub { font-size: .82rem; color: var(--muted); margin-top: .2rem; }
+.sr-body { padding: 2rem 2.25rem 2.25rem; }
+.sr-form-grid { display: grid; grid-template-columns: 1fr 1px 1fr; gap: 0 2.25rem; align-items: start; }
+.sr-col-divider { background: var(--border); width: 1px; align-self: stretch; }
+.sr-col-head { display: flex; align-items: center; gap: .55rem; margin-bottom: 1.25rem; }
+.sr-col-icon { width: 30px; height: 30px; border-radius: 8px; background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.2); display: flex; align-items: center; justify-content: center; color: var(--red); font-size: .82rem; flex-shrink: 0; }
+.sr-col-label { font-size: .82rem; font-weight: 700; color: var(--white); }
+.sr-col-sub { font-size: .7rem; color: var(--muted); }
+.field-wrap { margin-bottom: 1.1rem; }
+.field-label { display: block; font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .45rem; }
+.field-box { position: relative; }
+.field-box .fi { position: absolute; left: .95rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .9rem; pointer-events: none; }
+.field-box:focus-within .fi { color: var(--red); }
+.field-in { width: 100%; background: rgba(13,17,23,.7); border: 1px solid var(--border); border-radius: 10px; color: var(--white); font-size: .9rem; font-family: var(--font); padding: .75rem 2.8rem .75rem 2.65rem; transition: border-color .2s, box-shadow .2s; outline: none; }
+.field-in:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(230,57,70,.13); background: var(--dark); }
+.field-in::placeholder { color: #3d444e; }
+.field-in-file { padding-left: .95rem !important; }
+select.field-in { padding-left: 2.65rem; appearance: none; cursor: pointer; }
+.field-toggle { position: absolute; right: .75rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); font-size: .9rem; padding: .25rem; transition: color .2s; line-height: 1; }
+.field-toggle:hover { color: var(--light); }
+.field-err { font-size: .72rem; color: #ff6b74; margin-top: .3rem; display: block; }
+.sr-footer { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.btn-shop-register { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; background: var(--red); color: #fff; border: none; border-radius: 10px; font-size: .95rem; font-weight: 700; font-family: var(--font); padding: .82rem 2rem; cursor: pointer; transition: background .2s, transform .15s; }
+.btn-shop-register:hover { background: #c1121f; transform: translateY(-1px); }
+.sr-login-link { font-size: .8rem; color: var(--muted); }
+.sr-login-link a { color: var(--red); font-weight: 600; text-decoration: none; }
+.auth-alert { background: rgba(230,57,70,.08); border: 1px solid rgba(230,57,70,.2); border-radius: 10px; padding: .72rem .9rem; font-size: .8rem; color: #ff6b74; display: flex; align-items: flex-start; gap: .5rem; margin-bottom: 1.5rem; }
+.info-note { background: rgba(255,193,7,.06); border: 1px solid rgba(255,193,7,.18); border-radius: 9px; padding: .65rem .9rem; font-size: .76rem; color: #d29922; margin-bottom: .8rem; }
+@@media (max-width: 720px) {
+  .sr-form-grid { grid-template-columns: 1fr; }
+  .sr-col-divider { display: none; }
+  .sr-body { padding: 1.5rem; }
+}
+</style>
+}
+
+<div class="shop-auth-page">
+  <div class="shop-wrap">
+
+    <a asp-action="ShopLogin" class="shop-back">
+      <i class="bi bi-arrow-left"></i> @L["ShopReg.BackToShopLogin"]
+    </a>
+
+    <div class="shop-card">
+      <div class="sr-header">
+        <div class="sr-header-inner">
+          <div class="sr-header-icon"><i class="bi bi-shop-window"></i></div>
+          <div>
+            <div class="sr-header-title">@L["ShopReg.RegisterYourShop"]</div>
+            <div class="sr-header-sub">@L["ShopReg.ApplicationReview"]</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sr-body">
+
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+        {
+          <div class="auth-alert">
+            <i class="bi bi-exclamation-circle-fill" style="flex-shrink:0;margin-top:.05rem;"></i>
+            <div>@Html.ValidationSummary(true)</div>
+          </div>
+        }
+
+        <form asp-controller="Account" asp-action="ShopRegister" method="post" enctype="multipart/form-data" novalidate>
+          @Html.AntiForgeryToken()
+
+          <div class="sr-form-grid">
+
+            <!-- Left: Account details -->
+            <div>
+              <div class="sr-col-head">
+                <div class="sr-col-icon"><i class="bi bi-person-fill"></i></div>
+                <div>
+                  <div class="sr-col-label">@L["ShopReg.AccountDetails"]</div>
+                  <div class="sr-col-sub">@L["ShopReg.PersonalLoginCredentials"]</div>
+                </div>
+              </div>
+
+              <div class="field-wrap">
+                <label class="field-label">@L["Register.FullName"]</label>
+                <div class="field-box">
+                  <i class="bi bi-person-fill fi"></i>
+                  <input asp-for="FullName" class="field-in" placeholder="@L["Register.FullNamePlaceholder"]" autocomplete="name" />
+                </div>
+                <span asp-validation-for="FullName" class="field-err"></span>
+              </div>
+
+              <div class="field-wrap">
+                <label class="field-label">@L["ShopReg.YourPhoneLogin"]</label>
+                <div class="field-box">
+                  <i class="bi bi-telephone-fill fi"></i>
+                  <input asp-for="PhoneNumber" class="field-in" placeholder="+962 7x xxx xxxx" autocomplete="tel" inputmode="tel" />
+                </div>
+                <span asp-validation-for="PhoneNumber" class="field-err"></span>
+              </div>
+
+              <div class="field-wrap">
+                <label class="field-label">@L["Login.Password"]</label>
+                <div class="field-box">
+                  <i class="bi bi-lock-fill fi"></i>
+                  <input asp-for="Password" class="field-in" placeholder="@L["Register.PasswordPlaceholder"]" id="pwdInput" autocomplete="new-password" oninput="checkStrength(this.value)" />
+                  <button type="button" class="field-toggle" onclick="togglePwd()" tabindex="-1">
+                    <i class="bi bi-eye" id="pwdIcon"></i>
+                  </button>
+                </div>
+                <span asp-validation-for="Password" class="field-err"></span>
+              </div>
+
+              <div class="field-wrap">
+                <label class="field-label">@L["Register.ConfirmPassword"]</label>
+                <div class="field-box">
+                  <i class="bi bi-shield-lock-fill fi"></i>
+                  <input asp-for="ConfirmPassword" class="field-in" placeholder="@L["Register.ConfirmPasswordPlaceholder"]" id="cfmInput" autocomplete="new-password" />
+                  <button type="button" class="field-toggle" onclick="toggleCfm()" tabindex="-1">
+                    <i class="bi bi-eye" id="cfmIcon"></i>
+                  </button>
+                </div>
+                <span asp-validation-for="ConfirmPassword" class="field-err"></span>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="sr-col-divider"></div>
+
+            <!-- Right: Shop details -->
+            <div>
+              <div class="sr-col-head">
+                <div class="sr-col-icon"><i class="bi bi-shop-window"></i></div>
+                <div>
+                  <div class="sr-col-label">@L["ShopReg.ShopDetails"]</div>
+                  <div class="sr-col-sub">@L["ShopReg.BusinessInfoReviewed"]</div>
+                </div>
+              </div>
+
+              <div class="field-wrap">
+                <label class="field-label">@L["ShopReg.ShopName"] <span style="color:var(--red);">*</span></label>
+                <div class="field-box">
+                  <i class="bi bi-shop-window fi"></i>
+                  <input asp-for="ShopName" class="field-in" placeholder="e.g. Al-Ameen Auto Repair" autocomplete="organization" />
+                </div>
+                <span asp-validation-for="ShopName" class="field-err"></span>
+              </div>
+
+              <div class="field-wrap">
+                <label class="field-label">@L["ShopReg.OwnerName"] <span style="color:var(--red);">*</span></label>
+                <div class="field-box">
+                  <i class="bi bi-person-badge-fill fi"></i>
+                  <input asp-for="OwnerName" class="field-in" placeholder="@L["Register.FullNamePlaceholder"]" />
+                </div>
+                <span asp-validation-for="OwnerName" class="field-err"></span>
+              </div>
+
+              <div class="field-wrap">
+                <label class="field-label">@L["ShopReg.ShopPhone"] <span style="color:var(--red);">*</span></label>
+                <div class="field-box">
+                  <i class="bi bi-telephone-fill fi"></i>
+                  <input asp-for="ShopPhone" type="tel" class="field-in" placeholder="+962 6x xxx xxxx" autocomplete="tel" inputmode="tel" />
+                </div>
+                <span asp-validation-for="ShopPhone" class="field-err"></span>
+              </div>
+
+              <div class="field-wrap">
+                <label class="field-label">@L["ShopReg.City"] <span style="color:var(--red);">*</span></label>
+                <div class="field-box">
+                  <i class="bi bi-geo-alt-fill fi"></i>
+                  <select asp-for="ShopCity" class="field-in">
+                    <option value="">@L["ShopReg.SelectCity"]</option>
+                    <option value="Amman">Amman</option>
+                    <option value="Zarqa">Zarqa</option>
+                    <option value="Irbid">Irbid</option>
+                    <option value="Aqaba">Aqaba</option>
+                    <option value="Salt">Salt</option>
+                    <option value="Madaba">Madaba</option>
+                    <option value="Other">@L["ShopReg.CityOther"]</option>
+                  </select>
+                </div>
+                <span asp-validation-for="ShopCity" class="field-err"></span>
+              </div>
+
+              <div class="field-wrap">
+                <label class="field-label">@L["ShopReg.ShopAddress"] <span style="color:var(--red);">*</span></label>
+                <div class="field-box">
+                  <i class="bi bi-pin-map-fill fi"></i>
+                  <input asp-for="ShopAddress" class="field-in" placeholder="Street, area, landmark…" autocomplete="street-address" />
+                </div>
+                <span asp-validation-for="ShopAddress" class="field-err"></span>
+              </div>
+
+              <div class="field-wrap">
+                <label class="field-label" style="margin-bottom:.5rem;">@L["ShopReg.BusinessCertificate"]</label>
+                <div class="info-note"><i class="bi bi-info-circle me-1"></i>@L["ShopReg.CertificateNote"]</div>
+                <input asp-for="BusinessCertificate" type="file" accept=".pdf,.jpg,.jpeg,.png" class="field-in field-in-file" />
+              </div>
+            </div>
+
+          </div>
+
+          <div class="sr-footer">
+            <button type="submit" class="btn-shop-register">
+              <i class="bi bi-send-fill"></i> @L["ShopReg.SubmitForReview"]
+            </button>
+            <div class="sr-login-link">
+              @L["ShopReg.AlreadyRegistered"] <a asp-action="ShopLogin">@L["ShopReg.SignIn"]</a>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+@section Scripts {
+<script>
+function togglePwd() {
+  const inp = document.getElementById('pwdInput'), ico = document.getElementById('pwdIcon');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  ico.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+}
+function toggleCfm() {
+  const inp = document.getElementById('cfmInput'), ico = document.getElementById('cfmIcon');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  ico.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+}
+function checkStrength(val) {
+  let s = 0;
+  if (val.length >= 6) s++; if (val.length >= 10) s++;
+  if (/[A-Z]/.test(val) && /[a-z]/.test(val)) s++;
+  if (/[0-9]/.test(val)) s++; if (/[^A-Za-z0-9]/.test(val)) s++;
+}
+</script>
+@await Html.PartialAsync("_ValidationScriptsPartial")
+}

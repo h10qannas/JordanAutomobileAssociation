@@ -1,0 +1,96 @@
+@model JAA.Services.InvoiceData
+@using JAA.Models
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = $"{L["Inv.Title"].Value} {Model.InvoiceNumber}"; ViewData["PageTitle"] = L["Inv.Title"].Value; ViewData["PageSub"] = Model.InvoiceNumber; }
+
+@section TopbarActions {
+  <a asp-action="Print" asp-route-requestId="@Model.Request.Id" target="_blank" class="btn-jaa btn-ghost btn-sm">
+    <i class="bi bi-printer-fill"></i> @L["Inv.PrintPdf"]
+  </a>
+}
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card-jaa" id="invoice">
+
+      <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+          <div style="font-size:1.8rem;font-weight:900;color:var(--white);">JAA<span style="color:var(--red);">.</span></div>
+          <div style="font-size:.75rem;color:var(--muted);">@L["Inv.JordanAutoAssistance"]</div>
+          <div style="font-size:.75rem;color:var(--muted);">support@jaa.jo · +962 6 000 0000</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">@L["Inv.Title"]</div>
+          <div style="font-size:1.2rem;font-weight:800;color:var(--white);">@Model.InvoiceNumber</div>
+          <div style="font-size:.78rem;color:var(--muted);">@Model.IssuedAt.ToLocalTime().ToString("dd MMM yyyy")</div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--border);margin-bottom:1.5rem;"></div>
+
+      <div class="row g-4 mb-4">
+        <div class="col-sm-4">
+          <div style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem;">@L["Inv.Customer"]</div>
+          <div style="font-size:.88rem;font-weight:700;color:var(--white);">@Model.CustomerName</div>
+          <div style="font-size:.78rem;color:var(--muted);">@Model.CustomerPhone</div>
+        </div>
+        <div class="col-sm-4">
+          <div style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem;">@L["Inv.Shop"]</div>
+          <div style="font-size:.88rem;font-weight:700;color:var(--white);">@Model.ShopName</div>
+          <div style="font-size:.78rem;color:var(--muted);">@Model.ShopCity · @Model.ShopPhone</div>
+        </div>
+        <div class="col-sm-4">
+          <div style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem;">@L["Inv.Mechanic"]</div>
+          <div style="font-size:.88rem;font-weight:700;color:var(--white);">@(string.IsNullOrEmpty(Model.MechanicName) ? "—" : Model.MechanicName)</div>
+          <div style="font-size:.78rem;color:var(--muted);">@Model.MechanicPhone</div>
+        </div>
+      </div>
+
+      <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:rgba(255,255,255,.04);">
+              <th style="padding:.75rem 1rem;text-align:left;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;">@L["Inv.Description"]</th>
+              <th style="padding:.75rem 1rem;text-align:right;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;">@L["Inv.Method"]</th>
+              <th style="padding:.75rem 1rem;text-align:right;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;">@L["Inv.AmountJOD"]</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-top:1px solid var(--border);">
+              <td style="padding:.8rem 1rem;font-size:.85rem;color:var(--text2);">@L["Inv.InspectionFee"]</td>
+              <td style="padding:.8rem 1rem;text-align:right;font-size:.78rem;color:var(--muted);">@Model.InspectionMethod</td>
+              <td style="padding:.8rem 1rem;text-align:right;font-size:.85rem;font-weight:600;color:var(--white);">@Model.InspectionAmount.ToString("F2")</td>
+            </tr>
+            @if (Model.HasRepairPayment)
+            {
+              <tr style="border-top:1px solid var(--border);">
+                <td style="padding:.8rem 1rem;font-size:.85rem;color:var(--text2);">@L["Inv.RepairSubtotal"]</td>
+                <td style="padding:.8rem 1rem;text-align:right;font-size:.78rem;color:var(--muted);">@Model.RepairMethod</td>
+                <td style="padding:.8rem 1rem;text-align:right;font-size:.85rem;color:var(--white);">@Model.RepairQuotedAmount.ToString("F2")</td>
+              </tr>
+              <tr style="border-top:1px solid var(--border);">
+                <td style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);padding-left:2rem;">@L["Inv.PlatformCommission"] (@((Model.CommissionRate * 100).ToString("F0"))%)</td>
+                <td></td>
+                <td style="padding:.6rem 1rem;text-align:right;font-size:.78rem;color:var(--muted);">@Model.CommissionAmount.ToString("F2")</td>
+              </tr>
+              <tr style="border-top:1px solid var(--border);">
+                <td style="padding:.6rem 1rem;font-size:.78rem;color:var(--muted);padding-left:2rem;">@L["Inv.VAT"] (@((Model.VatRate * 100).ToString("F0"))%)</td>
+                <td></td>
+                <td style="padding:.6rem 1rem;text-align:right;font-size:.78rem;color:var(--muted);">@Model.VatAmount.ToString("F2")</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr style="background:rgba(230,57,70,.06);border-top:2px solid rgba(230,57,70,.25);">
+              <td style="padding:1rem;font-size:.92rem;font-weight:800;color:var(--white);" colspan="2">@L["Inv.Total"]</td>
+              <td style="padding:1rem;text-align:right;font-size:1.05rem;font-weight:900;color:var(--red);">@Model.GrandTotal.ToString("F2") JOD</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div style="font-size:.72rem;color:var(--muted);text-align:center;">
+        Request #@Model.Request.Id · Generated @DateTime.Now.ToString("dd MMM yyyy HH:mm") · JAA — @L["Inv.JordanAutoAssistance"]
+      </div>
+    </div>
+  </div>
+</div>

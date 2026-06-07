@@ -1,0 +1,65 @@
+@model List<JAA.Models.Mechanic>
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = "Pending Mechanics"; ViewData["PageTitle"] = "Mechanic Approvals"; ViewData["PageSub"] = $"{Model.Count} mechanic(s) awaiting review"; }
+
+@if (!Model.Any())
+{
+  <div class="card-jaa text-center" style="padding:3rem;">
+    <div style="font-size:2.5rem;margin-bottom:1rem;opacity:.3;"><i class="bi bi-person-gear"></i></div>
+    <h5 style="color:var(--white);">@L["APM.NoPending"]</h5>
+    <p style="color:var(--muted);font-size:.85rem;">@L["APM.AllReviewed"]</p>
+  </div>
+}
+else
+{
+  <div class="row g-3">
+    @foreach (var m in Model)
+    {
+      <div class="col-md-6 col-lg-4">
+        <div class="card-jaa h-100">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            @if (!string.IsNullOrEmpty(m.ProfileImageUrl))
+            {
+              <img src="@m.ProfileImageUrl" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" alt="" />
+            }
+            else
+            {
+              <div style="width:48px;height:48px;background:rgba(255,255,255,.06);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:var(--muted);">
+                @m.FullName.Substring(0,1)
+              </div>
+            }
+            <div>
+              <div style="font-size:.9rem;font-weight:700;color:var(--white);">@m.FullName</div>
+              <div style="font-size:.72rem;color:var(--muted);">@L["APM.ShopLabel"]: @m.Shop?.ShopName</div>
+            </div>
+          </div>
+
+          <div style="font-size:.78rem;color:var(--muted);margin-bottom:1rem;display:grid;gap:.3rem;">
+            <div><i class="bi bi-card-text me-1"></i>@L["APM.NationalId"]: <strong style="color:var(--text2);">@m.NationalId</strong></div>
+            <div><i class="bi bi-phone me-1"></i>@m.PhoneNumber</div>
+            @if (m.YearsOfExperience.HasValue)
+            { <div><i class="bi bi-briefcase me-1"></i>@m.YearsOfExperience @L["APM.YearsExp"]</div> }
+            <div><i class="bi bi-calendar3 me-1"></i>@L["APM.Submitted"] @m.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <form asp-action="ApproveMechanic" method="post" class="flex-grow-1">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@m.Id" />
+              <button type="submit" class="btn-jaa btn-primary btn-sm btn-full">
+                <i class="bi bi-check-circle-fill"></i> @L["Adm.Approve"]
+              </button>
+            </form>
+            <form asp-action="RejectMechanic" method="post" class="flex-grow-1">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@m.Id" />
+              <button type="submit" class="btn-jaa btn-ghost btn-sm btn-full"
+                style="border-color:rgba(230,57,70,.3);color:var(--red);">
+                <i class="bi bi-x-circle-fill"></i> @L["Adm.Reject"]
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}

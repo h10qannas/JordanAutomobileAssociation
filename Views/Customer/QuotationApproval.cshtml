@@ -1,0 +1,107 @@
+@model JAA.ViewModels.QuotationApprovalViewModel
+@using JAA.Models
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = L["Quot.RepairQuotation"].Value;
+    ViewData["PageTitle"] = L["Quot.RepairQuotation"].Value;
+    ViewData["PageSub"] = L["Quot.ReviewApprove"].Value;
+    var jsRejectConfirm = L["Quot.RejectConfirm"].Value;
+}
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <div class="card-jaa mb-3">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div style="width:50px;height:50px;background:rgba(230,57,70,.12);border:1px solid rgba(230,57,70,.25);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--red);"><i class="bi bi-file-text-fill"></i></div>
+        <div>
+          <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">@L["Quot.DiagnosisComplete"]</div>
+          <div style="font-size:1rem;font-weight:700;color:var(--white);">@Model.ShopName</div>
+          <div style="font-size:.82rem;color:var(--muted);">@L["Quot.Mechanic"]: @Model.MechanicName</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.5rem;">
+        <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:.4rem;">@L["Quot.MechanicsDiagnosis"]</div>
+        <div style="font-size:.88rem;color:var(--text2);line-height:1.6;">@Model.DiagnosisNotes</div>
+      </div>
+
+      <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;">
+        <div style="background:rgba(255,255,255,.02);padding:.8rem 1.2rem;border-bottom:1px solid var(--border);">
+          <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">@L["Quot.CostSummary"]</div>
+        </div>
+        <div style="padding:1rem 1.2rem;">
+          <div class="d-flex justify-content-between mb-2">
+            <span style="font-size:.85rem;color:var(--text2);">@L["Quot.InspectionAlreadyPaid"]</span>
+            <span style="font-size:.85rem;color:#3fb950;font-weight:600;">@Model.InspectionAlreadyPaid.ToString("F2") JOD ✓</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span style="font-size:.85rem;color:var(--text2);">@L["Quot.RepairCost"]</span>
+            <span style="font-size:.9rem;font-weight:700;color:var(--white);">@Model.QuotedAmount.ToString("F2") JOD</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span style="font-size:.82rem;color:var(--muted);">@L["Quot.VAT"] (@((Model.VatRate * 100).ToString("F0"))%)</span>
+            <span style="font-size:.82rem;color:var(--muted);">@Model.VatAmount.ToString("F2") JOD</span>
+          </div>
+          <div style="border-top:1px solid var(--border);margin:.75rem 0;"></div>
+          <div class="d-flex justify-content-between">
+            <span style="font-size:.92rem;font-weight:700;color:var(--white);">@L["Quot.TotalToPayNow"]</span>
+            <span style="font-size:1.1rem;font-weight:800;color:var(--red);">@Model.TotalWithVat.ToString("F2") JOD</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1rem;">@L["Quot.ChoosePaymentMethod"]</div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-6">
+          <form asp-action="ApproveQuotationCash" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestId" value="@Model.ServiceRequestId" />
+            <input type="hidden" name="quotationId" value="@Model.QuotationId" />
+            <button type="submit" class="w-100"
+              style="background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.3);border-radius:12px;padding:1.1rem;cursor:pointer;transition:all .2s;text-align:center;"
+              onmouseover="this.style.background='rgba(63,185,80,.12)'"
+              onmouseout="this.style.background='rgba(63,185,80,.06)'">
+              <div style="font-size:1.4rem;margin-bottom:.4rem;"><i class="bi bi-cash-stack" style="color:#3fb950;"></i></div>
+              <div style="font-size:.88rem;font-weight:700;color:#3fb950;">@L["Quot.ApproveCash"]</div>
+              <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem;">@L["Quot.PayOnSite"]</div>
+            </button>
+          </form>
+        </div>
+        <div class="col-6">
+          <form asp-action="ApproveQuotationOnline" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestId" value="@Model.ServiceRequestId" />
+            <input type="hidden" name="quotationId" value="@Model.QuotationId" />
+            <button type="submit" class="w-100"
+              style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.3);border-radius:12px;padding:1.1rem;cursor:pointer;transition:all .2s;text-align:center;"
+              onmouseover="this.style.background='rgba(139,92,246,.12)'"
+              onmouseout="this.style.background='rgba(139,92,246,.06)'">
+              <div style="font-size:1.4rem;margin-bottom:.4rem;"><i class="bi bi-credit-card-2-front" style="color:#8b5cf6;"></i></div>
+              <div style="font-size:.88rem;font-weight:700;color:#8b5cf6;">@L["Quot.ApproveOnline"]</div>
+              <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem;">@L["Quot.PayByCard"]</div>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <form asp-action="RejectQuotation" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="requestId" value="@Model.ServiceRequestId" />
+        <input type="hidden" name="quotationId" value="@Model.QuotationId" />
+        <div class="mb-3">
+          <label style="font-size:.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:.4rem;">@L["Quot.RejectionReason"]</label>
+          <textarea name="reason" rows="2" class="form-control" style="background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2);border-radius:8px;font-size:.85rem;"
+            placeholder="@L["Quot.RejectionPlaceholder"]"></textarea>
+        </div>
+        <button type="submit" class="btn-jaa btn-ghost btn-full"
+          style="border-color:rgba(230,57,70,.3);color:var(--red);"
+          onclick="return confirm('@Html.Raw(jsRejectConfirm.Replace("'", "\\'"))')">
+          <i class="bi bi-x-circle-fill"></i> @L["Quot.RejectQuotation"]
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,510 @@
+@model JAA.ViewModels.RequestHelpViewModel
+@{
+    ViewData["Title"]     = L["RH.GetHelp"].Value;
+    ViewData["PageTitle"] = L["RH.GetHelp"].Value;
+    ViewData["MapPage"]   = true;
+    Layout = User.Identity?.IsAuthenticated == true ? "_DashboardLayout" : "_Layout";
+    bool isPublic = User.Identity?.IsAuthenticated != true;
+}
+
+@section Styles {
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+.rh-public-wrap {
+    padding: 80px 1.5rem 3rem;
+    min-height: 100vh;
+}
+.rh-map-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.4);
+}
+.rh-map-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid var(--border);
+}
+.rh-map-header-icon {
+    width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+    background: rgba(230,57,70,.12);
+    border: 1px solid rgba(230,57,70,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--red);
+}
+.rh-map-header-title { font-size: 14px; font-weight: 700; color: var(--white); }
+.rh-map-header-sub   { font-size: 11px; color: var(--muted); }
+#map { width: 100%; height: 360px; display: block; }
+.rh-gps-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 18px;
+    border-top: 1px solid var(--border);
+    background: rgba(0,0,0,.2);
+    min-height: 50px;
+}
+.rh-gps-bar .spinner-border {
+    width: 16px; height: 16px; border-width: 2px; flex-shrink: 0;
+}
+#locText { font-size: 12.5px; font-weight: 500; }
+.rh-form-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,.4);
+}
+.rh-form-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid var(--border);
+}
+.rh-form-header-icon {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+    background: rgba(230,57,70,.12);
+    border: 1px solid rgba(230,57,70,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: var(--red);
+}
+.rh-form-header-title { font-size: 15px; font-weight: 700; color: var(--white); }
+.rh-form-header-sub   { font-size: 11.5px; color: var(--muted); }
+.rh-form-body { padding: 20px 18px 22px; }
+.rh-field-label {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .09em;
+    margin-bottom: 10px; display: block;
+}
+.rh-textarea {
+    width: 100%;
+    background: var(--dark) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    color: var(--white) !important;
+    font-size: .93rem !important;
+    padding: 13px 14px !important;
+    resize: none; line-height: 1.6;
+    font-family: 'Inter', sans-serif !important;
+    transition: border-color .2s, box-shadow .2s;
+}
+.rh-textarea:focus {
+    border-color: var(--red) !important;
+    box-shadow: 0 0 0 3px rgba(230,57,70,.13) !important;
+    outline: none;
+    background: var(--dark) !important;
+}
+.rh-textarea::placeholder { color: #3d444e !important; }
+.rh-situations {
+    background: rgba(255,255,255,.02);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin: 16px 0;
+}
+.rh-sit-title {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .09em;
+    margin-bottom: 10px;
+}
+.rh-sit-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+}
+.rh-sit-btn {
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 13px;
+    font-size: 13px; font-weight: 500; color: var(--light);
+    cursor: pointer; transition: all .18s;
+    text-align: left;
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Inter', sans-serif;
+    min-height: 46px;
+}
+.rh-sit-btn i { font-size: 13px; color: var(--muted); flex-shrink: 0; transition: color .18s; }
+.rh-sit-btn:hover { background: rgba(230,57,70,.08); border-color: rgba(230,57,70,.3); color: var(--white); }
+.rh-sit-btn:hover i { color: var(--red); }
+.rh-sit-btn.selected { background: rgba(230,57,70,.12); border-color: var(--red); color: var(--white); }
+.rh-sit-btn.selected i { color: var(--red); }
+.btn-rh-submit {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; background: var(--red); color: #fff !important;
+    border: none; border-radius: 12px; padding: 16px;
+    font-size: 16px; font-weight: 800; cursor: pointer;
+    text-decoration: none !important; transition: all .22s;
+    font-family: 'Inter', sans-serif;
+    min-height: 56px;
+    letter-spacing: .2px;
+}
+.btn-rh-submit:not(:disabled):hover {
+    background: var(--red-d); transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(230,57,70,.4);
+}
+.btn-rh-submit:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
+.rh-submit-note {
+    font-size: 12px; color: var(--muted);
+    text-align: center; margin-top: 10px; line-height: 1.5;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.btn-relocate {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-left: auto; flex-shrink: 0;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 11.5px; font-weight: 600;
+    padding: 6px 11px;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    line-height: 1;
+}
+.btn-relocate:hover {
+    background: rgba(230,57,70,.08);
+    border-color: rgba(230,57,70,.3);
+    color: var(--red);
+}
+.btn-relocate.is-manual {
+    background: rgba(230,57,70,.1);
+    border-color: rgba(230,57,70,.35);
+    color: var(--red);
+    animation: rh-pulse-border 2s ease-in-out infinite;
+}
+.btn-relocate:disabled { opacity: .55; cursor: not-allowed; pointer-events: none; }
+@@keyframes rh-pulse-border {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(230,57,70,.0); }
+    50%       { box-shadow: 0 0 0 3px rgba(230,57,70,.18); }
+}
+.rh-gps-error {
+    display: none;
+    align-items: flex-start; gap: 9px;
+    padding: 11px 16px;
+    background: rgba(230,57,70,.09);
+    border-top: 1px solid rgba(230,57,70,.2);
+    font-size: 12px; color: #ff6b74;
+    line-height: 1.45;
+    animation: rh-fade-in .2s ease;
+}
+.rh-gps-error i { flex-shrink: 0; margin-top: 1px; font-size: 13px; }
+@@keyframes rh-fade-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.rh-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
+@@media (min-width: 768px) {
+    .rh-layout {
+        grid-template-columns: 58fr 42fr;
+        align-items: stretch;
+        gap: 18px;
+    }
+    .rh-map-card { margin-bottom: 0; display: flex; flex-direction: column; }
+    #map { flex: 1; height: auto !important; min-height: 420px; }
+    .rh-form-card { overflow-y: auto; }
+}
+</style>
+}
+
+@{
+    var jsUseMyLocation   = L["RH.UseMyLocation"].Value;
+    var jsMyGPSLocation   = L["RH.MyGPSLocation"].Value;
+    var jsLocating        = L["RH.Locating"].Value;
+    var jsCouldNotDetect  = L["RH.CouldNotDetect"].Value;
+    var jsGeoNotSupported = L["RH.GeolocationNotSupported"].Value;
+    var jsGeoNotSuppBtn   = L["RH.GeolocationNotSupportedBtn"].Value;
+    var jsGpsError1       = L["RH.GpsError1"].Value;
+    var jsGpsError2       = L["RH.GpsError2"].Value;
+    var jsGpsError3       = L["RH.GpsError3"].Value;
+    var jsGpsErrorFallback= L["RH.GpsErrorFallback"].Value;
+    var jsGPSCoords       = L["RH.GPSCoords"].Value;
+    var jsSelectedCoords  = L["RH.SelectedCoords"].Value;
+}
+
+<div class="@(isPublic ? "rh-public-wrap" : "")">
+<div class="rh-layout">
+
+<!-- ══════════ MAP CARD ══════════ -->
+<div class="rh-map-card">
+    <div class="rh-map-header">
+        <div class="rh-map-header-icon"><i class="fas fa-map-marker-alt"></i></div>
+        <div>
+            <div class="rh-map-header-title">@L["RH.YourLocation"]</div>
+            <div class="rh-map-header-sub">@L["RH.TapToSetPin"]</div>
+        </div>
+        <button type="button" id="relocateBtn" class="btn-relocate" onclick="relocateToGPS()">
+            <i class="fas fa-crosshairs" id="relocateIcon"></i>
+            <span id="relocateBtnText">@L["RH.UseMyLocation"]</span>
+        </button>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="rh-gps-bar" id="locStatus">
+        <div id="locSpinner" class="spinner-border"
+             style="border-color:rgba(230,57,70,.2);border-top-color:#e63946;" role="status"></div>
+        <span id="locText" style="color:var(--muted);">@L["RH.DetectingLocation"]</span>
+    </div>
+    <div class="rh-gps-error" id="gpsError">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span id="gpsErrorText"></span>
+    </div>
+</div>
+
+<!-- ══════════ FORM CARD ══════════ -->
+<div class="rh-form-card">
+    <div class="rh-form-header">
+        <div class="rh-form-header-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <div>
+            <div class="rh-form-header-title">@L["RH.DescribeYourSituation"]</div>
+            <div class="rh-form-header-sub">@L["RH.MoreDetailFasterHelp"]</div>
+        </div>
+    </div>
+
+    <div class="rh-form-body">
+        <form asp-action="RequestHelp" method="post">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 style="background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);
+                        color:#F87171;padding:12px 16px;border-radius:12px;font-size:13px;
+                        margin-bottom:16px;display:none;"></div>
+
+            <input type="hidden" asp-for="Latitude"  id="lat" />
+            <input type="hidden" asp-for="Longitude" id="lng" />
+
+            <label class="rh-field-label">
+                <i class="fas fa-comment-alt me-1"></i> @L["RH.WhatsHappening"]
+            </label>
+            <textarea asp-for="SituationDescription"
+                      class="rh-textarea form-control"
+                      rows="4"
+                      placeholder="@L["RH.SituationPlaceholder"]"></textarea>
+            <span asp-validation-for="SituationDescription"
+                  style="color:#F87171;font-size:11.5px;margin-top:6px;display:block;"></span>
+
+            <!-- Situation quick-select -->
+            <div class="rh-situations">
+                <div class="rh-sit-title"><i class="fas fa-bolt me-1"></i> @L["RH.CommonSituations"]</div>
+                <div class="rh-sit-grid">
+                    @foreach (var (labelKey, icon) in new (string,string)[] {
+                        ("RH.CarWontStart",   "fa-car"),
+                        ("RH.FlatTire",       "fa-circle-notch"),
+                        ("RH.EngineStopped",  "fa-ban"),
+                        ("RH.Overheating",    "fa-thermometer-full"),
+                        ("RH.BatteryDead",    "fa-battery-empty"),
+                        ("RH.StrangeNoise",   "fa-volume-up"),
+                        ("RH.CarIsLeaking",   "fa-tint"),
+                        ("RH.GrindingBrakes", "fa-compact-disc")
+                    })
+                    {
+                        <button type="button" class="rh-sit-btn" onclick="fillHint(this, '@L[labelKey].Value.Replace("'", "\\'")' )">
+                            <i class="fas @icon"></i> @L[labelKey]
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-rh-submit" disabled>
+                <i class="fas fa-paper-plane" style="font-size:18px;"></i>
+                @L["RH.SendHelpRequest"]
+            </button>
+
+            <div class="rh-submit-note">
+                <i class="fas fa-shield-alt" style="color:var(--muted);"></i>
+                @if (isPublic)
+                {
+                    <span>@L["RH.SignInNote"]</span>
+                }
+                else
+                {
+                    <span>@L["RH.DispatchNote"]</span>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+</div><!-- /.rh-layout -->
+</div><!-- /.rh-public-wrap or empty wrapper -->
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    const _i18n = {
+        useMyLocation:   '@Html.Raw(jsUseMyLocation.Replace("'", "\\'"))',
+        myGPSLocation:   '@Html.Raw(jsMyGPSLocation.Replace("'", "\\'"))',
+        locating:        '@Html.Raw(jsLocating.Replace("'", "\\'"))',
+        couldNotDetect:  '@Html.Raw(jsCouldNotDetect.Replace("'", "\\'"))',
+        geoNotSupported: '@Html.Raw(jsGeoNotSupported.Replace("'", "\\'"))',
+        geoNotSuppBtn:   '@Html.Raw(jsGeoNotSuppBtn.Replace("'", "\\'"))',
+        gpsError1:       '@Html.Raw(jsGpsError1.Replace("'", "\\'"))',
+        gpsError2:       '@Html.Raw(jsGpsError2.Replace("'", "\\'"))',
+        gpsError3:       '@Html.Raw(jsGpsError3.Replace("'", "\\'"))',
+        gpsErrorFallback:'@Html.Raw(jsGpsErrorFallback.Replace("'", "\\'"))',
+        gpsCoords:       '@Html.Raw(jsGPSCoords.Replace("'", "\\'"))',
+        selectedCoords:  '@Html.Raw(jsSelectedCoords.Replace("'", "\\'"))'
+    };
+
+    let _map, _marker, _isManualPin = false;
+
+    (function () {
+        const latEl      = document.getElementById('lat');
+        const lngEl      = document.getElementById('lng');
+        const locTxt     = document.getElementById('locText');
+        const locSpin    = document.getElementById('locSpinner');
+        const locBar     = document.getElementById('locStatus');
+        const submitB    = document.getElementById('submitBtn');
+        const ta         = document.querySelector('textarea[name="SituationDescription"]');
+        const isAuth    = @(User.Identity?.IsAuthenticated == true ? "true" : "false");
+        const loginUrl  = '@Url.Action("Login", "Account")?returnUrl=' + encodeURIComponent('@Url.Action("RequestHelp", "Customer")') + '&pendingRequest=1';
+
+        _map = L.map('map', { zoomControl: true }).setView([31.9539, 35.9106], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap', maxZoom: 19
+        }).addTo(_map);
+
+        const gpsIcon = L.divIcon({
+            className: '',
+            html: '<div style="width:22px;height:22px;background:#e63946;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 5px rgba(230,57,70,.3);"></div>',
+            iconSize: [22, 22], iconAnchor: [11, 11]
+        });
+        const manualIcon = L.divIcon({
+            className: '',
+            html: '<div style="width:22px;height:22px;background:#58a6ff;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 5px rgba(88,166,255,.3);"></div>',
+            iconSize: [22, 22], iconAnchor: [11, 11]
+        });
+
+        window._setLocation = function(lat, lng, isGPS) {
+            latEl.value = lat.toFixed(6);
+            lngEl.value = lng.toFixed(6);
+            _map.setView([lat, lng], 16);
+            if (_marker) _map.removeLayer(_marker);
+            _marker = L.marker([lat, lng], { icon: isGPS ? gpsIcon : manualIcon })
+                        .addTo(_map)
+                        .bindPopup('<b>' + (isGPS ? _i18n.gpsCoords : _i18n.selectedCoords) + '</b>')
+                        .openPopup();
+
+            locSpin.style.display = 'none';
+            locTxt.textContent    = (isGPS ? '✓  ' + _i18n.gpsCoords : '📍 ' + _i18n.selectedCoords) + ':  ' + lat.toFixed(5) + ',  ' + lng.toFixed(5);
+            locTxt.style.color    = isGPS ? 'var(--green-t)' : 'var(--blue)';
+            locBar.style.background = isGPS ? 'rgba(63,185,80,.07)' : 'rgba(88,166,255,.07)';
+            locBar.style.borderTop  = isGPS ? '1px solid rgba(63,185,80,.2)' : '1px solid rgba(88,166,255,.2)';
+            submitB.disabled = false;
+
+            _isManualPin = !isGPS;
+            _updateRelocateBtn();
+        };
+
+        function _updateRelocateBtn() {
+            const btn = document.getElementById('relocateBtn');
+            const txt = document.getElementById('relocateBtnText');
+            const ico = document.getElementById('relocateIcon');
+            if (_isManualPin) {
+                btn.classList.add('is-manual');
+                txt.textContent = _i18n.useMyLocation;
+                ico.className   = 'fas fa-crosshairs';
+            } else {
+                btn.classList.remove('is-manual');
+                txt.textContent = _i18n.myGPSLocation;
+                ico.className   = 'fas fa-location-arrow';
+            }
+        }
+        window._updateRelocateBtn = _updateRelocateBtn;
+
+        _map.on('click', e => window._setLocation(e.latlng.lat, e.latlng.lng, false));
+
+        const savedLat  = sessionStorage.getItem('rh_lat');
+        const savedLng  = sessionStorage.getItem('rh_lng');
+        const savedDesc = sessionStorage.getItem('rh_desc');
+        if (savedLat && savedLng) {
+            window._setLocation(parseFloat(savedLat), parseFloat(savedLng), true);
+            if (savedDesc && ta) ta.value = savedDesc;
+            sessionStorage.removeItem('rh_lat');
+            sessionStorage.removeItem('rh_lng');
+            sessionStorage.removeItem('rh_desc');
+        } else if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                p => window._setLocation(p.coords.latitude, p.coords.longitude, true),
+                () => {
+                    locSpin.style.display = 'none';
+                    locTxt.textContent    = '⚠  ' + _i18n.couldNotDetect;
+                    locTxt.style.color    = '#ff6b74';
+                    locBar.style.background = 'rgba(230,57,70,.07)';
+                    locBar.style.borderTop  = '1px solid rgba(230,57,70,.2)';
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        } else {
+            locSpin.style.display = 'none';
+            locTxt.textContent    = _i18n.geoNotSupported;
+            locTxt.style.color    = '#ff6b74';
+        }
+
+        document.querySelector('form').addEventListener('submit', function (e) {
+            if (!isAuth) {
+                e.preventDefault();
+                sessionStorage.setItem('rh_lat',  latEl.value);
+                sessionStorage.setItem('rh_lng',  lngEl.value);
+                sessionStorage.setItem('rh_desc', ta ? ta.value : '');
+                window.location.href = loginUrl;
+            }
+        });
+    })();
+
+    function relocateToGPS() {
+        const btn    = document.getElementById('relocateBtn');
+        const ico    = document.getElementById('relocateIcon');
+        const txt    = document.getElementById('relocateBtnText');
+        const errEl  = document.getElementById('gpsError');
+        const errTxt = document.getElementById('gpsErrorText');
+
+        errEl.style.display = 'none';
+        btn.disabled        = true;
+        ico.className       = 'fas fa-spinner fa-spin';
+        txt.textContent     = _i18n.locating;
+
+        if (!navigator.geolocation) {
+            showGpsError(_i18n.geoNotSuppBtn, btn, ico, txt);
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            function (pos) {
+                window._setLocation(pos.coords.latitude, pos.coords.longitude, true);
+                btn.disabled = false;
+            },
+            function (err) {
+                const messages = {
+                    1: _i18n.gpsError1,
+                    2: _i18n.gpsError2,
+                    3: _i18n.gpsError3
+                };
+                showGpsError(messages[err.code] || _i18n.gpsErrorFallback, btn, ico, txt);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    }
+
+    function showGpsError(msg, btn, ico, txt) {
+        const errEl  = document.getElementById('gpsError');
+        const errTxt = document.getElementById('gpsErrorText');
+        errTxt.textContent  = msg;
+        errEl.style.display = 'flex';
+        btn.disabled        = false;
+        ico.className       = 'fas fa-crosshairs';
+        txt.textContent     = _i18n.useMyLocation;
+        document.getElementById('relocateBtn').classList.add('is-manual');
+        setTimeout(() => { errEl.style.display = 'none'; }, 7000);
+    }
+
+    function fillHint(btn, text) {
+        const ta = document.querySelector('textarea[name="SituationDescription"]');
+        ta.value = text;
+        ta.focus();
+        document.querySelectorAll('.rh-sit-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+    }
+    </script>
+}

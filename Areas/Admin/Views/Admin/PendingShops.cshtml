@@ -1,0 +1,76 @@
+@model List<JAA.Models.RepairShop>
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = "Pending Shops"; ViewData["PageTitle"] = "Shop Approvals"; ViewData["PageSub"] = $"{Model.Count} shop(s) awaiting review"; }
+
+@if (!Model.Any())
+{
+  <div class="card-jaa text-center" style="padding:3rem;">
+    <div style="font-size:2.5rem;margin-bottom:1rem;opacity:.3;"><i class="bi bi-shop-window"></i></div>
+    <h5 style="color:var(--white);">@L["APS.NoPendingShops"]</h5>
+    <p style="color:var(--muted);font-size:.85rem;">@L["APS.AllReviewed"]</p>
+  </div>
+}
+else
+{
+  <div class="d-flex flex-column gap-3">
+    @foreach (var shop in Model)
+    {
+      <div class="card-jaa">
+        <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span style="font-size:1rem;font-weight:800;color:var(--white);">@shop.ShopName</span>
+              <span class="badge-jaa badge-pending" style="font-size:.62rem;">@L["Adm.Pending"]</span>
+            </div>
+            <div style="font-size:.78rem;color:var(--muted);margin-bottom:.4rem;">
+              <i class="bi bi-person me-1"></i>@shop.OwnerName ·
+              <i class="bi bi-geo-alt me-1"></i>@shop.City ·
+              <i class="bi bi-telephone me-1"></i>@shop.PhoneNumber
+            </div>
+            <div style="font-size:.75rem;color:var(--muted);">
+              <i class="bi bi-map me-1"></i>@shop.Address
+            </div>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:.4rem;">
+              @L["APS.RegisteredBy"]: <strong style="color:var(--text2);">@shop.Owner?.FullName</strong> (@shop.Owner?.Email) ·
+              @L["APS.Submitted"] @shop.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")
+            </div>
+            @if (!string.IsNullOrEmpty(shop.BusinessCertificateUrl))
+            {
+              <a asp-action="ViewCertificate" asp-route-shopId="@shop.Id"
+                 class="btn-jaa btn-ghost btn-sm mt-2" style="display:inline-flex;" target="_blank">
+                <i class="bi bi-file-earmark-pdf-fill"></i> @L["APS.ViewCertificate"]
+              </a>
+            }
+            else
+            {
+              <div style="font-size:.72rem;color:rgba(255,193,7,.7);margin-top:.4rem;">
+                <i class="bi bi-exclamation-triangle me-1"></i>@L["APS.NoCertificate"]
+              </div>
+            }
+          </div>
+
+          <div class="d-flex flex-column gap-2" style="min-width:180px;">
+            <form asp-action="ApproveShop" method="post">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@shop.Id" />
+              <button type="submit" class="btn-jaa btn-primary btn-full btn-sm">
+                <i class="bi bi-check-circle-fill"></i> @L["APS.ApproveShop"]
+              </button>
+            </form>
+
+            <form asp-action="RejectShop" method="post" id="rejectForm@shop.Id">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@shop.Id" />
+              <input type="text" name="reason" class="form-control-jaa mb-2"
+                style="font-size:.75rem;padding:.4rem .7rem;"
+                placeholder="@L["APS.RejectionReason"].Value" />
+              <button type="submit" class="btn-jaa btn-ghost btn-full btn-sm"
+                style="border-color:rgba(230,57,70,.3);color:var(--red);">
+                <i class="bi bi-x-circle-fill"></i> @L["Adm.Reject"]
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}

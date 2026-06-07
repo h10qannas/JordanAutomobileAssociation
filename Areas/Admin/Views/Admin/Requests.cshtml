@@ -1,0 +1,32 @@
+@model JAA.ViewModels.AdminRequestsViewModel
+@{ ViewData["Title"] = "Requests"; ViewData["PageTitle"] = "All Requests"; ViewData["PageSub"] = $"{Model.Requests.Count} result(s)"; }
+
+<div class="card-jaa mb-4">
+  <form method="get" class="d-flex align-items-center gap-2 flex-wrap">
+    <div class="tab-group flex-wrap">
+      @foreach (var (label,val) in new[]{
+          (L["Adm.All"].Value,""),
+          (L["Status.Pending"].Value,"Pending"),
+          (L["Status.Accepted"].Value,"Accepted"),
+          (L["Status.OnTheWay"].Value,"InProgress"),
+          (L["Status.Completed"].Value,"Completed"),
+          (L["Status.Cancelled"].Value,"Cancelled")
+      })
+      { <button type="submit" name="statusFilter" value="@val" class="tab-pill @(Model.StatusFilter==val?"active":"")">@label</button> }
+    </div>
+    <div class="search-box ms-auto"><i class="bi bi-search"></i><input type="text" name="search" value="@Model.Search" class="search-input" placeholder="@L["Adm.Search"].Value" /></div>
+    <button type="submit" class="btn-jaa btn-outline btn-sm"><i class="bi bi-funnel-fill"></i></button>
+  </form>
+</div>
+<div class="card-jaa" style="padding:0;overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table class="table-jaa">
+      <thead><tr><th style="padding-left:1.5rem;">@L["Adm.ID"]</th><th>@L["Adm.Customer"]</th><th>@L["Adm.Shop"]</th><th>@L["Adm.Situation"]</th><th>@L["Adm.Status"]</th><th>@L["Adm.Amount"]</th><th style="padding-right:1.5rem;">@L["Adm.Date"]</th></tr></thead>
+      <tbody>
+        @foreach (var r in Model.Requests)
+        { <tr><td class="td-primary" style="padding-left:1.5rem;">#@r.Id</td><td>@r.Customer?.FullName</td><td>@(r.Shop?.ShopName??"—")</td><td class="td-truncate">@r.SituationDescription</td><td><span class="badge-jaa badge-@r.Status.ToString().ToLower()">@L["Status." + r.Status.ToString()]</span></td><td class="td-muted">@(r.Payment!=null?$"{r.Payment.Amount:F2} JOD":"—")</td><td class="td-muted" style="padding-right:1.5rem;">@r.CreatedAt.ToLocalTime().ToString("dd MMM, HH:mm")</td></tr> }
+        @if (!Model.Requests.Any()) { <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);">@L["Adm.NoRequestsFound"]</td></tr> }
+      </tbody>
+    </table>
+  </div>
+</div>

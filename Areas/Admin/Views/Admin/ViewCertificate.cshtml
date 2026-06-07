@@ -1,0 +1,54 @@
+@model JAA.Models.RepairShop
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = "Business Certificate"; ViewData["PageTitle"] = "Business Certificate"; ViewData["PageSub"] = Model.ShopName; }
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card-jaa">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div style="width:48px;height:48px;background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:var(--red);">
+          <i class="bi bi-file-earmark-pdf-fill"></i>
+        </div>
+        <div>
+          <div style="font-size:1rem;font-weight:700;color:var(--white);">@Model.ShopName</div>
+          <div style="font-size:.78rem;color:var(--muted);">@L["AVC.Owner"]: @Model.OwnerName · @Model.City</div>
+        </div>
+      </div>
+
+      @{
+        var ext = System.IO.Path.GetExtension(Model.BusinessCertificateUrl ?? "").ToLower();
+      }
+
+      @if (ext == ".pdf")
+      {
+        <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;height:600px;">
+          <iframe src="@Model.BusinessCertificateUrl" style="width:100%;height:100%;border:none;"></iframe>
+        </div>
+      }
+      else if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".webp")
+      {
+        <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;text-align:center;padding:1rem;">
+          <img src="@Model.BusinessCertificateUrl" style="max-width:100%;max-height:700px;border-radius:8px;" alt="Business Certificate" />
+        </div>
+      }
+      else
+      {
+        <div style="text-align:center;padding:2rem;">
+          <a href="@Model.BusinessCertificateUrl" target="_blank" class="btn-jaa btn-primary">
+            <i class="bi bi-download"></i> @L["AVC.Download"]
+          </a>
+        </div>
+      }
+
+      <div class="d-flex gap-3 mt-4">
+        <form asp-action="ApproveShop" method="post" class="flex-grow-1">
+          @Html.AntiForgeryToken()
+          <input type="hidden" name="id" value="@Model.Id" />
+          <button type="submit" class="btn-jaa btn-primary btn-full">
+            <i class="bi bi-check-circle-fill"></i> @L["AVC.ApproveShop"]
+          </button>
+        </form>
+        <a asp-action="PendingShops" class="btn-jaa btn-ghost">@L["Adm.Back"]</a>
+      </div>
+    </div>
+  </div>
+</div>

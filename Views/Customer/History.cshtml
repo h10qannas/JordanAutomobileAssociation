@@ -1,0 +1,38 @@
+@model JAA.ViewModels.CustomerHistoryViewModel
+@using JAA.Models
+@{ ViewData["Title"] = L["Hist.MyRequests"].Value; ViewData["PageTitle"] = L["Hist.MyRequests"].Value; ViewData["PageSub"] = $"{Model.Requests.Count} {L["Hist.MyRequests"].Value.ToLower()}"; Layout = "_DashboardLayout"; }
+
+@section TopbarActions {
+  <a asp-action="RequestHelp" class="btn-jaa btn-primary btn-sm"><i class="bi bi-plus-circle-fill"></i> @L["Hist.NewRequest"]</a>
+}
+
+<div class="card-jaa" style="padding:0;overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table class="table-jaa">
+      <thead>
+        <tr><th style="padding-left:1.5rem;">#</th><th>@L["Hist.Situation"]</th><th>@L["Hist.Shop"]</th><th>@L["Hist.Date"]</th><th>@L["Nav.Status"]</th><th>@L["Hist.Amount"]</th><th>@L["Hist.Rating"]</th><th style="padding-right:1.5rem;"></th></tr>
+      </thead>
+      <tbody>
+        @foreach (var r in Model.Requests)
+        {
+          <tr>
+            <td class="td-primary" style="padding-left:1.5rem;">#@r.Id</td>
+            <td class="td-truncate">@r.SituationDescription</td>
+            <td class="td-muted">@(r.Shop?.ShopName ?? "—")</td>
+            <td class="td-muted">@r.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+            <td><span class="badge-jaa badge-@r.Status.ToString().ToLower()">@L["Status." + r.Status.ToString()]</span></td>
+            <td class="td-muted">@(r.Payment != null ? $"{r.Payment.Amount:F2} JOD" : "—")</td>
+            <td>
+              @if (r.Feedback != null) { <span style="color:#f4c430;font-size:.8rem;">@string.Concat(Enumerable.Repeat("★", r.Feedback.Rating))</span> }
+              else if (r.Status == RequestStatus.Completed) { <a asp-action="Feedback" asp-route-requestId="@r.Id" class="btn-jaa btn-outline btn-sm">@L["Hist.Rate"]</a> }
+              else { <span class="text-muted">—</span> }
+            </td>
+            <td style="padding-right:1.5rem;"><a asp-action="TrackRequest" asp-route-id="@r.Id" class="btn-icon-sm"><i class="bi bi-eye-fill"></i></a></td>
+          </tr>
+        }
+        @if (!Model.Requests.Any())
+        { <tr><td colspan="8" style="text-align:center;padding:2.5rem;color:var(--muted);">@L["Hist.NoRequestsYet"] <a asp-action="RequestHelp" style="color:var(--red);font-weight:600;">@L["Hist.SubmitFirst"]</a></td></tr> }
+      </tbody>
+    </table>
+  </div>
+</div>

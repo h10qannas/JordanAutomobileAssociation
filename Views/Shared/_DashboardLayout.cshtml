@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+@{
+  var dashLang = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("ar") ? "ar" : "en";
+  var dashDir  = dashLang == "ar" ? "rtl" : "ltr";
+}
+<html lang="@dashLang" dir="@dashDir">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@(ViewData["Title"] != null ? ViewData["Title"] + " — JAA" : "JAA Dashboard")</title>
+  <!-- Anti-flash: apply saved theme before CSS paints -->
+  <script>(function(){try{var t=localStorage.getItem('jaa-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})()</script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  @if (dashLang == "ar")
+  {
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
+  }
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  @if (dashLang == "ar")
+  {
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+      body, button, input, select, textarea { font-family: 'Cairo', 'Inter', sans-serif !important; }
+    </style>
+  }
+  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/themes.css" asp-append-version="true" />
+  @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+<button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menu">
+  <i class="bi bi-list"></i>
+</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <a href="/" class="sidebar-brand">
+    <span class="brand-name">JAA<span>.</span></span>
+    <span class="brand-role">
+      @if (User.IsInRole("Admin"))         { @L["Portal.Admin"] }
+      else if (User.IsInRole("ShopOwner")) { @L["Portal.Shop"]  }
+      else                                 { @L["Portal.Customer"] }
+    </span>
+  </a>
+
+  <nav class="sidebar-nav">
+    @{
+      var ctrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+      var act  = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    }
+    @if (User.IsInRole("Admin"))
+    {
+      <div class="nav-group-label">@L["Sidebar.Overview"]</div>
+      <a asp-area="Admin" asp-controller="Admin" asp-action="Dashboard"        class="sidebar-link @(act=="Dashboard"||act=="Index"?"active":"")"><i class="bi bi-grid-fill"></i> @L["Nav.Dashboard"]</a>
+      <div class="nav-group-label">@L["Sidebar.Approvals"]</div>
+      <a asp-area="Admin" asp-controller="Admin" asp-action="PendingShops"     class="sidebar-link @(act=="PendingShops"?"active":"")"><i class="bi bi-shop-window"></i> @L["Sidebar.PendingShops"]</a>
+      <a asp-area="Admin" asp-controller="Admin" asp-action="PendingMechanics" class="sidebar-link @(act=="PendingMechanics"?"active":"")"><i class="bi bi-person-gear"></i> @L["Sidebar.PendingMechanics"]</a>
+      <a asp-area="Admin" asp-controller="Admin" asp-action="Refunds"          class="sidebar-link @(act=="Refunds"?"active":"")"><i class="bi bi-arrow-counterclockwise"></i> @L["Sidebar.Refunds"]</a>
+      <div class="nav-group-label">@L["Sidebar.Manage"]</div>
+      <a asp-area="Admin" asp-controller="Admin" asp-action="Requests"         class="sidebar-link @(act=="Requests"?"active":"")"><i class="bi bi-list-ul"></i> @L["Sidebar.AllRequests"]</a>
+      <a asp-area="Admin" asp-controller="Admin" asp-action="Shops"            class="sidebar-link @(act=="Shops"?"active":"")"><i class="bi bi-building"></i> @L["Sidebar.AllShops"]</a>
+      <a asp-area="Admin" asp-controller="Admin" asp-action="Users"            class="sidebar-link @(act=="Users"?"active":"")"><i class="bi bi-people-fill"></i> @L["Admin.Users"]</a>
+      <div class="nav-group-label">@L["Sidebar.System"]</div>
+      <a asp-area="Admin" asp-controller="Admin" asp-action="Settings"         class="sidebar-link @(act=="Settings"?"active":"")"><i class="bi bi-gear-fill"></i> @L["Admin.Settings"]</a>
+      <a asp-area="Admin" asp-controller="Admin" asp-action="Reports"          class="sidebar-link @(act=="Reports"?"active":"")"><i class="bi bi-bar-chart-line-fill"></i> @L["Admin.Reports"]</a>
+    }
+    else if (User.IsInRole("ShopOwner"))
+    {
+      <div class="nav-group-label">@L["Sidebar.Main"]</div>
+      <a asp-controller="Shop" asp-action="Dashboard"        class="sidebar-link @(act=="Dashboard"?"active":"")"><i class="bi bi-grid-fill"></i> @L["Nav.Dashboard"]</a>
+      <a asp-controller="Shop" asp-action="IncomingRequests" class="sidebar-link @(act=="IncomingRequests"?"active":"")"><i class="bi bi-inbox-fill"></i> @L["Sidebar.IncomingRequests"]</a>
+      <a asp-controller="Shop" asp-action="ActiveJobs"       class="sidebar-link @(act=="ActiveJobs"?"active":"")"><i class="bi bi-tools"></i> @L["Sidebar.ActiveJobs"]</a>
+      <a asp-controller="Shop" asp-action="CompletedJobs"    class="sidebar-link @(act=="CompletedJobs"?"active":"")"><i class="bi bi-check-circle-fill"></i> @L["Sidebar.Completed"]</a>
+      <div class="nav-group-label">@L["Sidebar.Team"]</div>
+      <a asp-controller="Shop" asp-action="Mechanics"        class="sidebar-link @(act=="Mechanics"||act=="AddMechanic"||act=="EditMechanic"?"active":"")"><i class="bi bi-person-gear"></i> @L["Shop.Mechanics"]</a>
+      <div class="nav-group-label">@L["Sidebar.ShopGroup"]</div>
+      <a asp-controller="Shop" asp-action="ManageShop"       class="sidebar-link @(act=="ManageShop"?"active":"")"><i class="bi bi-shop-window"></i> @L["Sidebar.MyShop"]</a>
+      <a asp-controller="Shop" asp-action="Earnings"         class="sidebar-link @(act=="Earnings"?"active":"")"><i class="bi bi-wallet2"></i> @L["Shop.Earnings"]</a>
+      <a asp-controller="Shop" asp-action="Reviews"          class="sidebar-link @(act=="Reviews"?"active":"")"><i class="bi bi-star-fill"></i> @L["Shop.Reviews"]</a>
+    }
+    else
+    {
+      <div class="nav-group-label">@L["Sidebar.Main"]</div>
+      <a asp-controller="Customer" asp-action="Dashboard"    class="sidebar-link @(act=="Dashboard"?"active":"")"><i class="bi bi-grid-fill"></i> @L["Nav.Dashboard"]</a>
+      @if (Context.Items["IsSuspended"] is true)
+      {
+        <span class="sidebar-link sidebar-link-disabled" title="@L["Sidebar.SuspendedHint"]">
+          <i class="bi bi-exclamation-triangle-fill" style="color:var(--muted);"></i> @L["Sidebar.RequestHelp"]
+          <i class="bi bi-lock-fill ms-auto" style="font-size:.65rem;color:var(--muted);"></i>
+        </span>
+      }
+      else
+      {
+        <a asp-controller="Customer" asp-action="RequestHelp"  class="sidebar-link @(act=="RequestHelp"?"active":"")"><i class="bi bi-exclamation-triangle-fill" style="color:var(--red);"></i> @L["Sidebar.RequestHelp"]</a>
+      }
+      <a asp-controller="Customer" asp-action="Map"           class="sidebar-link @(act=="Map"?"active":"")"><i class="bi bi-map-fill"></i> @L["Sidebar.FindShop"]</a>
+      <a asp-controller="Customer" asp-action="History"       class="sidebar-link @(act=="History"?"active":"")"><i class="bi bi-clock-history"></i> @L["Sidebar.MyRequests"]</a>
+      <div class="nav-group-label">@L["Sidebar.Account"]</div>
+      <a asp-controller="Customer" asp-action="Profile"       class="sidebar-link @(act=="Profile"?"active":"")"><i class="bi bi-person-fill"></i> @L["Sidebar.MyProfile"]</a>
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    @{
+      var initials = User.Identity?.Name?.Length > 1
+          ? User.Identity.Name.Substring(0, 2).ToUpper() : "U";
+    }
+    <div class="avatar-sm">@initials</div>
+    <div>
+      <div class="user-name">@User.Identity?.Name</div>
+      <div class="user-role">
+        @if (User.IsInRole("Admin"))         { @L["Role.Admin"]     }
+        else if (User.IsInRole("ShopOwner")) { @L["Role.ShopOwner"] }
+        else                                 { @L["Role.Customer"]  }
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-wrap">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>@(ViewData["PageTitle"] ?? ViewData["Title"])</h1>
+      @if (ViewData["PageSub"] != null) { <p>@ViewData["PageSub"]</p> }
+    </div>
+    <div class="topbar-right">
+      @await RenderSectionAsync("TopbarActions", required: false)
+
+      <!-- Language Toggle -->
+      @{
+        var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
+        var isArabic = currentCulture.StartsWith("ar");
+        var switchLang = isArabic ? "en" : "ar";
+        var switchLabel = isArabic ? "EN" : "ع";
+      }
+      <a asp-controller="Account" asp-action="SetLanguage"
+         asp-route-culture="@switchLang"
+         asp-route-returnUrl="@Context.Request.Path"
+         class="btn-jaa btn-ghost btn-sm" style="font-weight:700;min-width:38px;justify-content:center;">
+        @switchLabel
+      </a>
+
+      <!-- Theme Toggle -->
+      <button id="themeToggleBtn" class="btn-jaa btn-ghost btn-sm" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="themeIcon"></i>
+      </button>
+
+      <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn-jaa btn-ghost btn-sm"><i class="bi bi-box-arrow-left"></i> @L["Nav.SignOut"]</button>
+      </form>
+    </div>
+  </div>
+
+  <div style="padding: 0 2rem;">
+    @if (Context.Items["IsSuspended"] is true)
+    {
+      <div class="suspension-banner mt-3">
+        <div class="suspension-banner-icon"><i class="bi bi-shield-exclamation"></i></div>
+        <div class="suspension-banner-body">
+          <div class="suspension-banner-title">@L["Suspend.Title"]</div>
+          <div class="suspension-banner-msg">@L["Suspend.DashMsg"]</div>
+          <div class="suspension-banner-contact">
+            <i class="bi bi-envelope-fill"></i> support@jaa.jo
+            <span class="mx-2" style="opacity:.4;">|</span>
+            <i class="bi bi-telephone-fill"></i> +962 6 000 0000
+          </div>
+        </div>
+      </div>
+    }
+    @if (TempData["SuspendedAction"] != null)
+    { <div class="alert-jaa alert-warning mt-3"><i class="bi bi-slash-circle-fill"></i> @L["Suspend.ActionBlocked"]</div> }
+    @if (TempData["Success"] != null)
+    { <div class="alert-jaa alert-success mt-3"><i class="bi bi-check-circle-fill"></i> @TempData["Success"]</div> }
+    @if (TempData["Error"] != null)
+    { <div class="alert-jaa alert-danger mt-3"><i class="bi bi-exclamation-circle-fill"></i> @TempData["Error"]</div> }
+    @if (TempData["Info"] != null)
+    { <div class="alert-jaa alert-info mt-3"><i class="bi bi-info-circle-fill"></i> @TempData["Info"]</div> }
+  </div>
+
+  <div class="page-content">
+    @RenderBody()
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/jaa-anim.js" asp-append-version="true"></script>
+<script src="~/js/theme.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+
+<!-- ── Global Call Modal ── -->
+<style>
+.jaa-call-overlay {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg-overlay); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 1rem;
+}
+.jaa-call-overlay.open { display: flex; animation: cm-fade-in .18s ease; }
+@@keyframes cm-fade-in { from { opacity:0; } to { opacity:1; } }
+.jaa-call-box {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2rem 1.75rem 1.75rem;
+  width: 100%; max-width: 360px; text-align: center;
+  box-shadow: 0 24px 64px rgba(0,0,0,.4);
+  animation: cm-pop .2s ease;
+}
+@@keyframes cm-pop { from { transform:scale(.93); opacity:0; } to { transform:scale(1); opacity:1; } }
+.jaa-call-icon {
+  width: 60px; height: 60px; margin: 0 auto 1.1rem;
+  background: rgba(63,185,80,.12); border: 1px solid rgba(63,185,80,.25);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; color: var(--accent);
+}
+.jaa-call-label { font-size: .7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .3rem; }
+.jaa-call-name  { font-size: 1.05rem; font-weight: 800; color: var(--text-primary); margin-bottom: .2rem; letter-spacing: -.3px; }
+.jaa-call-num   { font-size: 1.3rem; font-weight: 900; color: var(--text-primary); letter-spacing: 1px; margin-bottom: 1.4rem; }
+.jaa-call-num span { font-size: .75rem; font-weight: 600; color: var(--text-muted); display: block; letter-spacing: 0; margin-top: .1rem; }
+.btn-cm-call {
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 10px;
+  font-size: .95rem; font-weight: 700; padding: .78rem; text-decoration: none;
+  margin-bottom: .6rem; transition: background .2s, transform .15s;
+  font-family: 'Inter', 'Cairo', sans-serif;
+}
+.btn-cm-call:hover { background: var(--green); transform: translateY(-1px); color: #fff; }
+.btn-cm-cancel {
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+  width: 100%; background: transparent; border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text-muted);
+  font-size: .88rem; font-weight: 600; padding: .72rem; cursor: pointer;
+  font-family: 'Inter', 'Cairo', sans-serif; transition: border-color .2s, color .2s;
+}
+.btn-cm-cancel:hover { border-color: var(--text-muted); color: var(--text-secondary); }
+</style>
+
+<div class="jaa-call-overlay" id="jaaCallModal" onclick="if(event.target===this)closeCallModal()">
+  <div class="jaa-call-box">
+    <div class="jaa-call-icon"><i class="bi bi-telephone-fill"></i></div>
+    <div class="jaa-call-label">@L["Modal.Contact"]</div>
+    <div class="jaa-call-name" id="cmName"></div>
+    <div class="jaa-call-num" id="cmNum"><span>@L["Modal.TapToCall"]</span></div>
+    <a id="cmCallBtn" href="#" class="btn-cm-call">
+      <i class="bi bi-telephone-fill"></i> @L["Modal.CallNow"]
+    </a>
+    <button class="btn-cm-cancel" onclick="closeCallModal()">
+      <i class="bi bi-x"></i> @L["Modal.Cancel"]
+    </button>
+  </div>
+</div>
+
+<script>
+function showCallModal(name, phone) {
+  document.getElementById('cmName').textContent = name;
+  document.getElementById('cmNum').childNodes[0].textContent = phone;
+  document.getElementById('cmCallBtn').href = 'tel:' + phone.replace(/\s/g, '');
+  document.getElementById('jaaCallModal').classList.add('open');
+  document.addEventListener('keydown', _cmEscClose);
+}
+function closeCallModal() {
+  document.getElementById('jaaCallModal').classList.remove('open');
+  document.removeEventListener('keydown', _cmEscClose);
+}
+function _cmEscClose(e) { if (e.key === 'Escape') closeCallModal(); }
+</script>
+
+<!-- ── Confirm Modal ── -->
+<style>
+.jaa-confirm-overlay {
+  display: none; position: fixed; inset: 0; z-index: 10000;
+  background: var(--bg-overlay); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 1rem;
+}
+.jaa-confirm-overlay.open { display: flex; animation: cf-fade .18s ease; }
+@@keyframes cf-fade { from { opacity:0; } to { opacity:1; } }
+.jaa-confirm-box {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2rem 1.75rem 1.75rem;
+  width: 100%; max-width: 380px; text-align: center;
+  box-shadow: 0 24px 64px rgba(0,0,0,.4);
+  animation: cf-pop .2s ease;
+}
+@@keyframes cf-pop { from { transform:scale(.93); opacity:0; } to { transform:scale(1); opacity:1; } }
+.jaa-confirm-icon {
+  width: 58px; height: 58px; margin: 0 auto 1.1rem;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+}
+.jaa-confirm-icon.green { background: rgba(35,134,54,.12); border: 1px solid rgba(35,134,54,.25); color: var(--accent); }
+.jaa-confirm-icon.red   { background: var(--red-bg);       border: 1px solid var(--red-border);  color: var(--red); }
+.jaa-confirm-title { font-size: 1rem; font-weight: 800; color: var(--text-primary); margin-bottom: .4rem; letter-spacing: -.2px; }
+.jaa-confirm-msg   { font-size: .83rem; color: var(--text-muted); margin-bottom: 1.4rem; line-height: 1.6; }
+.jaa-confirm-actions { display: flex; gap: .6rem; }
+.btn-cf-confirm {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: .4rem;
+  background: var(--accent); color: #fff; border: none; border-radius: 10px;
+  font-size: .9rem; font-weight: 700; padding: .72rem; cursor: pointer;
+  font-family: 'Inter', 'Cairo', sans-serif; transition: background .2s, transform .15s;
+}
+.btn-cf-confirm:hover { background: var(--green); transform: translateY(-1px); }
+.btn-cf-cancel {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: .4rem;
+  background: transparent; border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text-muted); font-size: .9rem; font-weight: 600; padding: .72rem; cursor: pointer;
+  font-family: 'Inter', 'Cairo', sans-serif; transition: border-color .2s, color .2s;
+}
+.btn-cf-cancel:hover { border-color: var(--text-muted); color: var(--text-secondary); }
+</style>
+
+<div class="jaa-confirm-overlay" id="jaaConfirmModal" onclick="if(event.target===this)closeConfirmModal()">
+  <div class="jaa-confirm-box">
+    <div class="jaa-confirm-icon green" id="cfIcon"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="jaa-confirm-title" id="cfTitle">@L["Modal.AreYouSure"]</div>
+    <div class="jaa-confirm-msg"   id="cfMsg"></div>
+    <div class="jaa-confirm-actions">
+      <button class="btn-cf-confirm" id="cfConfirmBtn" onclick="closeConfirmModal()">
+        <i class="bi bi-check"></i> @L["Modal.Confirm"]
+      </button>
+      <button class="btn-cf-cancel" onclick="closeConfirmModal()">
+        <i class="bi bi-x"></i> @L["Modal.Cancel"]
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+var _cfCallback = null;
+
+function showConfirmModal(title, message, onConfirm, iconType) {
+  document.getElementById('cfTitle').textContent  = title;
+  document.getElementById('cfMsg').textContent    = message;
+  document.getElementById('cfIcon').className     = 'jaa-confirm-icon ' + (iconType || 'green');
+  _cfCallback = onConfirm;
+  document.getElementById('cfConfirmBtn').onclick = function () {
+    closeConfirmModal();
+    if (_cfCallback) _cfCallback();
+  };
+  document.getElementById('jaaConfirmModal').classList.add('open');
+  document.addEventListener('keydown', _cfEscClose);
+}
+function closeConfirmModal() {
+  document.getElementById('jaaConfirmModal').classList.remove('open');
+  document.removeEventListener('keydown', _cfEscClose);
+}
+function _cfEscClose(e) { if (e.key === 'Escape') closeConfirmModal(); }
+</script>
+</body>
+</html>

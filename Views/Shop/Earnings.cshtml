@@ -1,0 +1,198 @@
+@model List<JAA.Models.Payment>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"]    = L["Shop.Earnings"].Value;
+    ViewData["PageTitle"] = L["Shop.Earnings"].Value;
+    ViewData["PageSub"]  = L["ShopEarn.PaymentHistory"].Value;
+
+    decimal total    = ViewBag.TotalEarnings;
+    int     jobs     = ViewBag.TotalJobs;
+    decimal avgPerJob = jobs > 0 ? total / jobs : 0m;
+}
+
+@section Styles {
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+.earn-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+@@media (max-width: 640px) { .earn-stats { grid-template-columns: 1fr; } }
+
+.earn-stat {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.4rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+    transition: border-color .2s, transform .2s;
+}
+.earn-stat:hover { border-color: rgba(230,57,70,.25); transform: translateY(-2px); }
+
+.earn-stat-icon {
+    width: 48px; height: 48px; flex-shrink: 0;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+}
+.esi-green  { background: rgba(35,134,54,.12);  border: 1px solid rgba(35,134,54,.2);  color: var(--green-t); }
+.esi-blue   { background: rgba(88,166,255,.1);  border: 1px solid rgba(88,166,255,.2); color: var(--blue); }
+.esi-yellow { background: rgba(210,153,34,.1);  border: 1px solid rgba(210,153,34,.2); color: var(--yellow-t); }
+
+.earn-stat-val {
+    font-size: 1.55rem; font-weight: 900; color: var(--white);
+    letter-spacing: -1px; line-height: 1;
+}
+.earn-stat-lbl { font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-top: .25rem; }
+
+.earn-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+}
+.earn-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.4rem; border-bottom: 1px solid var(--border);
+    font-size: .85rem; font-weight: 700; color: var(--white);
+}
+.earn-card-head i { color: var(--red); margin-right: .45rem; }
+
+.earn-table { width: 100%; border-collapse: collapse; }
+.earn-table thead tr { border-bottom: 1px solid var(--border); }
+.earn-table th {
+    font-size: .67rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .6px;
+    padding: .75rem 1.2rem; text-align: left; white-space: nowrap;
+}
+.earn-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+}
+.earn-table tbody tr:last-child { border-bottom: none; }
+.earn-table tbody tr:hover { background: rgba(255,255,255,.02); }
+.earn-table td { padding: .9rem 1.2rem; font-size: .84rem; vertical-align: middle; }
+
+.et-id    { color: var(--muted); font-size: .78rem; white-space: nowrap; }
+.et-cust  { font-weight: 700; color: var(--white); white-space: nowrap; }
+.et-trunc { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.et-amount { font-size: .95rem; font-weight: 800; color: var(--white); white-space: nowrap; }
+.et-amount span { color: var(--muted); font-size: .72rem; font-weight: 600; }
+.et-date  { color: var(--muted); font-size: .78rem; white-space: nowrap; }
+
+.earn-amount-pill {
+    display: inline-flex; align-items: center; gap: .3rem;
+    background: rgba(35,134,54,.1); border: 1px solid rgba(35,134,54,.2);
+    border-radius: 999px; padding: .2rem .75rem;
+    font-size: .82rem; font-weight: 800; color: var(--green-t);
+}
+
+.earn-empty {
+    text-align: center; padding: 3.5rem 1rem;
+}
+.earn-empty-icon {
+    width: 60px; height: 60px; margin: 0 auto 1rem;
+    background: rgba(230,57,70,.07); border: 1px solid rgba(230,57,70,.14);
+    border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: var(--muted);
+}
+.earn-empty h5 { font-size: .95rem; font-weight: 700; color: var(--white); margin-bottom: .35rem; }
+.earn-empty p  { font-size: .82rem; color: var(--muted); }
+
+.earn-total-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.4rem;
+    border-top: 1px solid var(--border);
+    background: rgba(255,255,255,.015);
+}
+.earn-total-label { font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.earn-total-val   { font-size: 1.05rem; font-weight: 900; color: var(--white); }
+</style>
+}
+
+<div class="earn-stats">
+    <div class="earn-stat">
+        <div class="earn-stat-icon esi-green"><i class="fas fa-wallet"></i></div>
+        <div>
+            <div class="earn-stat-val">@total.ToString("F2")</div>
+            <div class="earn-stat-lbl">@L["ShopEarn.TotalEarned"]</div>
+        </div>
+    </div>
+    <div class="earn-stat">
+        <div class="earn-stat-icon esi-blue"><i class="fas fa-briefcase"></i></div>
+        <div>
+            <div class="earn-stat-val">@jobs</div>
+            <div class="earn-stat-lbl">@L["ShopEarn.CompletedJobs"]</div>
+        </div>
+    </div>
+    <div class="earn-stat">
+        <div class="earn-stat-icon esi-yellow"><i class="fas fa-chart-line"></i></div>
+        <div>
+            <div class="earn-stat-val">@avgPerJob.ToString("F2")</div>
+            <div class="earn-stat-lbl">@L["ShopEarn.AvgPerJob"]</div>
+        </div>
+    </div>
+</div>
+
+<div class="earn-card">
+    <div class="earn-card-head">
+        <span><i class="fas fa-file-invoice-dollar"></i> @L["ShopEarn.PaymentHistoryTitle"]</span>
+        @if (Model.Any())
+        {
+            <span style="font-size:.72rem;font-weight:600;color:var(--muted);">@Model.Count</span>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="earn-empty">
+            <div class="earn-empty-icon"><i class="fas fa-wallet"></i></div>
+            <h5>@L["ShopEarn.NoPayments"]</h5>
+            <p>@L["ShopEarn.NoPaymentsDesc"]</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="earn-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>@L["ShopEarn.Customer"]</th>
+                        <th>@L["ShopEarn.Situation"]</th>
+                        <th>@L["ShopEarn.Notes"]</th>
+                        <th>@L["ShopEarn.Amount"]</th>
+                        <th>@L["ShopEarn.Date"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td class="et-id">#@p.ServiceRequestId</td>
+                            <td>
+                                <div class="et-cust">@(p.ServiceRequest?.Customer?.FullName ?? "—")</div>
+                            </td>
+                            <td>
+                                <div class="et-trunc" title="@p.ServiceRequest?.SituationDescription">
+                                    @(p.ServiceRequest?.SituationDescription ?? "—")
+                                </div>
+                            </td>
+                            <td>
+                                <div class="et-trunc" title="@p.Notes">@(p.Notes ?? "—")</div>
+                            </td>
+                            <td>
+                                <span class="earn-amount-pill">
+                                    <i class="fas fa-check-circle" style="font-size:.7rem;"></i>
+                                    @p.Amount.ToString("F2") JOD
+                                </span>
+                            </td>
+                            <td class="et-date">
+                                <div>@p.PaidAt.ToLocalTime().ToString("d MMM yyyy")</div>
+                                <div style="font-size:.7rem;color:#3d444e;">@p.PaidAt.ToLocalTime().ToString("h:mm tt")</div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="earn-total-row">
+            <span class="earn-total-label">@L["ShopEarn.Total"]</span>
+            <span class="earn-total-val">@total.ToString("F2") <span style="font-size:.78rem;color:var(--muted);font-weight:600;">JOD</span></span>
+        </div>
+    }
+</div>

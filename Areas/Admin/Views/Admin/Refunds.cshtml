@@ -1,0 +1,92 @@
+@model JAA.ViewModels.RefundListViewModel
+@using JAA.Models
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = "Refunds"; ViewData["PageTitle"] = "Refund Management"; ViewData["PageSub"] = $"{Model.PendingRefunds.Count} pending refund(s)"; }
+
+@if (Model.PendingRefunds.Any())
+{
+  <h5 style="color:var(--white);font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:1rem;">@L["ARef.PendingRefunds"]</h5>
+  <div class="d-flex flex-column gap-3 mb-4">
+    @foreach (var r in Model.PendingRefunds)
+    {
+      <div class="card-jaa" style="border-left:3px solid var(--red);">
+        <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+          <div>
+            <div style="font-size:.88rem;font-weight:700;color:var(--white);margin-bottom:.3rem;">
+              @L["ARef.RefundRequest"] — Request #@r.ServiceRequestId
+            </div>
+            <div style="font-size:.78rem;color:var(--muted);margin-bottom:.4rem;">
+              @L["ARef.CustomerLabel"]: <strong style="color:var(--text2);">@r.ServiceRequest?.Customer?.FullName</strong> ·
+              @L["ARef.TypeLabel"]: <strong style="color:var(--text2);">@r.Type</strong> ·
+              @L["ARef.AmountLabel"]: <strong style="color:var(--white);">@r.Amount.ToString("F2") JOD</strong>
+            </div>
+            <div style="font-size:.78rem;color:var(--muted);margin-bottom:.6rem;">
+              @L["ARef.Requested"]: @r.RequestedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+            </div>
+            <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;font-size:.8rem;color:var(--text2);font-style:italic;">
+              @L["ARef.Reason"]: @r.Reason
+            </div>
+          </div>
+
+          <div class="d-flex flex-column gap-2" style="min-width:200px;">
+            <form asp-action="ProcessRefund" method="post">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@r.Id" />
+              <input type="hidden" name="approve" value="true" />
+              <input type="text" name="notes" class="form-control-jaa mb-2"
+                style="font-size:.75rem;padding:.4rem .7rem;"
+                placeholder="@L["ARef.AdminNotes"].Value" />
+              <button type="submit" class="btn-jaa btn-primary btn-sm btn-full">
+                <i class="bi bi-check-circle-fill"></i> @L["ARef.ApproveRefund"]
+              </button>
+            </form>
+            <form asp-action="ProcessRefund" method="post">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@r.Id" />
+              <input type="hidden" name="approve" value="false" />
+              <button type="submit" class="btn-jaa btn-ghost btn-sm btn-full"
+                style="border-color:rgba(230,57,70,.3);color:var(--red);">
+                <i class="bi bi-x-circle-fill"></i> @L["Adm.Reject"]
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<h5 style="color:var(--white);font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:1rem;">@L["ARef.RecentDecisions"]</h5>
+@if (!Model.ProcessedRefunds.Any())
+{
+  <div class="card-jaa text-center" style="padding:2rem;">
+    <p style="color:var(--muted);font-size:.85rem;margin:0;">@L["ARef.NoProcessed"]</p>
+  </div>
+}
+else
+{
+  <div class="card-jaa" style="padding:0;overflow:hidden;">
+    <table class="table-jaa">
+      <thead>
+        <tr>
+          <th>@L["ARef.CustomerLabel"]</th><th>@L["ARef.TypeLabel"]</th><th>@L["ARef.AmountLabel"]</th><th>@L["ARef.StatusCol"]</th><th>@L["ARef.Processed"]</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var r in Model.ProcessedRefunds)
+        {
+          <tr>
+            <td>@r.ServiceRequest?.Customer?.FullName</td>
+            <td class="td-muted">@r.Type</td>
+            <td>@r.Amount.ToString("F2") JOD</td>
+            <td>
+              <span class="badge-jaa @(r.Status == RefundStatus.Approved ? "badge-completed" : "badge-rejected")" style="font-size:.62rem;">
+                @L["Status." + r.Status.ToString()]
+              </span>
+            </td>
+            <td class="td-muted">@r.ProcessedAt?.ToLocalTime().ToString("dd MMM yyyy")</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

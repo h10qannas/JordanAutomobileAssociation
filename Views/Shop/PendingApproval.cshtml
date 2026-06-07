@@ -1,0 +1,25 @@
+@model JAA.Models.RepairShop
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["ShopPA.ShopPendingApproval"].Value; ViewData["PageTitle"] = L["Shop.PendingApproval"].Value; }
+
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card-jaa text-center" style="padding:3rem;">
+      <div style="width:70px;height:70px;background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#f59e0b;margin:0 auto 1.3rem;">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
+      <h4 style="color:var(--white);font-weight:800;margin-bottom:.6rem;">@L["ShopPA.ShopPendingApproval"]</h4>
+      <p style="color:var(--muted);font-size:.88rem;line-height:1.65;margin-bottom:1.5rem;">
+        @L["ShopPA.ReviewDesc"]
+      </p>
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:left;margin-bottom:1.5rem;">
+        <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:.6rem;">@L["ShopPA.YourSubmission"]</div>
+        <div style="font-size:.85rem;color:var(--text2);"><strong style="color:var(--white);">@Model?.ShopName</strong></div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:.3rem;">@Model?.City — @Model?.PhoneNumber</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:.2rem;">@Model?.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</div>
+      </div>
+      <div style="font-size:.78rem;color:var(--muted);">
+        @L["ShopPA.QuestionsContact"] <strong style="color:var(--white);">support@jaa.jo</strong>
+      </div>
+    </div>
+  </div>
+</div>

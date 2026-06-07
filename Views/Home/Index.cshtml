@@ -1,0 +1,129 @@
+@{ ViewData["Title"] = "Home"; Layout = "_Layout"; }
+
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <div class="hero-tag"><i class="bi bi-shield-check-fill"></i> @L["Home.HeroTag"]</div>
+        <h1>@Html.Raw(L["Home.HeroTitle"].Value.Replace("?", "?<br />").Replace("Help Is On", "Help Is On<br />"))</h1>
+        <p class="hero-lead">@L["Home.HeroLead"]</p>
+        <div class="d-flex flex-wrap gap-3">
+          <a asp-controller="Customer" asp-action="RequestHelp" class="btn-jaa btn-primary btn-lg btn-glow" style="position:relative;z-index:1;">
+            <i class="bi bi-lightning-fill"></i> @L["Home.RequestAssistanceNow"]
+          </a>
+          <a asp-controller="Account" asp-action="Login" class="btn-jaa btn-outline btn-lg">
+            <i class="bi bi-box-arrow-in-right"></i> @L["Home.SignIn"]
+          </a>
+        </div>
+        <div class="hero-badges">
+          <div class="hero-badge"><i class="bi bi-geo-alt-fill"></i> @L["Home.GpsAutoDetection"]</div>
+          <div class="hero-badge"><i class="bi bi-patch-check-fill"></i> @L["Home.VerifiedShopsOnly"]</div>
+          <div class="hero-badge"><i class="bi bi-activity"></i> @L["Home.RealTimeTracking"]</div>
+          <div class="hero-badge"><i class="bi bi-star-fill"></i> @L["Home.RatedMechanics"]</div>
+        </div>
+      </div>
+      <div class="col-lg-5 d-none d-lg-flex justify-content-center">
+        <div class="hero-card fade-in">
+          <div class="live-dot"><span class="pulse-dot"></span> @L["Home.LiveRequest"]</div>
+          <div class="form-group">
+            <label class="form-label">@L["Home.Situation"]</label>
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:.7rem .9rem;font-size:.82rem;color:var(--light);font-style:italic;">"@L["Home.HeroSampleSituation"]"</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">@L["Home.Location"]</label>
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:.7rem .9rem;font-size:.82rem;color:var(--light);display:flex;align-items:center;gap:.5rem;">
+              <i class="bi bi-geo-alt-fill text-red"></i> @L["Home.HeroSampleLocation"]
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">@L["Home.HeroStatus"]</label>
+            <span class="badge-jaa badge-mechanicarrived"><i class="bi bi-car-front-fill"></i> @L["Home.HeroSampleStatus"]</span>
+          </div>
+          <a asp-controller="Customer" asp-action="RequestHelp" class="btn-jaa btn-primary btn-full btn-glow" style="margin-top:.5rem;position:relative;z-index:1;">
+            <i class="bi bi-send-fill"></i> @L["Home.SubmitYourRequest"]
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="container">
+    <div class="d-flex justify-content-around align-items-center flex-wrap gap-4">
+      <div class="stat-item fade-in"><div class="stat-big">500<span>+</span></div><div class="stat-small">@L["Home.VerifiedShops"]</div></div>
+      <div class="stat-vdiv d-none d-md-block" style="height:50px;"></div>
+      <div class="stat-item fade-in"><div class="stat-big">10K<span>+</span></div><div class="stat-small">@L["Home.RequestsHandled"]</div></div>
+      <div class="stat-vdiv d-none d-md-block" style="height:50px;"></div>
+      <div class="stat-item fade-in"><div class="stat-big">24<span>/7</span></div><div class="stat-small">@L["Home.AlwaysAvailable"]</div></div>
+      <div class="stat-vdiv d-none d-md-block" style="height:50px;"></div>
+      <div class="stat-item fade-in"><div class="stat-big">92<span>%</span></div><div class="stat-small">@L["Home.CompletionRate"]</div></div>
+    </div>
+  </div>
+</div>
+
+<section class="section-pad" id="how-it-works" style="background:var(--dark);">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-label">@L["Home.Process"]</span>
+      <h2 class="section-title mt-2">@L["Home.HelpIn3Steps"]</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4"><div class="step-card fade-in"><div class="step-num">@L["Home.Step01Num"]</div><div class="step-icon"><i class="bi bi-person-plus-fill"></i></div><h4>@L["Home.Step01Title"]</h4><p>@L["Home.Step01Desc"]</p></div></div>
+      <div class="col-md-4"><div class="step-card fade-in"><div class="step-num">@L["Home.Step02Num"]</div><div class="step-icon"><i class="bi bi-geo-alt-fill"></i></div><h4>@L["Home.Step02Title"]</h4><p>@L["Home.Step02Desc"]</p></div></div>
+      <div class="col-md-4"><div class="step-card fade-in"><div class="step-num">@L["Home.Step03Num"]</div><div class="step-icon"><i class="bi bi-star-fill"></i></div><h4>@L["Home.Step03Title"]</h4><p>@L["Home.Step03Desc"]</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section-pad" id="features" style="background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-label">@L["Home.Features"]</span>
+      <h2 class="section-title mt-2">@L["Home.EverythingYouNeed"]</h2>
+    </div>
+    <div class="row g-4">
+      @foreach (var (icon, titleKey, descKey) in new[]{
+        ("bi-geo-alt-fill",    "Home.AutoGPSDetection",  "Home.AutoGPSDetectionDesc"),
+        ("bi-activity",        "Home.RealTimeTracking",  "Home.RealTimeTrackingDesc"),
+        ("bi-patch-check-fill","Home.VerifiedShopsOnly", "Home.VerifiedShopsOnlyDesc"),
+        ("bi-star-half",       "Home.RatingsFeedback",   "Home.RatingsFeedbackDesc"),
+      })
+      {
+        <div class="col-sm-6 col-lg-3"><div class="feature-card fade-in"><div class="feature-icon"><i class="bi @icon"></i></div><h5>@L[titleKey]</h5><p>@L[descKey]</p></div></div>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="section-pad" id="who-we-serve" style="background:var(--dark);">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-label">@L["Home.WhoWeServe"]</span>
+      <h2 class="section-title mt-2">@L["Home.ThreeRolesOnePlatform"]</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4"><div class="serve-card fade-in"><div class="serve-avatar"><i class="bi bi-person-fill"></i></div><h4>@L["Home.Motorists"]</h4><div class="serve-role-label">@L["Home.CustomersLabel"]</div><ul class="serve-list"><li><i class="bi bi-check-circle-fill"></i>@L["Home.MotoristFeature1"]</li><li><i class="bi bi-check-circle-fill"></i>@L["Home.MotoristFeature2"]</li><li><i class="bi bi-check-circle-fill"></i>@L["Home.MotoristFeature3"]</li><li><i class="bi bi-check-circle-fill"></i>@L["Home.MotoristFeature4"]</li></ul></div></div>
+      <div class="col-md-4"><div class="serve-card fade-in"><div class="serve-avatar"><i class="bi bi-shop-window"></i></div><h4>@L["Home.RepairShops"]</h4><div class="serve-role-label">@L["Home.ServiceProviders"]</div><ul class="serve-list"><li><i class="bi bi-check-circle-fill"></i>@L["Home.ShopFeature1"]</li><li><i class="bi bi-check-circle-fill"></i>@L["Home.ShopFeature2"]</li><li><i class="bi bi-check-circle-fill"></i>@L["Home.ShopFeature3"]</li><li><i class="bi bi-check-circle-fill"></i>@L["Home.ShopFeature4"]</li></ul></div></div>
+      <div class="col-md-4"><div class="serve-card fade-in"><div class="serve-avatar"><i class="bi bi-shield-fill-check"></i></div><h4>@L["Home.OperationsTeam"]</h4><div class="serve-role-label">@L["Home.Administrators"]</div><ul class="serve-list"><li><i class="bi bi-check-circle-fill"></i>@L["Home.AdminFeature1"]</li><li><i class="bi bi-check-circle-fill"></i>@L["Home.AdminFeature2"]</li><li><i class="bi bi-check-circle-fill"></i>@L["Home.AdminFeature3"]</li><li><i class="bi bi-check-circle-fill"></i>@L["Home.AdminFeature4"]</li></ul></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section-pad" style="background:var(--dark);">
+  <div class="container">
+    <div class="cta-box fade-in">
+      <span class="section-label">@L["Home.GetStarted"]</span>
+      <h2 class="mt-2">@L["Home.BrokenDown"]</h2>
+      <p>@L["Home.JoinThousands"]</p>
+      <div class="d-flex flex-wrap gap-3 justify-content-center">
+        <a asp-controller="Customer" asp-action="RequestHelp" class="btn-jaa btn-primary btn-lg btn-glow" style="position:relative;z-index:1;">
+          <i class="bi bi-lightning-fill"></i> @L["Home.RequestAssistanceNow"]
+        </a>
+        <a asp-controller="Account" asp-action="Register" class="btn-jaa btn-outline btn-lg">
+          <i class="bi bi-shop-window"></i> @L["Home.RegisterYourShop"]
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

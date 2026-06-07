@@ -1,0 +1,220 @@
+@model List<JAA.Models.ServiceRequest>
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"]     = L["ShopCJ.CompletedJobs"].Value;
+    ViewData["PageTitle"] = L["ShopCJ.CompletedJobs"].Value;
+    ViewData["PageSub"]   = $"{Model.Count} {L["ShopCJ.CompletedJobs"].Value}";
+
+    var totalEarned  = Model.Where(j => j.Payment != null).Sum(j => j.Payment!.Amount);
+    var avgAmount    = Model.Count > 0 ? totalEarned / Model.Count : 0m;
+}
+
+@section Styles {
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+.cj-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+@@media (max-width: 600px) { .cj-stats { grid-template-columns: 1fr; } }
+
+.cj-stat {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.2rem 1.4rem;
+    display: flex; align-items: center; gap: .9rem;
+}
+.cj-stat-icon {
+    width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.csi-green  { background: rgba(35,134,54,.12);  border: 1px solid rgba(35,134,54,.2);  color: var(--green-t); }
+.csi-blue   { background: rgba(88,166,255,.1);  border: 1px solid rgba(88,166,255,.2); color: var(--blue); }
+.csi-yellow { background: rgba(210,153,34,.1);  border: 1px solid rgba(210,153,34,.2); color: var(--yellow-t); }
+.cj-stat-val { font-size: 1.4rem; font-weight: 900; color: var(--white); letter-spacing: -.8px; line-height: 1; }
+.cj-stat-lbl { font-size: .7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-top: .2rem; }
+
+.cj-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+}
+.cj-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .9rem 1.3rem; border-bottom: 1px solid var(--border);
+    font-size: .85rem; font-weight: 700; color: var(--white);
+}
+.cj-card-head i { color: var(--green-t); margin-right: .45rem; }
+
+.cj-row {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    align-items: start;
+    gap: 1rem;
+    padding: 1.1rem 1.3rem;
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+}
+.cj-row:last-child { border-bottom: none; }
+.cj-row:hover { background: rgba(255,255,255,.02); }
+
+.cj-index {
+    width: 36px; height: 36px; flex-shrink: 0;
+    background: rgba(35,134,54,.1); border: 1px solid rgba(35,134,54,.2);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem; font-weight: 800; color: var(--green-t);
+}
+
+.cj-main { min-width: 0; }
+.cj-header-row { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .5rem; }
+.cj-customer { font-size: .9rem; font-weight: 700; color: var(--white); }
+.cj-req-num  { font-size: .7rem; color: var(--muted); }
+.cj-date-badge {
+    display: inline-flex; align-items: center; gap: .3rem;
+    font-size: .68rem; color: var(--muted);
+    background: rgba(255,255,255,.04); border: 1px solid var(--border);
+    border-radius: 999px; padding: .18rem .65rem;
+}
+
+.cj-fields { display: flex; flex-direction: column; gap: .35rem; }
+.cj-field  { display: flex; align-items: flex-start; gap: .5rem; font-size: .8rem; }
+.cj-field-icon { width: 16px; flex-shrink: 0; color: var(--muted); font-size: .72rem; margin-top: .15rem; text-align: center; }
+.cj-field-label { font-size: .65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; min-width: 64px; flex-shrink: 0; padding-top: .05rem; }
+.cj-field-val   { color: var(--light); line-height: 1.5; }
+.cj-field-val.muted { color: var(--muted); font-style: italic; }
+
+.cj-amount {
+    text-align: right; flex-shrink: 0; min-width: 90px;
+}
+.cj-amount-val {
+    display: inline-flex; align-items: center; gap: .3rem;
+    background: rgba(35,134,54,.1); border: 1px solid rgba(35,134,54,.2);
+    border-radius: 999px; padding: .28rem .85rem;
+    font-size: .85rem; font-weight: 800; color: var(--green-t);
+    white-space: nowrap;
+}
+.cj-amount-none { font-size: .82rem; color: var(--muted); }
+
+.cj-empty {
+    text-align: center; padding: 3.5rem 1rem;
+}
+.cj-empty-icon {
+    width: 60px; height: 60px; margin: 0 auto 1rem;
+    background: rgba(35,134,54,.08); border: 1px solid rgba(35,134,54,.15);
+    border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: var(--muted);
+}
+.cj-empty h5 { font-size: .95rem; font-weight: 700; color: var(--white); margin-bottom: .4rem; }
+.cj-empty p  { font-size: .82rem; color: var(--muted); }
+
+.cj-total {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.3rem;
+    border-top: 1px solid var(--border);
+    background: rgba(35,134,54,.03);
+}
+.cj-total-label { font-size: .75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.cj-total-val   { font-size: 1.05rem; font-weight: 900; color: var(--white); }
+</style>
+}
+
+@if (!Model.Any())
+{
+    <div class="cj-card">
+        <div class="cj-empty">
+            <div class="cj-empty-icon"><i class="fas fa-check-circle"></i></div>
+            <h5>@L["ShopCJ.NoJobsYet"]</h5>
+            <p>@L["ShopCJ.NoJobsDesc"]</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="cj-stats">
+        <div class="cj-stat">
+            <div class="cj-stat-icon csi-blue"><i class="fas fa-briefcase"></i></div>
+            <div>
+                <div class="cj-stat-val">@Model.Count</div>
+                <div class="cj-stat-lbl">@L["ShopCJ.CompletedJobs"]</div>
+            </div>
+        </div>
+        <div class="cj-stat">
+            <div class="cj-stat-icon csi-green"><i class="fas fa-wallet"></i></div>
+            <div>
+                <div class="cj-stat-val">@totalEarned.ToString("F2")</div>
+                <div class="cj-stat-lbl">@L["ShopCJ.TotalEarned"]</div>
+            </div>
+        </div>
+        <div class="cj-stat">
+            <div class="cj-stat-icon csi-yellow"><i class="fas fa-chart-bar"></i></div>
+            <div>
+                <div class="cj-stat-val">@avgAmount.ToString("F2")</div>
+                <div class="cj-stat-lbl">@L["ShopCJ.AvgPerJob"]</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cj-card">
+        <div class="cj-card-head">
+            <span><i class="fas fa-check-circle"></i> @L["ShopCJ.JobHistory"]</span>
+            <span style="font-size:.72rem;color:var(--muted);">@Model.Count</span>
+        </div>
+
+        @foreach (var job in Model)
+        {
+            <div class="cj-row">
+
+                <div class="cj-index">#@job.Id</div>
+
+                <div class="cj-main">
+                    <div class="cj-header-row">
+                        <span class="cj-customer">@(job.Customer?.FullName ?? "—")</span>
+                        <span class="cj-date-badge">
+                            <i class="fas fa-calendar-alt"></i>
+                            @job.UpdatedAt.ToLocalTime().ToString("d MMM yyyy")
+                        </span>
+                    </div>
+                    <div class="cj-fields">
+                        <div class="cj-field">
+                            <i class="fas fa-car cj-field-icon"></i>
+                            <span class="cj-field-label">@L["ShopCJ.Situation"]</span>
+                            <span class="cj-field-val">@(job.SituationDescription ?? "—")</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(job.DiagnosisNotes))
+                        {
+                            <div class="cj-field">
+                                <i class="fas fa-stethoscope cj-field-icon"></i>
+                                <span class="cj-field-label">@L["ShopCJ.Diagnosis"]</span>
+                                <span class="cj-field-val">@job.DiagnosisNotes</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(job.Resolution))
+                        {
+                            <div class="cj-field">
+                                <i class="fas fa-tools cj-field-icon"></i>
+                                <span class="cj-field-label">@L["ShopCJ.Resolution"]</span>
+                                <span class="cj-field-val">@job.Resolution</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="cj-amount">
+                    @if (job.Payment != null)
+                    {
+                        <span class="cj-amount-val">
+                            <i class="fas fa-check-circle" style="font-size:.7rem;"></i>
+                            @job.Payment.Amount.ToString("F2") JOD
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="cj-amount-none">—</span>
+                    }
+                </div>
+
+            </div>
+        }
+
+        <div class="cj-total">
+            <span class="cj-total-label">@L["ShopCJ.TotalEarnedFooter"]</span>
+            <span class="cj-total-val">@totalEarned.ToString("F2") <span style="font-size:.78rem;color:var(--muted);font-weight:600;">JOD</span></span>
+        </div>
+    </div>
+}

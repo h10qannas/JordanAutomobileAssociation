@@ -1,0 +1,89 @@
+@model JAA.ViewModels.AssignMechanicViewModel
+@using JAA.Models
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["ShopAR.AssignMechanic"].Value; ViewData["PageTitle"] = L["ShopAR.AssignMechanic"].Value; ViewData["PageSub"] = L["ShopAR.SelectAvailable"].Value; }
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <div class="card-jaa mb-4">
+      <div style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem;">@L["ShopAR.CustomerRequest"]</div>
+      <div style="font-size:.9rem;font-weight:600;color:var(--white);margin-bottom:.5rem;">@Model.CustomerName</div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:8px;padding:.8rem 1rem;font-size:.85rem;color:var(--text2);font-style:italic;margin-bottom:.8rem;">
+        "@Model.SituationDescription"
+      </div>
+      <a href="https://www.google.com/maps?q=@Model.CustomerLatitude,@Model.CustomerLongitude" target="_blank"
+         class="btn-jaa btn-ghost btn-sm" style="display:inline-flex;">
+        <i class="bi bi-map-fill"></i> @L["ShopAR.ViewLocation"]
+      </a>
+    </div>
+
+    <div class="card-jaa">
+      <div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1rem;">@L["ShopAR.AvailableMechanics"]</div>
+
+      <form asp-action="AcceptRequest" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="ServiceRequestId" value="@Model.ServiceRequestId" />
+        <input type="hidden" name="CustomerName" value="@Model.CustomerName" />
+        <input type="hidden" name="SituationDescription" value="@Model.SituationDescription" />
+        <input type="hidden" name="CustomerLatitude" value="@Model.CustomerLatitude" />
+        <input type="hidden" name="CustomerLongitude" value="@Model.CustomerLongitude" />
+
+        <div class="d-flex flex-column gap-3 mb-4">
+          @foreach (var m in Model.AvailableMechanics)
+          {
+            <label style="cursor:pointer;">
+              <input type="radio" name="SelectedMechanicId" value="@m.Id" class="d-none mechanic-radio" required />
+              <div class="mechanic-card" style="background:rgba(255,255,255,.03);border:2px solid var(--border);border-radius:12px;padding:1rem 1.2rem;transition:all .15s;">
+                <div class="d-flex align-items-center gap-3">
+                  @if (!string.IsNullOrEmpty(m.ProfileImageUrl))
+                  {
+                    <img src="@m.ProfileImageUrl" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" alt="" />
+                  }
+                  else
+                  {
+                    <div style="width:40px;height:40px;background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#3fb950;">
+                      @m.FullName.Substring(0,1)
+                    </div>
+                  }
+                  <div class="flex-grow-1">
+                    <div style="font-size:.88rem;font-weight:700;color:var(--white);">@m.FullName</div>
+                    <div style="font-size:.75rem;color:var(--muted);">
+                      @(m.YearsOfExperience.HasValue ? $"{m.YearsOfExperience} {L["ShopAR.YrsExp"].Value}" : "")
+                      @if (!string.IsNullOrEmpty(m.PhoneNumber)) { <text> · @m.PhoneNumber</text> }
+                    </div>
+                  </div>
+                  <div style="width:20px;height:20px;border:2px solid var(--border);border-radius:50%;flex-shrink:0;" class="radio-dot"></div>
+                </div>
+              </div>
+            </label>
+          }
+        </div>
+
+        <button type="submit" class="btn-jaa btn-primary btn-full">
+          <i class="bi bi-handshake-fill"></i> @L["ShopAR.AssignAccept"]
+        </button>
+        <a asp-action="IncomingRequests" class="btn-jaa btn-ghost btn-full mt-2">@L["ShopAR.Cancel"]</a>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    document.querySelectorAll('.mechanic-radio').forEach(radio => {
+      radio.addEventListener('change', function() {
+        document.querySelectorAll('.mechanic-card').forEach(c => {
+          c.style.borderColor = 'var(--border)';
+          c.style.background  = 'rgba(255,255,255,.03)';
+          c.querySelector('.radio-dot').style.background = 'transparent';
+        });
+        const card = this.closest('label').querySelector('.mechanic-card');
+        card.style.borderColor = '#3fb950';
+        card.style.background  = 'rgba(63,185,80,.06)';
+        card.querySelector('.radio-dot').style.background = '#3fb950';
+        card.querySelector('.radio-dot').style.borderColor = '#3fb950';
+      });
+    });
+  </script>
+}

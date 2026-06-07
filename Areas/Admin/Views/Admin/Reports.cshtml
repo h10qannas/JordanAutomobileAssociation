@@ -1,0 +1,32 @@
+@model JAA.ViewModels.AdminReportsViewModel
+@{ ViewData["Title"] = "Reports"; ViewData["PageTitle"] = "Reports"; ViewData["PageSub"] = "Revenue and feedback overview"; }
+
+<div class="row g-3 mb-4">
+  <div class="col-sm-4"><div class="stat-card"><div class="stat-icon stat-icon-blue"><i class="bi bi-wallet2"></i></div><div><div class="stat-num">@Model.TotalRevenue.ToString("F0")</div><div class="stat-label">@L["ARep.TotalRevenue"]</div></div></div></div>
+  <div class="col-sm-4"><div class="stat-card"><div class="stat-icon stat-icon-green"><i class="bi bi-check-circle-fill"></i></div><div><div class="stat-num">@Model.TotalCompletedRequests</div><div class="stat-label">@L["ARep.CompletedJobs"]</div></div></div></div>
+  <div class="col-sm-4"><div class="stat-card"><div class="stat-icon stat-icon-yellow"><i class="bi bi-star-fill"></i></div><div><div class="stat-num">@(Model.AverageRating>0?Model.AverageRating.ToString("F1")+"★":"—")</div><div class="stat-label">@L["ARep.AvgRating"]</div></div></div></div>
+</div>
+
+<div class="card-jaa mb-4" style="padding:0;overflow:hidden;">
+  <div class="section-head" style="padding:1.2rem 1.5rem 0;"><h5>@L["ARep.CompletedJobs"]</h5></div>
+  <div style="overflow-x:auto;"><table class="table-jaa">
+    <thead><tr><th style="padding-left:1.5rem;">@L["Adm.ID"]</th><th>@L["Adm.Customer"]</th><th>@L["Adm.Shop"]</th><th>@L["Adm.Situation"]</th><th>@L["Adm.Amount"]</th><th style="padding-right:1.5rem;">@L["Adm.Date"]</th></tr></thead>
+    <tbody>
+      @foreach (var r in Model.CompletedRequests)
+      { <tr><td class="td-primary" style="padding-left:1.5rem;">#@r.Id</td><td>@r.Customer?.FullName</td><td>@r.Shop?.ShopName</td><td class="td-truncate">@r.SituationDescription</td><td class="td-muted">@(r.Payment!=null?$"{r.Payment.Amount:F2} JOD":"—")</td><td class="td-muted" style="padding-right:1.5rem;">@r.UpdatedAt.ToLocalTime().ToString("d")</td></tr> }
+      @if (!Model.CompletedRequests.Any()) { <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--muted);">@L["ARep.NoCompleted"]</td></tr> }
+    </tbody>
+  </table></div>
+</div>
+
+<div class="card-jaa" style="padding:0;overflow:hidden;">
+  <div class="section-head" style="padding:1.2rem 1.5rem 0;"><h5>@L["ARep.RecentFeedback"]</h5></div>
+  <div style="overflow-x:auto;"><table class="table-jaa">
+    <thead><tr><th style="padding-left:1.5rem;">@L["Adm.Customer"]</th><th>@L["Adm.Shop"]</th><th>@L["ShopRev.AverageRating"]</th><th>@L["Adm.Comment"]</th><th style="padding-right:1.5rem;">@L["Adm.Date"]</th></tr></thead>
+    <tbody>
+      @foreach (var f in Model.RecentFeedbacks)
+      { <tr><td class="td-primary" style="padding-left:1.5rem;">@f.Customer?.FullName</td><td>@f.Shop?.ShopName</td><td><span style="color:#f4c430;">@string.Concat(Enumerable.Repeat("★",f.Rating))</span></td><td class="td-muted fs-xs" style="font-style:italic;">@(string.IsNullOrEmpty(f.Comment)?"—":f.Comment)</td><td class="td-muted" style="padding-right:1.5rem;">@f.CreatedAt.ToLocalTime().ToString("d")</td></tr> }
+      @if (!Model.RecentFeedbacks.Any()) { <tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--muted);">@L["ARep.NoFeedback"]</td></tr> }
+    </tbody>
+  </table></div>
+</div>

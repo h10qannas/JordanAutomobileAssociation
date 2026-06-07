@@ -1,0 +1,44 @@
+@model List<JAA.Models.ApplicationUser>
+@{ ViewData["Title"] = "Users"; ViewData["PageTitle"] = "Manage Users"; ViewData["PageSub"] = $"{Model.Count} registered user(s)"; }
+
+<div class="card-jaa mb-4">
+  <form method="get" class="d-flex gap-3">
+    <div class="search-box flex-grow-1"><i class="bi bi-search"></i><input type="text" name="search" value="@ViewBag.Search" class="search-input" style="width:100%;" placeholder="@L["Adm.SearchNameEmail"].Value" /></div>
+    <button type="submit" class="btn-jaa btn-outline btn-sm"><i class="bi bi-funnel-fill"></i></button>
+  </form>
+</div>
+<div class="card-jaa" style="padding:0;overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table class="table-jaa">
+      <thead><tr><th style="padding-left:1.5rem;">@L["Adm.Name"]</th><th>@L["Adm.Email"]</th><th>@L["Adm.Phone"]</th><th>@L["Adm.Role"]</th><th>@L["Adm.Status"]</th><th>@L["Adm.Joined"]</th><th style="padding-right:1.5rem;">@L["Adm.Actions"]</th></tr></thead>
+      <tbody>
+        @foreach (var u in Model)
+        {
+          <tr>
+            <td style="padding-left:1.5rem;"><div style="display:flex;align-items:center;gap:.7rem;"><div style="width:32px;height:32px;border-radius:50%;background:rgba(230,57,70,.12);border:2px solid rgba(230,57,70,.2);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--red);flex-shrink:0;">@u.FullName.Substring(0,2).ToUpper()</div><div class="td-primary">@u.FullName</div></div></td>
+            <td class="td-muted fs-xs">@u.Email</td>
+            <td class="td-muted fs-xs">@(u.PhoneNumber ?? "—")</td>
+            <td><span class="badge-jaa @(u.Role==JAA.Models.UserRole.Admin?"badge-mechanic":u.Role==JAA.Models.UserRole.ShopOwner?"badge-accepted":"badge-completed")">@u.Role</span></td>
+            <td>@if(u.IsActive){<span class="badge-jaa badge-verified">@L["Adm.Active"]</span>}else{<span class="badge-jaa badge-rejected">@L["Adm.Inactive"]</span>}</td>
+            <td class="td-muted">@u.CreatedAt.ToString("dd MMM yyyy")</td>
+            <td style="padding-right:1.5rem;">
+              <div class="d-flex gap-1">
+                <form asp-area="Admin" asp-controller="Admin" asp-action="ToggleUserActive" asp-route-id="@u.Id" method="post" style="display:inline;">
+                  @Html.AntiForgeryToken()
+                  <button type="submit" class="btn-icon-sm @(u.IsActive?"danger":"")" title="@(u.IsActive?L["Adm.Inactive"].Value:L["Adm.Active"].Value)"><i class="bi @(u.IsActive?"bi-slash-circle-fill":"bi-arrow-repeat")"></i></button>
+                </form>
+                <form asp-area="Admin" asp-controller="Admin" asp-action="DeleteUser" asp-route-id="@u.Id" method="post" style="display:inline;"
+                      data-confirm="@L["Adm.DeleteUserConfirm"].Value"
+                      onsubmit="return confirm(this.dataset.confirm)">
+                  @Html.AntiForgeryToken()
+                  <button type="submit" class="btn-icon-sm danger"><i class="bi bi-trash-fill"></i></button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        }
+        @if (!Model.Any()) { <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);">@L["Adm.NoUsersFound"]</td></tr> }
+      </tbody>
+    </table>
+  </div>
+</div>

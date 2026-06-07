@@ -1,0 +1,26 @@
+@model JAA.Models.RepairShop
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["ShopRej.NotApproved"].Value; ViewData["PageTitle"] = L["ShopRej.NotApproved"].Value; }
+
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card-jaa text-center" style="padding:3rem;">
+      <div style="width:70px;height:70px;background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:var(--red);margin:0 auto 1.3rem;">
+        <i class="bi bi-x-circle-fill"></i>
+      </div>
+      <h4 style="color:var(--white);font-weight:800;margin-bottom:.6rem;">@L["ShopRej.NotApproved"]</h4>
+      <p style="color:var(--muted);font-size:.88rem;line-height:1.65;margin-bottom:1rem;">
+        @L["ShopRej.Desc"]
+      </p>
+      @if (!string.IsNullOrEmpty(Model?.RejectionReason))
+      {
+        <div style="background:rgba(230,57,70,.06);border:1px solid rgba(230,57,70,.2);border-radius:10px;padding:1rem;margin-bottom:1.5rem;text-align:left;">
+          <div style="font-size:.7rem;font-weight:700;color:var(--red);text-transform:uppercase;margin-bottom:.4rem;">@L["ShopRej.Reason"]</div>
+          <div style="font-size:.85rem;color:var(--text2);">@Model.RejectionReason</div>
+        </div>
+      }
+      <div style="font-size:.78rem;color:var(--muted);">
+        @L["ShopRej.AssistanceContact"] <strong style="color:var(--white);">support@jaa.jo</strong>
+      </div>
+    </div>
+  </div>
+</div>

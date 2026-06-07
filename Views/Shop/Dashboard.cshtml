@@ -1,0 +1,117 @@
+@model JAA.ViewModels.ShopDashboardViewModel
+@using JAA.Models
+@{ ViewData["Title"] = L["Shop.Dashboard"].Value; ViewData["PageTitle"] = Model.Shop.ShopName; ViewData["PageSub"] = DateTime.Now.ToString("dddd, d MMMM yyyy"); Layout = "_DashboardLayout";
+  Func<DateTime, string> ago = (dt) => { var d = DateTime.UtcNow - dt; if (d.TotalSeconds < 60) return L["Track.JustNow"].Value; if (d.TotalMinutes < 60) return $"{(int)d.TotalMinutes}{L["Track.MinAgo"].Value}"; if (d.TotalHours < 24) return $"{(int)d.TotalHours}h ago"; return dt.ToLocalTime().ToString("MMM d"); }; }
+
+@if (!Model.Shop.IsVerified)
+{ <div class="alert-jaa alert-warning mb-4"><i class="bi bi-hourglass-split"></i> <strong>@L["ShopDB.PendingVerification"]</strong> @L["ShopDB.ShopUnderReview"]</div> }
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon stat-icon-yellow"><i class="bi bi-inbox-fill"></i></div><div><div class="stat-num">@Model.PendingRequests</div><div class="stat-label">@L["ShopDB.Incoming"]</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon stat-icon-red"><i class="bi bi-tools"></i></div><div><div class="stat-num">@Model.ActiveJobs</div><div class="stat-label">@L["Shop.ActiveJobs"]</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon stat-icon-green"><i class="bi bi-check-circle-fill"></i></div><div><div class="stat-num">@Model.CompletedToday</div><div class="stat-label">@L["ShopDB.DoneToday"]</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon stat-icon-blue"><i class="bi bi-star-fill"></i></div><div><div class="stat-num">@(Model.AverageRating > 0 ? Model.AverageRating.ToString("F1") : "—")</div><div class="stat-label">@L["ShopDB.AvgRating"]</div></div></div></div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="d-flex gap-2 mb-3">
+      <a href="#incomingSection" class="tab-pill active" onclick="showSection('incoming',this)"><i class="bi bi-inbox-fill"></i> @L["ShopDB.Incoming"] <span style="background:rgba(255,255,255,.15);border-radius:99px;font-size:.62rem;padding:.1rem .4rem;">@Model.IncomingRequests.Count</span></a>
+      <a href="#activeSection"   class="tab-pill" onclick="showSection('active',this)"><i class="bi bi-tools"></i> @L["Shop.ActiveJobs"] <span style="background:rgba(255,255,255,.15);border-radius:99px;font-size:.62rem;padding:.1rem .4rem;">@Model.CurrentActiveJobs.Count</span></a>
+    </div>
+
+    <div id="incomingSection">
+      <div class="d-flex flex-column gap-3">
+        @if (Model.IncomingRequests.Any())
+        {
+          foreach (var r in Model.IncomingRequests)
+          {
+            <div class="card-jaa-sm" style="border-color:rgba(230,57,70,.3);background:rgba(230,57,70,.03);">
+              <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                <div>
+                  <span class="badge-jaa badge-pending fs-xs mb-1">@L["ShopDB.NewRequest"]</span>
+                  <div style="font-size:.9rem;font-weight:700;color:var(--white);">#@r.Id · @r.Customer?.FullName</div>
+                  <div class="fs-xs text-muted mt-1"><i class="bi bi-clock"></i> @ago(r.CreatedAt)</div>
+                </div>
+              </div>
+              <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;color:var(--muted);font-style:italic;margin-bottom:.8rem;">"@(r.SituationDescription.Length > 120 ? r.SituationDescription[..120]+"…" : r.SituationDescription)"</div>
+              @if (r.CustomerLatitude != 0)
+              { <div class="fs-xs text-blue mb-2"><i class="bi bi-map-fill"></i> @L["ShopDB.GPS"]: <a href="https://www.google.com/maps?q=@r.CustomerLatitude,@r.CustomerLongitude" target="_blank" style="color:var(--blue);">@L["ShopDB.ViewOnMap"]</a></div> }
+              <div class="d-flex gap-2 justify-content-end">
+                <form asp-action="AcceptRequest" asp-route-id="@r.Id" method="post" style="display:inline;">
+                  @Html.AntiForgeryToken()
+                  <button type="submit" class="btn-jaa btn-green btn-sm"><i class="bi bi-check-lg"></i> @L["ShopDB.AcceptRequest"]</button>
+                </form>
+              </div>
+            </div>
+          }
+        }
+        else { <div style="text-align:center;padding:3rem;color:var(--muted);"><i class="bi bi-inbox" style="font-size:2.5rem;display:block;margin-bottom:.6rem;"></i>@L["ShopDB.NoIncomingRequests"]</div> }
+      </div>
+    </div>
+
+    <div id="activeSection" style="display:none;">
+      <div class="d-flex flex-column gap-3">
+        @if (Model.CurrentActiveJobs.Any())
+        {
+          foreach (var j in Model.CurrentActiveJobs)
+          {
+            <div class="card-jaa-sm">
+              <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                <div>
+                  <span class="badge-jaa badge-@j.Status.ToString().ToLower() fs-xs mb-1">@L["Status." + j.Status.ToString()]</span>
+                  <div style="font-size:.9rem;font-weight:700;color:var(--white);">#@j.Id · @j.Customer?.FullName</div>
+                </div>
+                <a asp-action="ActiveJobs" class="btn-jaa btn-outline btn-sm">@L["ShopDB.Manage"]</a>
+              </div>
+              <div class="fs-xs text-muted" style="font-style:italic;">"@(j.SituationDescription.Length > 80 ? j.SituationDescription[..80]+"…" : j.SituationDescription)"</div>
+            </div>
+          }
+        }
+        else { <div style="text-align:center;padding:2rem;color:var(--muted);">@L["ShopDB.NoActiveJobs"]</div> }
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4 d-flex flex-column gap-3">
+    <div class="card-jaa">
+      <h5 style="font-size:.88rem;font-weight:700;color:var(--white);margin-bottom:1rem;">@L["ShopDB.MyShop"]</h5>
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <div style="width:44px;height:44px;border-radius:50%;background:rgba(230,57,70,.15);border:2px solid rgba(230,57,70,.3);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:var(--red);">@Model.Shop.ShopName.Substring(0,2).ToUpper()</div>
+        <div>
+          <div style="font-size:.9rem;font-weight:700;color:var(--white);">@Model.Shop.ShopName</div>
+          <div class="fs-xs @(Model.Shop.IsVerified ? "text-green" : "text-yellow")">
+            <i class="bi @(Model.Shop.IsVerified ? "bi-patch-check-fill" : "bi-hourglass-split")"></i>
+            @(Model.Shop.IsVerified ? L["ShopDB.VerifiedShop"].Value : L["ShopDB.PendingVerification"].Value)
+          </div>
+        </div>
+      </div>
+      <div class="row g-2">
+        <div class="col-6"><div style="background:var(--dark);border:1px solid var(--border);border-radius:7px;padding:.55rem;text-align:center;"><div class="fs-xs text-muted">@L["ShopDB.City"]</div><div class="fs-sm fw-700 text-white">@Model.Shop.City</div></div></div>
+        <div class="col-6"><div style="background:var(--dark);border:1px solid var(--border);border-radius:7px;padding:.55rem;text-align:center;"><div class="fs-xs text-muted">@L["ShopDB.Rating"]</div><div class="fs-sm fw-700 text-white">@(Model.AverageRating > 0 ? Model.AverageRating.ToString("F1")+"★" : "—")</div></div></div>
+      </div>
+      <div class="mt-3 d-flex gap-2">
+        <a asp-action="ManageShop" class="btn-jaa btn-outline btn-sm btn-full"><i class="bi bi-pencil-fill"></i> @L["ShopDB.EditShop"]</a>
+      </div>
+    </div>
+    <div class="card-jaa">
+      <h5 style="font-size:.88rem;font-weight:700;color:var(--white);margin-bottom:.9rem;">@L["ShopDB.QuickLinks"]</h5>
+      <div class="d-flex flex-column gap-2">
+        <a asp-action="IncomingRequests" class="btn-jaa btn-outline btn-full btn-sm"><i class="bi bi-inbox-fill"></i> @L["ShopDB.AllIncoming"]</a>
+        <a asp-action="Earnings"         class="btn-jaa btn-outline btn-full btn-sm"><i class="bi bi-wallet2"></i> @L["Shop.Earnings"]</a>
+        <a asp-action="Reviews"          class="btn-jaa btn-outline btn-full btn-sm"><i class="bi bi-star-fill"></i> @L["Shop.Reviews"] (@Model.TotalReviews)</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+function showSection(name, link) {
+  ['incoming','active'].forEach(s => { document.getElementById(s+'Section').style.display = s===name ? 'block' : 'none'; });
+  document.querySelectorAll('.tab-pill').forEach(l => l.classList.remove('active'));
+  link.classList.add('active');
+  return false;
+}
+</script>
+}

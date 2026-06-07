@@ -1,0 +1,148 @@
+@model JAA.ViewModels.CustomerMapViewModel
+@using System.Text.Json
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["Map.Title"].Value; ViewData["PageTitle"] = L["Map.PageTitle"].Value; ViewData["PageSub"] = L["Map.PageSub"].Value;
+   var jsAvailable        = L["Map.Available2"].Value;
+   var jsBusy             = L["Map.Busy2"].Value;
+   var jsReviews          = L["Map.Reviews"].Value;
+   var jsMechanics        = L["Map.MechanicsAvailable"].Value;
+   var jsRequestHelp      = L["Map.RequestHelp"].Value;
+   var jsCurrentlyBusy    = L["Map.CurrentlyBusy"].Value;
+   var jsYourLocation     = L["Map.YourLocation"].Value;
+}
+
+@section Styles {
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #shopMap { height: 500px; border-radius: 14px; border: 1px solid var(--border); }
+    .shop-popup { font-family: 'Inter', sans-serif; min-width: 220px; }
+    .shop-popup h6 { font-weight: 700; margin-bottom: 4px; color: #1a1a1a; }
+    .shop-popup .badge-avail { display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700; }
+    .shop-popup .badge-avail.available { background:#dcfce7;color:#166534; }
+    .shop-popup .badge-avail.busy { background:#fee2e2;color:#991b1b; }
+    .legend-box { background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap; }
+    .legend-item { display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--muted);font-weight:600; }
+    .legend-dot { width:12px;height:12px;border-radius:50%; }
+  </style>
+}
+
+<div class="row g-3 mb-3">
+  <div class="col-12">
+    <div class="legend-box">
+      <span class="legend-item"><span class="legend-dot" style="background:#3fb950;border:2px solid #2d9244;"></span> @L["Map.Available"]</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#e63946;border:2px solid #c1121f;"></span> @L["Map.Busy"]</span>
+      <span class="legend-item"><i class="bi bi-cursor-fill" style="color:var(--accent);font-size:.9rem;"></i> @L["Map.YourLocation"]</span>
+      <div class="ms-auto" style="font-size:.78rem;color:var(--muted);">@L["Map.ClickMarker"]</div>
+    </div>
+  </div>
+</div>
+
+<div id="shopMap" class="mb-4"></div>
+
+<div class="row g-3" id="shopCards">
+  @foreach (var s in Model.Shops)
+  {
+    <div class="col-md-6 col-lg-4">
+      <div class="card-jaa h-100" style="padding:1rem;">
+        <div class="d-flex align-items-start justify-content-between mb-2">
+          <div>
+            <div style="font-size:.88rem;font-weight:700;color:var(--white);">@s.Name</div>
+            <div style="font-size:.75rem;color:var(--muted);"><i class="bi bi-geo-alt me-1"></i>@s.City</div>
+          </div>
+          <span class="badge-jaa @(s.IsAvailable ? "badge-completed" : "badge-rejected")" style="font-size:.65rem;">
+            @(s.IsAvailable ? L["Map.Available"].Value : L["Map.Busy"].Value)
+          </span>
+        </div>
+        <div class="d-flex gap-3 mb-3" style="font-size:.78rem;color:var(--muted);">
+          <span><i class="bi bi-star-fill" style="color:#f59e0b;"></i> @s.AvgRating.ToString("F1") (@s.ReviewCount)</span>
+          <span><i class="bi bi-person-gear me-1"></i>@s.AvailableMechanics @L["Map.MechanicsAvailable"]</span>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn-jaa btn-ghost btn-sm flex-grow-1" onclick="focusShop(@s.Lat, @s.Lng)">
+            <i class="bi bi-map-fill"></i> @L["Map.MapButton"]
+          </button>
+          @if (s.IsAvailable)
+          {
+            <a asp-controller="Customer" asp-action="RequestHelp" class="btn-jaa btn-primary btn-sm flex-grow-1">
+              <i class="bi bi-exclamation-triangle-fill"></i> @L["Map.RequestButton"]
+            </a>
+          }
+          else
+          {
+            <button class="btn-jaa btn-ghost btn-sm flex-grow-1" disabled style="opacity:.4;cursor:not-allowed;">@L["Map.Busy"]</button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+@section Scripts {
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const shops = @Html.Raw(JsonSerializer.Serialize(Model.Shops));
+    const _map = {
+      available:      '@Html.Raw(jsAvailable.Replace("'", "\\'"))',
+      busy:           '@Html.Raw(jsBusy.Replace("'", "\\'"))',
+      reviews:        '@Html.Raw(jsReviews.Replace("'", "\\'"))',
+      mechanics:      '@Html.Raw(jsMechanics.Replace("'", "\\'"))',
+      requestHelp:    '@Html.Raw(jsRequestHelp.Replace("'", "\\'"))',
+      currentlyBusy:  '@Html.Raw(jsCurrentlyBusy.Replace("'", "\\'"))',
+      yourLocation:   '@Html.Raw(jsYourLocation.Replace("'", "\\'"))'
+    };
+
+    const map = L.map('shopMap').setView([31.9522, 35.9330], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors', maxZoom: 19
+    }).addTo(map);
+
+    function makeIcon(available) {
+      return L.divIcon({
+        className: '',
+        html: `<div style="width:32px;height:32px;background:${available ? '#3fb950' : '#e63946'};border:3px solid ${available ? '#2d9244' : '#c1121f'};border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.4);">
+                 <svg width="14" height="14" fill="white" viewBox="0 0 16 16"><path d="M8 1a5.5 5.5 0 0 0-5.5 5.5c0 3.033 5.5 8.5 5.5 8.5s5.5-5.467 5.5-8.5A5.5 5.5 0 0 0 8 1zm0 7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
+               </div>`,
+        iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -34]
+      });
+    }
+
+    shops.forEach(s => {
+      if (!s.lat || !s.lng) return;
+      const marker = L.marker([s.lat, s.lng], { icon: makeIcon(s.isAvailable) }).addTo(map);
+      marker.bindPopup(`
+        <div class="shop-popup">
+          <h6>${s.name}</h6>
+          <span class="badge-avail ${s.isAvailable ? 'available' : 'busy'}">${s.isAvailable ? _map.available : _map.busy}</span>
+          <div style="margin:6px 0;font-size:12px;color:#555;">
+            <div>⭐ ${s.avgRating.toFixed(1)} (${s.reviewCount} ${_map.reviews})</div>
+            <div>🔧 ${s.availableMechanics} ${_map.mechanics}</div>
+            <div>📍 ${s.city}</div>
+            ${s.phone ? `<div>📞 ${s.phone}</div>` : ''}
+          </div>
+          ${s.isAvailable
+            ? `<a href="/Customer/RequestHelp" style="display:block;background:#e63946;color:#fff;text-align:center;padding:6px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;margin-top:8px;">🆘 ${_map.requestHelp}</a>`
+            : `<div style="text-align:center;padding:6px;border-radius:6px;font-size:12px;background:#fee2e2;color:#991b1b;margin-top:8px;">${_map.currentlyBusy}</div>`
+          }
+        </div>
+      `);
+    });
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+        L.marker([lat, lng], {
+          icon: L.divIcon({
+            className: '',
+            html: `<div style="width:20px;height:20px;background:#5b8af5;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 3px rgba(91,138,245,.3);"></div>`,
+            iconSize: [20,20], iconAnchor: [10,10]
+          })
+        }).addTo(map).bindPopup('📍 ' + _map.yourLocation);
+        map.setView([lat, lng], 13);
+      }, () => {});
+    }
+
+    function focusShop(lat, lng) {
+      map.setView([lat, lng], 15);
+      document.getElementById('shopMap').scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+}

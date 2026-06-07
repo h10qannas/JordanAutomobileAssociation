@@ -1,0 +1,664 @@
+@model JAA.Models.RepairShop?
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"]    = L["Shop.ManageShop"].Value;
+    ViewData["PageTitle"] = L["Shop.ManageShop"].Value;
+    ViewData["PageSub"]  = L["ShopMS.ManageDetails"].Value;
+    var jsLocating        = L["ShopMS.Locating"].Value;
+    var jsMyLocation      = L["ShopMS.MyLocation"].Value;
+    var jsUseMyLocation   = L["ShopMS.UseMyLocation"].Value;
+    var jsClickMapToPin   = L["ShopMS.ClickMapToPin"].Value;
+    var jsLookingUp       = L["ShopMS.LookingUpAddress"].Value;
+    var jsGeoNotSupported = L["ShopMS.GeoNotSupported"].Value;
+    var jsGeoAccessDenied = L["ShopMS.GeoAccessDenied"].Value;
+    var jsGeoUnavailable  = L["ShopMS.GeoUnavailable"].Value;
+    var jsGeoTimeout      = L["ShopMS.GeoTimeout"].Value;
+    var jsGeoFailed       = L["ShopMS.GeoFailed"].Value;
+}
+
+@section Styles {
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+.ms-label {
+    display: block; font-size: .7rem; font-weight: 700;
+    color: var(--muted); text-transform: uppercase; letter-spacing: .6px;
+    margin-bottom: .4rem;
+}
+.ms-input,
+.ms-textarea {
+    width: 100%;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--white); font-size: .88rem; font-family: var(--font);
+    padding: .72rem .95rem;
+    transition: border-color .2s, box-shadow .2s; outline: none;
+}
+.ms-input:focus,
+.ms-textarea:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(230,57,70,.12);
+}
+.ms-input::placeholder,
+.ms-textarea::placeholder { color: #3d444e; }
+.ms-textarea { resize: vertical; line-height: 1.65; }
+
+.ms-hint { font-size: .7rem; color: var(--muted); margin-top: .3rem; }
+
+.ms-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+}
+.ms-card-head {
+    display: flex; align-items: center; gap: .55rem;
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    font-size: .85rem; font-weight: 700; color: var(--white);
+}
+.ms-card-head i { color: var(--red); font-size: .9rem; }
+.ms-card-body { padding: 1.5rem 1.4rem; }
+
+.ms-profile {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex; align-items: center; gap: 1.2rem;
+    margin-bottom: 1.25rem;
+    position: relative; overflow: hidden;
+}
+.ms-profile::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(230,57,70,.07) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+.ms-logo-wrap {
+    width: 72px; height: 72px; flex-shrink: 0;
+    border-radius: 16px; overflow: hidden;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; color: rgba(230,57,70,.25);
+    cursor: pointer; position: relative;
+    transition: border-color .2s, box-shadow .2s;
+}
+.ms-logo-wrap:hover { border-color: var(--red); box-shadow: 0 0 0 3px rgba(230,57,70,.15); }
+.ms-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.ms-logo-wrap .lw-edit-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,.6);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: .2rem; opacity: 0; transition: opacity .18s; border-radius: 16px;
+    pointer-events: none;
+}
+.ms-logo-wrap:hover .lw-edit-overlay { opacity: 1; }
+.lw-edit-overlay i   { font-size: .9rem; color: #fff; }
+.lw-edit-overlay span { font-size: .55rem; font-weight: 700; color: rgba(255,255,255,.8); text-transform: uppercase; letter-spacing: .5px; }
+.ms-profile-name {
+    font-size: 1.1rem; font-weight: 800; color: var(--white);
+    letter-spacing: -.3px; margin-bottom: .25rem;
+}
+.ms-profile-meta {
+    display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+    font-size: .78rem; color: var(--muted);
+}
+.ms-profile-meta i { font-size: .72rem; }
+.ms-verified-badge {
+    display: inline-flex; align-items: center; gap: .3rem;
+    background: rgba(35,134,54,.12); border: 1px solid rgba(35,134,54,.25);
+    color: var(--green-t); border-radius: 999px;
+    font-size: .65rem; font-weight: 700; padding: .22rem .65rem;
+}
+.ms-unverified-badge {
+    display: inline-flex; align-items: center; gap: .3rem;
+    background: rgba(210,153,34,.1); border: 1px solid rgba(210,153,34,.25);
+    color: var(--yellow-t); border-radius: 999px;
+    font-size: .65rem; font-weight: 700; padding: .22rem .65rem;
+}
+
+.logo-upload-zone {
+    position: relative;
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    background: rgba(255,255,255,.02);
+    min-height: 90px;
+    max-width: 280px;
+    display: flex; align-items: center; justify-content: center;
+}
+.logo-upload-zone:hover,
+.logo-upload-zone.drag-over {
+    border-color: var(--red);
+    background: rgba(230,57,70,.04);
+}
+.logo-upload-empty {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: .5rem;
+    padding: 2rem 1rem; text-align: center;
+    pointer-events: none;
+}
+.logo-upload-empty i { font-size: 2rem; color: var(--muted); opacity: .5; }
+.logo-upload-empty span { font-size: .82rem; color: var(--muted); }
+.logo-upload-empty small { font-size: .7rem; color: #3d444e; }
+
+.logo-upload-preview {
+    display: none;
+    width: 100%; height: 100%;
+    min-height: 90px;
+    position: relative;
+}
+.logo-upload-preview img {
+    width: 100%; height: 100%; min-height: 90px;
+    object-fit: contain;
+    background: rgba(0,0,0,.2);
+    display: block;
+}
+.logo-upload-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,.55);
+    display: flex; align-items: center; justify-content: center; gap: 1rem;
+    opacity: 0; transition: opacity .18s;
+}
+.logo-upload-zone:hover .logo-upload-overlay { opacity: 1; }
+.lup-btn {
+    display: inline-flex; align-items: center; gap: .35rem;
+    background: rgba(255,255,255,.12); backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 8px; color: #fff;
+    font-size: .78rem; font-weight: 600;
+    padding: .45rem .85rem; cursor: pointer;
+    transition: background .15s; font-family: var(--font);
+}
+.lup-btn:hover { background: rgba(255,255,255,.22); }
+.lup-btn.lup-remove { border-color: rgba(230,57,70,.4); }
+.lup-btn.lup-remove:hover { background: rgba(230,57,70,.35); }
+
+.lp-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,.85);
+    backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+    animation: lp-in .18s ease;
+}
+.lp-overlay.open { display: flex; }
+@@keyframes lp-in { from { opacity:0; } to { opacity:1; } }
+
+.lp-box {
+    position: relative;
+    max-width: min(90vw, 640px);
+    max-height: 80vh;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 32px 80px rgba(0,0,0,.7);
+    animation: lp-zoom-in .2s ease;
+}
+@@keyframes lp-zoom-in { from { transform: scale(.92); opacity:0; } to { transform: scale(1); opacity:1; } }
+.lp-box img { display: block; max-width: 100%; max-height: 80vh; object-fit: contain; }
+.lp-close {
+    position: absolute; top: 10px; right: 10px;
+    width: 32px; height: 32px;
+    background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.15);
+    border-radius: 50%; color: #fff; font-size: .85rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background .2s;
+}
+.lp-close:hover { background: rgba(230,57,70,.7); }
+
+.ms-map-wrap {
+    border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--border);
+    margin-top: .25rem;
+}
+#shopMap { width: 100%; height: 300px; display: block; }
+
+.ms-map-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: .75rem; flex-wrap: wrap;
+    padding: 10px 14px;
+    background: rgba(0,0,0,.2);
+    border-top: 1px solid var(--border);
+}
+#mapLocText { font-size: 12px; font-weight: 500; }
+
+.btn-map-locate {
+    display: inline-flex; align-items: center; gap: .35rem;
+    background: rgba(230,57,70,.09); border: 1px solid rgba(230,57,70,.22);
+    border-radius: 8px; color: var(--red);
+    font-size: .75rem; font-weight: 600; font-family: var(--font);
+    padding: .38rem .8rem; cursor: pointer; white-space: nowrap;
+    transition: all .2s; line-height: 1;
+}
+.btn-map-locate:hover { background: rgba(230,57,70,.16); border-color: rgba(230,57,70,.4); }
+.btn-map-locate:disabled { opacity: .5; cursor: not-allowed; pointer-events: none; }
+.btn-map-locate.is-manual { animation: map-pulse 2s ease-in-out infinite; }
+@@keyframes map-pulse {
+    0%,100% { box-shadow: none; }
+    50%      { box-shadow: 0 0 0 3px rgba(230,57,70,.18); }
+}
+
+.ms-map-error {
+    display: none; align-items: flex-start; gap: .5rem;
+    padding: 9px 14px;
+    background: rgba(230,57,70,.08); border-top: 1px solid rgba(230,57,70,.18);
+    font-size: .75rem; color: #ff6b74; line-height: 1.5;
+}
+.ms-map-error i { flex-shrink: 0; margin-top: 1px; }
+
+.btn-ms-save {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: var(--red); color: #fff; border: none; border-radius: 10px;
+    font-size: .9rem; font-weight: 700; font-family: var(--font);
+    padding: .75rem 1.75rem; cursor: pointer;
+    transition: background .2s, transform .15s, box-shadow .2s;
+}
+.btn-ms-save:hover {
+    background: var(--red-d); transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(230,57,70,.3);
+}
+.btn-ms-save:active { transform: translateY(0); }
+</style>
+}
+
+<div class="row justify-content-center">
+<div class="col-xl-8 col-lg-9">
+
+    <div class="ms-profile">
+        <div class="ms-logo-wrap" id="previewWrap"
+             onclick="document.getElementById('logoFileInput').click()"
+             title="@L["ShopMS.Change"]">
+            @if (!string.IsNullOrEmpty(Model?.LogoUrl))
+            {
+                <img src="@Model.LogoUrl" alt="@Model.ShopName" id="logoPreviewImg" />
+            }
+            else
+            {
+                <i class="fas fa-store" id="logoPreviewIcon"></i>
+                <img id="logoPreviewImg" style="display:none;" />
+            }
+            <div class="lw-edit-overlay">
+                <i class="fas fa-camera"></i>
+                <span>@L["ShopMS.Change"]</span>
+            </div>
+        </div>
+        <div>
+            <div class="ms-profile-name" id="previewName">@(Model?.ShopName ?? "")</div>
+            <div class="ms-profile-meta">
+                <i class="fas fa-map-marker-alt"></i>
+                <span id="previewCity">@(Model?.City ?? "")</span>
+                @if (!string.IsNullOrEmpty(Model?.PhoneNumber))
+                {
+                    <span style="color:var(--border);">·</span>
+                    <i class="fas fa-phone"></i>
+                    <span>@Model.PhoneNumber</span>
+                }
+            </div>
+            <div style="margin-top:.5rem;">
+                @if (Model?.IsVerified == true)
+                {
+                    <span class="ms-verified-badge"><i class="fas fa-check-circle"></i> @L["ShopMS.VerifiedByJAA"]</span>
+                }
+                else
+                {
+                    <span class="ms-unverified-badge"><i class="fas fa-clock"></i> @L["ShopMS.PendingVerification"]</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="ManageShop" method="post" novalidate>
+        @Html.AntiForgeryToken()
+
+        <div class="ms-card">
+            <div class="ms-card-head">
+                <i class="fas fa-store"></i> @L["ShopMS.BasicInformation"]
+            </div>
+            <div class="ms-card-body">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="ms-label">@L["ShopMS.ShopName"] <span style="color:var(--red);">*</span></label>
+                        <input name="ShopName" value="@Model?.ShopName" required
+                               class="ms-input"
+                               oninput="document.getElementById('previewName').textContent = this.value" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="ms-label">@L["ShopMS.City"] <span style="color:var(--red);">*</span></label>
+                        <input name="City" value="@Model?.City" required
+                               class="ms-input"
+                               oninput="document.getElementById('previewCity').textContent = this.value" />
+                    </div>
+                    <div class="col-12">
+                        <label class="ms-label">@L["ShopMS.Description"]</label>
+                        <textarea name="Description" rows="3" class="ms-textarea">@Model?.Description</textarea>
+                        <div class="ms-hint">@L["ShopMS.DescHint"]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ms-card">
+            <div class="ms-card-head">
+                <i class="fas fa-map-marker-alt"></i> @L["ShopMS.ContactLocation"]
+            </div>
+            <div class="ms-card-body">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="ms-label">@L["ShopMS.Address"]</label>
+                        <input name="Address" value="@Model?.Address" class="ms-input" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="ms-label">@L["ShopMS.PhoneNumber"]</label>
+                        <input name="PhoneNumber" value="@Model?.PhoneNumber" class="ms-input" inputmode="tel" />
+                    </div>
+                    <div class="col-12">
+                        <label class="ms-label">
+                            @L["ShopMS.ShopLocation"]
+                            <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;font-size:.68rem;margin-left:.4rem;">— @L["ShopMS.MapHint"]</span>
+                        </label>
+
+                        <input type="hidden" name="Latitude"  id="shopLat" value="@Model?.Latitude" />
+                        <input type="hidden" name="Longitude" id="shopLng" value="@Model?.Longitude" />
+
+                        <div class="ms-map-wrap">
+                            <div id="shopMap"></div>
+                            <div class="ms-map-bar">
+                                <span id="mapLocText" style="color:var(--muted);">
+                                    @if (Model?.Latitude != null && Model?.Longitude != null)
+                                    {
+                                        <text>📍 @Model.Latitude?.ToString("F5"),  @Model.Longitude?.ToString("F5")</text>
+                                    }
+                                    else
+                                    {
+                                        @L["ShopMS.ClickMapToPin"]
+                                    }
+                                </span>
+                                <button type="button" id="shopLocateBtn" class="btn-map-locate" onclick="shopLocateMe()">
+                                    <i class="fas fa-crosshairs" id="shopLocateIcon"></i>
+                                    <span id="shopLocateTxt">@L["ShopMS.UseMyLocation"]</span>
+                                </button>
+                            </div>
+                            <div class="ms-map-error" id="shopMapError">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span id="shopMapErrorTxt"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ms-card">
+            <div class="ms-card-head">
+                <i class="fas fa-image"></i> @L["ShopMS.Branding"]
+            </div>
+            <div class="ms-card-body">
+                <label class="ms-label">@L["ShopMS.ShopLogo"]</label>
+
+                <input type="hidden" name="LogoUrl" id="logoUrlInput" value="@Model?.LogoUrl" />
+                <input type="file"   id="logoFileInput" accept="image/*"
+                       style="display:none;" onchange="handleLogoFile(this)" />
+
+                <div class="logo-upload-zone" id="logoUploadZone"
+                     onclick="document.getElementById('logoFileInput').click()"
+                     ondragover="event.preventDefault();this.classList.add('drag-over')"
+                     ondragleave="this.classList.remove('drag-over')"
+                     ondrop="handleLogoDrop(event)">
+
+                    <div class="logo-upload-empty" id="logoUploadEmpty"
+                         style="@(!string.IsNullOrEmpty(Model?.LogoUrl) ? "display:none;" : "")">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>@L["ShopMS.ClickOrDrag"]</span>
+                        <small>@L["ShopMS.LogoFormat"]</small>
+                    </div>
+
+                    <div class="logo-upload-preview" id="logoUploadPreview"
+                         style="@(!string.IsNullOrEmpty(Model?.LogoUrl) ? "display:block;" : "")">
+                        <img id="logoThumbImg" src="@Model?.LogoUrl" alt="Logo preview" />
+                        <div class="logo-upload-overlay" onclick="event.stopPropagation()">
+                            <button type="button" class="lup-btn"
+                                    onclick="document.getElementById('logoFileInput').click()">
+                                <i class="fas fa-camera"></i> @L["ShopMS.Change"]
+                            </button>
+                            <button type="button" class="lup-btn" onclick="openLogoLightbox()">
+                                <i class="fas fa-expand-alt"></i> @L["ShopMS.Expand"]
+                            </button>
+                            <button type="button" class="lup-btn lup-remove" onclick="removeLogo()">
+                                <i class="fas fa-trash-alt"></i> @L["ShopMS.Remove"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ms-hint" style="margin-top:.5rem;">
+                    @L["ShopMS.LogoHint"]
+                </div>
+
+                <div class="lp-overlay" id="logoLightbox" onclick="closeLogoLightbox(event)">
+                    <div class="lp-box">
+                        <img id="logoLightboxImg" src="" alt="Logo full size" />
+                        <div class="lp-close"
+                             onclick="document.getElementById('logoLightbox').classList.remove('open')">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 pb-4">
+            <div style="font-size:.78rem;color:var(--muted);">
+                <i class="fas fa-info-circle me-1"></i>
+                @L["ShopMS.ChangesVisible"]
+            </div>
+            <button type="submit" class="btn-ms-save">
+                <i class="fas fa-save"></i> @L["ShopMS.SaveChanges"]
+            </button>
+        </div>
+
+    </form>
+
+</div>
+</div>
+
+@section Scripts {
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const _ms = {
+    locating:        '@Html.Raw(jsLocating.Replace("'", "\\'"))',
+    myLocation:      '@Html.Raw(jsMyLocation.Replace("'", "\\'"))',
+    useMyLocation:   '@Html.Raw(jsUseMyLocation.Replace("'", "\\'"))',
+    clickMapToPin:   '@Html.Raw(jsClickMapToPin.Replace("'", "\\'"))',
+    lookingUp:       '@Html.Raw(jsLookingUp.Replace("'", "\\'"))',
+    geoNotSupported: '@Html.Raw(jsGeoNotSupported.Replace("'", "\\'"))',
+    geoAccessDenied: '@Html.Raw(jsGeoAccessDenied.Replace("'", "\\'"))',
+    geoUnavailable:  '@Html.Raw(jsGeoUnavailable.Replace("'", "\\'"))',
+    geoTimeout:      '@Html.Raw(jsGeoTimeout.Replace("'", "\\'"))',
+    geoFailed:       '@Html.Raw(jsGeoFailed.Replace("'", "\\'"))'
+};
+
+(function () {
+    const latEl  = document.getElementById('shopLat');
+    const lngEl  = document.getElementById('shopLng');
+    const locTxt = document.getElementById('mapLocText');
+
+    const savedLat = parseFloat(latEl.value);
+    const savedLng = parseFloat(lngEl.value);
+    const hasCoords = !isNaN(savedLat) && !isNaN(savedLng) && savedLat !== 0 && savedLng !== 0;
+    const defaultView = hasCoords ? [savedLat, savedLng] : [31.9539, 35.9106];
+    const defaultZoom = hasCoords ? 15 : 12;
+
+    const map = L.map('shopMap', { zoomControl: true }).setView(defaultView, defaultZoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap', maxZoom: 19
+    }).addTo(map);
+
+    const redIcon = L.divIcon({
+        className: '',
+        html: '<div style="width:22px;height:22px;background:#e63946;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 5px rgba(230,57,70,.3);"></div>',
+        iconSize: [22, 22], iconAnchor: [11, 11]
+    });
+
+    let marker = null;
+
+    function setPin(lat, lng) {
+        latEl.value = lat.toFixed(6);
+        lngEl.value = lng.toFixed(6);
+        locTxt.textContent = '📍  ' + lat.toFixed(5) + ',  ' + lng.toFixed(5);
+        locTxt.style.color = 'var(--green-t)';
+        map.setView([lat, lng], map.getZoom() < 14 ? 15 : map.getZoom());
+        if (marker) map.removeLayer(marker);
+        marker = L.marker([lat, lng], { icon: redIcon, draggable: true }).addTo(map);
+        marker.on('dragend', function (e) {
+            const p = e.target.getLatLng();
+            setPin(p.lat, p.lng);
+        });
+
+        locTxt.textContent = '🔍  ' + _ms.lookingUp;
+        locTxt.style.color = 'var(--muted)';
+        fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng, {
+            headers: { 'Accept-Language': 'en' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            const a = data.address || {};
+            const parts = [a.road || a.pedestrian, a.suburb || a.neighbourhood, a.city || a.town || a.village, a.country].filter(Boolean);
+            const label = parts.length ? parts.join(', ') : data.display_name;
+            locTxt.textContent = '📍  ' + label;
+            locTxt.style.color = 'var(--green-t)';
+            marker.bindPopup('<b>' + label + '</b>').openPopup();
+            const addrInput = document.querySelector('input[name="Address"]');
+            if (addrInput) addrInput.value = label;
+        })
+        .catch(() => {
+            locTxt.textContent = '📍  ' + lat.toFixed(5) + ',  ' + lng.toFixed(5);
+            locTxt.style.color = 'var(--green-t)';
+        });
+    }
+
+    if (hasCoords) setPin(savedLat, savedLng);
+
+    map.on('click', function (e) {
+        setPin(e.latlng.lat, e.latlng.lng);
+        document.getElementById('shopLocateBtn').classList.add('is-manual');
+    });
+
+    document.getElementById('shopMap').addEventListener('locateResult', function (e) {
+        setPin(e.detail.lat, e.detail.lng);
+    });
+})();
+
+function shopLocateMe() {
+    const btn    = document.getElementById('shopLocateBtn');
+    const ico    = document.getElementById('shopLocateIcon');
+    const txt    = document.getElementById('shopLocateTxt');
+    const errEl  = document.getElementById('shopMapError');
+
+    errEl.style.display = 'none';
+    btn.disabled = true;
+    ico.className = 'fas fa-spinner fa-spin';
+    txt.textContent = _ms.locating;
+
+    if (!navigator.geolocation) {
+        showMapError(_ms.geoNotSupported, btn, ico, txt);
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        function (pos) {
+            document.getElementById('shopMap').dispatchEvent(
+                new CustomEvent('locateResult', { detail: { lat: pos.coords.latitude, lng: pos.coords.longitude } })
+            );
+            btn.disabled = false;
+            btn.classList.remove('is-manual');
+            ico.className = 'fas fa-location-arrow';
+            txt.textContent = _ms.myLocation;
+        },
+        function (err) {
+            const msgs = { 1: _ms.geoAccessDenied, 2: _ms.geoUnavailable, 3: _ms.geoTimeout };
+            showMapError(msgs[err.code] || _ms.geoFailed, btn, ico, txt);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+}
+
+function showMapError(msg, btn, ico, txt) {
+    const errEl = document.getElementById('shopMapError');
+    document.getElementById('shopMapErrorTxt').textContent = msg;
+    errEl.style.display = 'flex';
+    btn.disabled = false;
+    ico.className = 'fas fa-crosshairs';
+    txt.textContent = _ms.useMyLocation;
+    setTimeout(() => { errEl.style.display = 'none'; }, 7000);
+}
+
+function openLogoLightbox() {
+    const src = document.getElementById('logoThumbImg').src;
+    if (!src) return;
+    document.getElementById('logoLightboxImg').src = src;
+    document.getElementById('logoLightbox').classList.add('open');
+    document.addEventListener('keydown', _lbKeyClose);
+}
+function closeLogoLightbox(e) {
+    if (e && e.target !== document.getElementById('logoLightbox')) return;
+    document.getElementById('logoLightbox').classList.remove('open');
+    document.removeEventListener('keydown', _lbKeyClose);
+}
+function _lbKeyClose(e) {
+    if (e.key === 'Escape') {
+        document.getElementById('logoLightbox').classList.remove('open');
+        document.removeEventListener('keydown', _lbKeyClose);
+    }
+}
+
+function handleLogoFile(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = function (e) { applyLogoSrc(e.target.result); };
+    reader.readAsDataURL(file);
+}
+
+function handleLogoDrop(event) {
+    event.preventDefault();
+    document.getElementById('logoUploadZone').classList.remove('drag-over');
+    const file = event.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = function (e) { applyLogoSrc(e.target.result); };
+    reader.readAsDataURL(file);
+}
+
+function applyLogoSrc(src) {
+    document.getElementById('logoThumbImg').src           = src;
+    document.getElementById('logoUrlInput').value         = src;
+    document.getElementById('logoPreviewImg').src         = src;
+    document.getElementById('logoPreviewImg').style.display = 'block';
+    const icon = document.getElementById('logoPreviewIcon');
+    if (icon) icon.style.display = 'none';
+    document.getElementById('logoUploadEmpty').style.display   = 'none';
+    document.getElementById('logoUploadPreview').style.display = 'block';
+}
+
+function removeLogo() {
+    document.getElementById('logoThumbImg').src           = '';
+    document.getElementById('logoUrlInput').value         = '';
+    document.getElementById('logoPreviewImg').style.display = 'none';
+    const icon = document.getElementById('logoPreviewIcon');
+    if (icon) icon.style.display = '';
+    document.getElementById('logoUploadEmpty').style.display   = '';
+    document.getElementById('logoUploadPreview').style.display = 'none';
+    document.getElementById('logoFileInput').value = '';
+}
+</script>
+}

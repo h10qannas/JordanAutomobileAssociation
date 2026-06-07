@@ -1,0 +1,291 @@
+@model JAA.ViewModels.ProfileViewModel
+@using JAA.Models
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"]     = L["Prof.MyProfile"].Value;
+    ViewData["PageTitle"] = L["Prof.MyProfile"].Value;
+    ViewData["PageSub"]   = L["Prof.AccountDetails"].Value;
+    var initials = Model.FullName.Length >= 2
+        ? Model.FullName.Substring(0, 2).ToUpper()
+        : Model.FullName.ToUpper();
+}
+
+@section TopbarActions {
+    @if (Model.IsActive)
+    {
+        <button onclick="openEditModal()" class="btn-jaa btn-primary btn-sm">
+            <i class="bi bi-pencil-fill"></i> @L["Prof.EditProfile"]
+        </button>
+    }
+}
+
+<!-- ══ STAT ROW ══ -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-red"><i class="bi bi-send-fill"></i></div>
+            <div>
+                <div class="stat-num">@Model.TotalRequests</div>
+                <div class="stat-label">@L["Prof.TotalRequests"]</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-green"><i class="bi bi-check-circle-fill"></i></div>
+            <div>
+                <div class="stat-num">@Model.CompletedRequests</div>
+                <div class="stat-label">@L["Prof.Completed"]</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-blue"><i class="bi bi-calendar-check-fill"></i></div>
+            <div>
+                <div class="stat-num" style="font-size:1.1rem;letter-spacing:-.3px;">@Model.MemberSince.ToLocalTime().ToString("MMM yyyy")</div>
+                <div class="stat-label">@L["Prof.MemberSince"]</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon @(Model.IsActive ? "stat-icon-green" : "stat-icon-yellow")">
+                <i class="bi @(Model.IsActive ? "bi-shield-check" : "bi-shield-exclamation")"></i>
+            </div>
+            <div>
+                <div class="stat-num" style="font-size:1rem;color:@(Model.IsActive ? "var(--green-t)" : "var(--yellow-t)");">
+                    @(Model.IsActive ? L["Prof.Active"].Value : L["Prof.Suspended"].Value)
+                </div>
+                <div class="stat-label">@L["Prof.AccountStatus"]</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MAIN ROW ══ -->
+<div class="row g-4">
+
+    <!-- ── Left: Profile card ── -->
+    <div class="col-lg-4">
+        <div class="card-jaa text-center">
+            <!-- Avatar -->
+            <div style="width:80px;height:80px;border-radius:50%;
+                        background:rgba(230,57,70,.15);border:2px solid rgba(230,57,70,.3);
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:1.75rem;font-weight:900;color:var(--red);
+                        margin:0 auto 1.1rem;position:relative;">
+                @initials
+                @if (Model.IsActive)
+                {
+                    <span style="position:absolute;bottom:3px;right:3px;
+                                 width:14px;height:14px;background:var(--green-t);
+                                 border-radius:50%;border:2px solid var(--card);"></span>
+                }
+            </div>
+
+            <div style="font-size:1.1rem;font-weight:800;color:var(--white);margin-bottom:.25rem;letter-spacing:-.3px;">
+                @Model.FullName
+            </div>
+
+            <!-- Status badge -->
+            <span class="badge-jaa @(Model.IsActive ? "badge-verified" : "badge-unverified")" style="margin-bottom:1rem;display:inline-flex;">
+                <i class="bi @(Model.IsActive ? "bi-check-circle-fill" : "bi-exclamation-circle-fill")"></i>
+                @(Model.IsActive ? L["Prof.VerifiedMember"].Value : L["Prof.AccountSuspended"].Value)
+            </span>
+
+            <!-- Contact info -->
+            <div style="display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.25rem;">
+                <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;font-size:.82rem;color:var(--muted);">
+                    <i class="bi bi-envelope-fill" style="color:var(--red);font-size:.75rem;"></i>
+                    <span style="word-break:break-all;">@Model.Email</span>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                {
+                    <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;font-size:.82rem;color:var(--muted);">
+                        <i class="bi bi-telephone-fill" style="color:var(--red);font-size:.75rem;"></i>
+                        @Model.PhoneNumber
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.City))
+                {
+                    <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;font-size:.82rem;color:var(--muted);">
+                        <i class="bi bi-geo-alt-fill" style="color:var(--red);font-size:.75rem;"></i>
+                        @Model.City
+                    </div>
+                }
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex flex-column gap-2">
+                @if (Model.IsActive)
+                {
+                    <button onclick="openEditModal()" class="btn-jaa btn-primary btn-full">
+                        <i class="bi bi-pencil-fill"></i> @L["Prof.EditProfile"]
+                    </button>
+                }
+                else
+                {
+                    <button class="btn-jaa btn-outline btn-full" disabled style="opacity:.45;cursor:not-allowed;">
+                        <i class="bi bi-lock-fill"></i> @L["Prof.EditDisabled"]
+                    </button>
+                }
+                <a asp-action="History" class="btn-jaa btn-outline btn-full">
+                    <i class="bi bi-clock-history"></i> @L["Prof.ViewHistory"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Right: Info + Security ── -->
+    <div class="col-lg-8 d-flex flex-column gap-4">
+
+        <!-- Personal Information -->
+        <div class="card-jaa" style="padding:0;overflow:hidden;">
+            <div class="section-head" style="padding:1.3rem 1.5rem .9rem;">
+                <h5>@L["Prof.PersonalInformation"]</h5>
+            </div>
+            <div style="padding:0 1.5rem 1.3rem;display:flex;flex-direction:column;gap:0;">
+                @{
+                    void InfoRow(string icon, string label, string value, string? valueColor = null)
+                    {
+                        <div style="display:flex;align-items:center;gap:1rem;padding:.8rem 0;border-bottom:1px solid var(--border);">
+                            <div style="width:36px;height:36px;border-radius:9px;background:rgba(230,57,70,.08);border:1px solid rgba(230,57,70,.15);display:flex;align-items:center;justify-content:center;color:var(--red);font-size:.82rem;flex-shrink:0;">
+                                <i class="bi @icon"></i>
+                            </div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.15rem;">@label</div>
+                                <div style="font-size:.88rem;font-weight:600;color:@(valueColor ?? "var(--white)");word-break:break-all;">@value</div>
+                            </div>
+                        </div>
+                    }
+                }
+                @{ InfoRow("bi-person-fill", L["Prof.FullName"].Value, Model.FullName); }
+                @{ InfoRow("bi-envelope-fill", L["Prof.EmailAddress"].Value, Model.Email); }
+                @{ InfoRow("bi-telephone-fill", L["Prof.PhoneNumber"].Value, string.IsNullOrEmpty(Model.PhoneNumber) ? L["Prof.NotProvided"].Value : Model.PhoneNumber); }
+                @if (!string.IsNullOrEmpty(Model.City))
+                {
+                    InfoRow("bi-geo-alt-fill", L["Prof.City"].Value, Model.City);
+                }
+                @{ InfoRow("bi-calendar-fill", L["Prof.MemberSince"].Value, Model.MemberSince.ToLocalTime().ToString("MMMM d, yyyy")); }
+                <div style="display:flex;align-items:center;gap:1rem;padding:.8rem 0;">
+                    <div style="width:36px;height:36px;border-radius:9px;background:rgba(230,57,70,.08);border:1px solid rgba(230,57,70,.15);display:flex;align-items:center;justify-content:center;color:var(--red);font-size:.82rem;flex-shrink:0;">
+                        <i class="bi bi-shield-fill"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.15rem;">@L["Prof.AccountStatus"]</div>
+                        <span class="badge-jaa @(Model.IsActive ? "badge-verified" : "badge-unverified")">
+                            <i class="bi @(Model.IsActive ? "bi-check-circle-fill" : "bi-exclamation-circle-fill")"></i>
+                            @(Model.IsActive ? L["Prof.Active"].Value : L["Prof.Suspended"].Value)
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security -->
+        <div class="card-jaa" style="padding:0;overflow:hidden;">
+            <div class="section-head" style="padding:1.3rem 1.5rem .9rem;">
+                <h5>@L["Prof.Security"]</h5>
+            </div>
+            <div style="padding:0 1.5rem 1.3rem;display:flex;flex-direction:column;gap:0;">
+                <div style="display:flex;align-items:center;gap:1rem;padding:.8rem 0;border-bottom:1px solid var(--border);">
+                    <div style="width:36px;height:36px;border-radius:9px;background:rgba(230,57,70,.08);border:1px solid rgba(230,57,70,.15);display:flex;align-items:center;justify-content:center;color:var(--red);font-size:.82rem;flex-shrink:0;">
+                        <i class="bi bi-key-fill"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.15rem;">@L["Prof.Password"]</div>
+                        <div style="font-size:.88rem;font-weight:600;color:var(--white);letter-spacing:.25em;">••••••••</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:1rem;padding:.8rem 0;border-bottom:1px solid var(--border);">
+                    <div style="width:36px;height:36px;border-radius:9px;background:rgba(230,57,70,.08);border:1px solid rgba(230,57,70,.15);display:flex;align-items:center;justify-content:center;color:var(--red);font-size:.82rem;flex-shrink:0;">
+                        <i class="bi bi-envelope-fill"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.15rem;">@L["Prof.LoginEmail"]</div>
+                        <div style="font-size:.88rem;font-weight:600;color:var(--white);">@Model.Email</div>
+                    </div>
+                    <span style="font-size:.68rem;color:var(--muted);flex-shrink:0;">@L["Prof.ReadOnly"]</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:1rem;padding:.8rem 0;">
+                    <div style="width:36px;height:36px;border-radius:9px;background:rgba(35,134,54,.08);border:1px solid rgba(35,134,54,.18);display:flex;align-items:center;justify-content:center;color:var(--green-t);font-size:.82rem;flex-shrink:0;">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.15rem;">@L["Prof.AccountProtection"]</div>
+                        <span class="badge-jaa badge-verified"><i class="bi bi-check-circle-fill"></i> @L["Prof.Active"]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /col-lg-8 -->
+</div><!-- /row -->
+
+<!-- ══ EDIT PROFILE MODAL ══ -->
+<div class="modal-backdrop" id="editModal">
+    <div class="modal-box" style="max-width:460px;">
+        <button class="modal-close" onclick="closeEditModal()" aria-label="Close">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="modal-title"><i class="bi bi-pencil-fill" style="color:var(--red);margin-right:.45rem;"></i>@L["Prof.EditProfile"]</div>
+
+        <form asp-action="Profile" method="post" novalidate>
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Email" />
+
+            <div asp-validation-summary="ModelOnly" class="alert-jaa alert-danger"
+                 style="@(ViewData.ModelState.IsValid ? "display:none;" : "display:flex;")">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label"><i class="bi bi-person-fill me-1"></i> @L["Prof.FullName"]</label>
+                <input asp-for="FullName" class="form-control" autocomplete="name" />
+                <span asp-validation-for="FullName" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label"><i class="bi bi-telephone-fill me-1"></i> @L["Prof.PhoneNumber"]</label>
+                <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="+962 7x xxx xxxx" autocomplete="tel" />
+                <span asp-validation-for="PhoneNumber" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label"><i class="bi bi-envelope-fill me-1"></i> @L["Prof.EmailAddress"]</label>
+                <input class="form-control" value="@Model.Email" disabled />
+                <span style="font-size:.7rem;color:var(--muted);margin-top:.3rem;display:flex;align-items:center;gap:.3rem;">
+                    <i class="bi bi-lock-fill" style="font-size:.65rem;"></i> @L["Prof.EmailCannotChange"]
+                </span>
+            </div>
+
+            <button type="submit" class="btn-jaa btn-primary btn-full" style="margin-top:.5rem;">
+                <i class="bi bi-check-lg"></i> @L["Prof.SaveChanges"]
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+@await Html.PartialAsync("_ValidationScriptsPartial")
+<script>
+function openEditModal() {
+    document.getElementById('editModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeEditModal() {
+    document.getElementById('editModal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeEditModal();
+});
+</script>
+@if (!ViewData.ModelState.IsValid)
+{
+    <script>openEditModal();</script>
+}
+}

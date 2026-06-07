@@ -1,0 +1,204 @@
+@model JAA.ViewModels.RegisterViewModel
+@{ Layout = "_Layout"; ViewData["Title"] = "Register"; }
+
+@section Styles {
+<style>
+.auth-page {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 90px 1rem 3rem; position: relative; overflow: hidden; background: var(--dark);
+}
+.auth-page::before {
+  content: ''; position: fixed; top: -160px; right: -160px; width: 520px; height: 520px;
+  background: radial-gradient(circle, rgba(230,57,70,.13) 0%, transparent 65%);
+  border-radius: 50%; pointer-events: none; z-index: 0;
+}
+.auth-page::after {
+  content: ''; position: fixed; bottom: -120px; left: -120px; width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(88,166,255,.07) 0%, transparent 65%);
+  border-radius: 50%; pointer-events: none; z-index: 0;
+}
+.auth-wrap { width: 100%; max-width: 420px; position: relative; z-index: 1; }
+.auth-back { display: inline-flex; align-items: center; gap: .4rem; color: var(--muted); font-size: .78rem; text-decoration: none; margin-bottom: 1.25rem; transition: color .2s; }
+.auth-back:hover { color: var(--light); }
+.auth-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem 2.25rem 2rem; box-shadow: 0 0 0 1px rgba(230,57,70,.06), 0 24px 64px rgba(0,0,0,.55); }
+.ac-brand  { display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; }
+.ac-brand-logo { width: 48px; height: 48px; background: var(--red); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; font-weight: 900; color: #fff; letter-spacing: -1px; box-shadow: 0 6px 20px rgba(230,57,70,.35); }
+.ac-title  { font-size: 1.45rem; font-weight: 800; color: var(--white); text-align: center; margin-bottom: .3rem; letter-spacing: -.4px; }
+.ac-sub    { font-size: .83rem; color: var(--muted); text-align: center; margin-bottom: 1.6rem; }
+.ac-divider { height: 1px; background: var(--border); margin: 0 -2.25rem 1.75rem; }
+.field-wrap  { margin-bottom: 1.15rem; }
+.field-label { display: block; font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .45rem; }
+.field-box   { position: relative; }
+.field-box .fi { position: absolute; left: .95rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .9rem; pointer-events: none; transition: color .2s; }
+.field-box:focus-within .fi { color: var(--red); }
+.field-in {
+  width: 100%; background: rgba(13,17,23,.7); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--white); font-size: .9rem; font-family: var(--font);
+  padding: .75rem 2.8rem .75rem 2.65rem;
+  transition: border-color .2s, box-shadow .2s; outline: none;
+}
+.field-in:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(230,57,70,.13); background: var(--dark); }
+.field-in::placeholder { color: #3d444e; }
+.field-toggle { position: absolute; right: .75rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); font-size: .9rem; padding: .25rem; transition: color .2s; line-height: 1; }
+.field-toggle:hover { color: var(--light); }
+.pwd-strength { display: none; margin-top: .5rem; }
+.pwd-strength-bar { height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; margin-bottom: .3rem; }
+.pwd-strength-fill { height: 100%; border-radius: 2px; width: 0; transition: width .3s, background .3s; }
+.pwd-strength-label { font-size: .7rem; }
+.field-err { font-size: .72rem; color: #ff6b74; margin-top: .3rem; display: block; }
+.btn-auth {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: .5rem;
+  background: var(--red); color: #fff; border: none; border-radius: 10px;
+  font-size: .95rem; font-weight: 700; font-family: var(--font);
+  padding: .82rem; cursor: pointer; margin-top: .9rem;
+  transition: background .2s, transform .15s, box-shadow .2s; letter-spacing: .1px;
+}
+.btn-auth:hover { background: var(--red-d); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(230,57,70,.35); }
+.btn-auth:active { transform: translateY(0); box-shadow: none; }
+.auth-foot { text-align: center; font-size: .8rem; color: var(--muted); margin-top: 1.4rem; }
+.auth-foot a { color: var(--red); font-weight: 600; text-decoration: none; }
+.auth-foot a:hover { text-decoration: underline; }
+.auth-divider { display: flex; align-items: center; gap: .6rem; margin: 1.1rem 0 .9rem; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.auth-divider span { font-size: .7rem; color: var(--muted); white-space: nowrap; }
+.shop-cta {
+  display: flex; align-items: center; gap: .75rem;
+  background: rgba(230,57,70,.06); border: 1px solid rgba(230,57,70,.18);
+  border-radius: 12px; padding: .85rem 1rem; text-decoration: none;
+  transition: background .2s, border-color .2s;
+}
+.shop-cta:hover { background: rgba(230,57,70,.1); border-color: rgba(230,57,70,.3); }
+.shop-cta-icon { width: 34px; height: 34px; background: rgba(230,57,70,.12); border: 1px solid rgba(230,57,70,.22); border-radius: 9px; display: flex; align-items: center; justify-content: center; color: var(--red); font-size: .9rem; flex-shrink: 0; }
+.shop-cta-text { flex: 1; }
+.shop-cta-label { font-size: .83rem; font-weight: 700; color: var(--white); }
+.shop-cta-sub   { font-size: .72rem; color: var(--muted); }
+.auth-alert { background: rgba(230,57,70,.08); border: 1px solid rgba(230,57,70,.2); border-radius: 10px; padding: .72rem .9rem; font-size: .8rem; color: #ff6b74; display: flex; align-items: flex-start; gap: .5rem; margin-bottom: 1.25rem; }
+</style>
+}
+
+<div class="auth-page">
+  <div class="auth-wrap">
+
+    <a asp-controller="Home" asp-action="Index" class="auth-back">
+      <i class="bi bi-arrow-left"></i> @L["Login.BackToHome"]
+    </a>
+
+    <div class="auth-card">
+      <div class="ac-brand"><div class="ac-brand-logo">JAA</div></div>
+      <div class="ac-title">@L["Register.CreateAccount"]</div>
+      <div class="ac-sub">@L["Register.JoinJAA"]</div>
+
+      @if (Context.Request.Query.ContainsKey("pendingRequest"))
+      {
+        <div style="background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.28);border-radius:10px;padding:.72rem .9rem;font-size:.82rem;color:#58a6ff;display:flex;align-items:flex-start;gap:.55rem;margin-bottom:1rem;">
+          <i class="bi bi-info-circle-fill" style="flex-shrink:0;margin-top:.1rem;"></i>
+          <div>@L["RH.PendingSignIn"]</div>
+        </div>
+      }
+      <div class="ac-divider"></div>
+
+      @if (!ViewData.ModelState.IsValid)
+      {
+        <div class="auth-alert">
+          <i class="bi bi-exclamation-circle-fill" style="flex-shrink:0;margin-top:.05rem;"></i>
+          <div>@Html.ValidationSummary(true)</div>
+        </div>
+      }
+
+      <form asp-action="Register" method="post" novalidate>
+        @Html.AntiForgeryToken()
+        <input asp-for="Role" type="hidden" id="roleField" value="Customer" />
+
+        <div class="field-wrap">
+          <label class="field-label">@L["Register.FullName"]</label>
+          <div class="field-box">
+            <i class="bi bi-person-fill fi"></i>
+            <input asp-for="FullName" class="field-in" placeholder="@L["Register.FullNamePlaceholder"]" autocomplete="name" />
+          </div>
+          <span asp-validation-for="FullName" class="field-err"></span>
+        </div>
+
+        <div class="field-wrap">
+          <label class="field-label">@L["Login.PhoneNumber"]</label>
+          <div class="field-box">
+            <i class="bi bi-telephone-fill fi"></i>
+            <input asp-for="PhoneNumber" class="field-in" placeholder="+962 7x xxx xxxx" autocomplete="tel" inputmode="tel" />
+          </div>
+          <span asp-validation-for="PhoneNumber" class="field-err"></span>
+        </div>
+
+        <div class="field-wrap">
+          <label class="field-label">@L["Login.Password"]</label>
+          <div class="field-box">
+            <i class="bi bi-lock-fill fi"></i>
+            <input asp-for="Password" class="field-in" placeholder="@L["Register.PasswordPlaceholder"]" id="pwdInput" autocomplete="new-password" oninput="checkStrength(this.value)" />
+            <button type="button" class="field-toggle" onclick="togglePwd()" tabindex="-1" aria-label="Show/hide password">
+              <i class="bi bi-eye" id="pwdIcon"></i>
+            </button>
+          </div>
+          <div class="pwd-strength" id="pwdStrength">
+            <div class="pwd-strength-bar"><div class="pwd-strength-fill" id="pwdFill"></div></div>
+            <div class="pwd-strength-label" id="pwdLabel"></div>
+          </div>
+          <span asp-validation-for="Password" class="field-err"></span>
+        </div>
+
+        <div class="field-wrap">
+          <label class="field-label">@L["Register.ConfirmPassword"]</label>
+          <div class="field-box">
+            <i class="bi bi-shield-lock-fill fi"></i>
+            <input asp-for="ConfirmPassword" class="field-in" placeholder="@L["Register.ConfirmPasswordPlaceholder"]" id="confirmPwdInput" autocomplete="new-password" />
+            <button type="button" class="field-toggle" onclick="toggleConfirmPwd()" tabindex="-1" aria-label="Show/hide password">
+              <i class="bi bi-eye" id="confirmPwdIcon"></i>
+            </button>
+          </div>
+          <span asp-validation-for="ConfirmPassword" class="field-err"></span>
+        </div>
+
+        <button type="submit" class="btn-auth">
+          <i class="bi bi-person-plus-fill"></i> @L["Register.CreateAccountBtn"]
+        </button>
+      </form>
+
+      <div class="auth-foot">@L["Register.AlreadyHaveAccount"] <a asp-action="Login">@L["Login.SignInButton"] →</a></div>
+
+      <div class="auth-divider"><span>@L["Register.AreYouShopOwner"]</span></div>
+
+      <a asp-action="ShopRegister" class="shop-cta">
+        <div class="shop-cta-icon"><i class="bi bi-shop-window"></i></div>
+        <div class="shop-cta-text">
+          <div class="shop-cta-label">@L["Register.RegisterYourShop"]</div>
+          <div class="shop-cta-sub">@L["Register.JoinPartnerNetwork"]</div>
+        </div>
+        <i class="bi bi-chevron-right" style="color:var(--muted);font-size:.8rem;"></i>
+      </a>
+
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+function togglePwd() {
+  const inp = document.getElementById('pwdInput'), ico = document.getElementById('pwdIcon');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  ico.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+}
+function toggleConfirmPwd() {
+  const inp = document.getElementById('confirmPwdInput'), ico = document.getElementById('confirmPwdIcon');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  ico.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+}
+function checkStrength(val) {
+  const wrap = document.getElementById('pwdStrength'), fill = document.getElementById('pwdFill'), label = document.getElementById('pwdLabel');
+  if (!val) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  let s = 0;
+  if (val.length >= 6) s++; if (val.length >= 10) s++;
+  if (/[A-Z]/.test(val) && /[a-z]/.test(val)) s++; if (/[0-9]/.test(val)) s++; if (/[^A-Za-z0-9]/.test(val)) s++;
+  const lvls = [{w:'20%',c:'#e63946',t:'Very weak'},{w:'40%',c:'#e63946',t:'Weak'},{w:'60%',c:'#d29922',t:'Fair'},{w:'80%',c:'#3fb950',t:'Good'},{w:'100%',c:'#3fb950',t:'Strong'}];
+  const lv = lvls[Math.min(s,4)];
+  fill.style.width = lv.w; fill.style.background = lv.c; label.textContent = lv.t; label.style.color = lv.c;
+}
+</script>
+@await Html.PartialAsync("_ValidationScriptsPartial") }

@@ -1,0 +1,96 @@
+@model JAA.ViewModels.CustomerDashboardViewModel
+@using JAA.Models
+@{ ViewData["Title"] = "Dashboard"; ViewData["PageTitle"] = $"{L["Cust.WelcomeBack"].Value}, {Model.UserFullName?.Split(' ')[0]} 👋"; ViewData["PageSub"] = DateTime.Now.ToString("dddd, d MMMM yyyy"); Layout = "_DashboardLayout"; }
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="stat-card"><div class="stat-icon stat-icon-red"><i class="bi bi-send-fill"></i></div>
+      <div><div class="stat-num">@Model.TotalRequests</div><div class="stat-label">@L["Cust.TotalRequests"]</div></div></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card"><div class="stat-icon stat-icon-green"><i class="bi bi-check-circle-fill"></i></div>
+      <div><div class="stat-num">@Model.CompletedRequests</div><div class="stat-label">@L["Cust.Completed"]</div></div></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card"><div class="stat-icon stat-icon-yellow"><i class="bi bi-hourglass-split"></i></div>
+      <div><div class="stat-num">@Model.PendingRequests</div><div class="stat-label">@L["Cust.Pending"]</div></div></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card"><div class="stat-icon stat-icon-blue"><i class="bi bi-activity"></i></div>
+      <div><div class="stat-num">@(Model.ActiveRequest != null ? "1" : "0")</div><div class="stat-label">@L["Cust.ActiveNow"]</div></div></div>
+  </div>
+</div>
+
+@if (Model.ActiveRequest != null)
+{
+  var r = Model.ActiveRequest;
+  <div style="background:linear-gradient(90deg,rgba(230,57,70,.1),rgba(139,92,246,.06));border:1px solid rgba(230,57,70,.3);border-radius:14px;padding:1.3rem 1.5rem;margin-bottom:1.5rem;">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div style="width:44px;height:44px;background:rgba(230,57,70,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:var(--red);"><i class="bi bi-car-front-fill"></i></div>
+        <div>
+          <div class="fs-xs fw-700 text-red" style="text-transform:uppercase;letter-spacing:.5px;">@L["Cust.ActiveRequest"] #@r.Id</div>
+          <div style="font-size:.88rem;font-weight:600;color:var(--white);margin-top:.15rem;">"@(r.SituationDescription.Length > 60 ? r.SituationDescription[..60]+"…" : r.SituationDescription)"</div>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge-jaa badge-@r.Status.ToString().ToLower()">@L["Status." + r.Status.ToString()]</span>
+        <a asp-action="TrackRequest" asp-route-id="@r.Id" class="btn-jaa btn-primary btn-sm">@L["Cust.TrackLive"] <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+}
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card-jaa" style="padding:0;overflow:hidden;">
+      <div class="section-head" style="padding:1.3rem 1.5rem 0;">
+        <h5>@L["Cust.RecentRequests"]</h5>
+        <a asp-action="History" class="btn-jaa btn-ghost btn-sm">@L["Cust.ViewAll"] <i class="bi bi-arrow-right"></i></a>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="table-jaa">
+          <thead>
+            <tr><th style="padding-left:1.5rem;">@L["Cust.Request"]</th><th>@L["Cust.Date"]</th><th>@L["Nav.Status"]</th><th>@L["Cust.Amount"]</th><th style="padding-right:1.5rem;"></th></tr>
+          </thead>
+          <tbody>
+            @foreach (var r in Model.RecentRequests)
+            {
+              <tr>
+                <td style="padding-left:1.5rem;">
+                  <div class="td-primary">#@r.Id</div>
+                  <div class="td-muted fs-xs td-truncate">@r.SituationDescription</div>
+                </td>
+                <td class="td-muted">@r.CreatedAt.ToLocalTime().ToString("dd MMM, HH:mm")</td>
+                <td><span class="badge-jaa badge-@r.Status.ToString().ToLower()">@L["Status." + r.Status.ToString()]</span></td>
+                <td class="td-muted">@(r.Payment != null ? $"{r.Payment.Amount:F2} JOD" : "—")</td>
+                <td style="padding-right:1.5rem;"><a asp-action="TrackRequest" asp-route-id="@r.Id" class="btn-icon-sm"><i class="bi bi-eye-fill"></i></a></td>
+              </tr>
+            }
+            @if (!Model.RecentRequests.Any())
+            { <tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted);">@L["Cust.NoRequestsYet"] <a asp-action="RequestHelp" style="color:var(--red);font-weight:600;">@L["Cust.SubmitFirstRequest"]</a></td></tr> }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4 d-flex flex-column gap-3">
+    <div class="card-jaa">
+      <h5 style="font-size:.88rem;font-weight:700;color:var(--white);margin-bottom:1rem;">@L["Cust.QuickActions"]</h5>
+      <div class="d-flex flex-column gap-2">
+        <a asp-action="RequestHelp" class="btn-jaa btn-primary btn-full"><i class="bi bi-exclamation-triangle-fill"></i> @L["Cust.RequestHelpNow"]</a>
+        <a asp-action="History"     class="btn-jaa btn-outline btn-full"><i class="bi bi-clock-history"></i> @L["Cust.ViewAllRequests"]</a>
+      </div>
+    </div>
+    <div class="card-jaa">
+      <h5 style="font-size:.88rem;font-weight:700;color:var(--white);margin-bottom:.9rem;">@L["Cust.TipsTitle"]</h5>
+      @foreach (var (icon, tipKey) in new[]{("bi-geo-alt-fill","Cust.Tip1"),("bi-chat-fill","Cust.Tip2"),("bi-telephone-fill","Cust.Tip3")})
+      {
+        <div style="display:flex;gap:.65rem;align-items:flex-start;margin-bottom:.7rem;">
+          <div style="width:26px;height:26px;background:rgba(230,57,70,.1);border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--red);font-size:.82rem;flex-shrink:0;"><i class="bi @icon"></i></div>
+          <div class="fs-xs text-muted" style="line-height:1.55;">@L[tipKey]</div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

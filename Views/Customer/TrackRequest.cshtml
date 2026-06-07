@@ -1,0 +1,417 @@
+@model JAA.ViewModels.TrackRequestViewModel
+@using JAA.Models
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = $"{L["Track.Request"].Value} #{Model.Request.Id}";
+    var status    = Model.Request.Status;
+    var isActive  = status != RequestStatus.Completed && status != RequestStatus.Cancelled && status != RequestStatus.Rejected;
+    var hasShop   = Model.Request.Shop != null;
+    var helpOnWay = status == RequestStatus.Accepted || status == RequestStatus.MechanicArrived || status == RequestStatus.InProgress;
+    var minutesAgo = (int)(DateTime.UtcNow - Model.Request.UpdatedAt).TotalMinutes;
+    var avgRating  = hasShop && Model.Request.Shop!.Feedbacks.Any() ? Model.Request.Shop.Feedbacks.Average(f => f.Rating) : 0.0;
+}
+
+@section Styles {
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+.tr-page { padding: 80px 0 80px; background: var(--dark); min-height: 100vh; }
+.tr-banner {
+    border-radius: 18px; padding: 1.6rem 1.75rem;
+    margin-bottom: 1.25rem; position: relative; overflow: hidden;
+}
+.tr-banner.pending  { background: linear-gradient(135deg, rgba(210,153,34,.1) 0%, rgba(210,153,34,.04) 100%); border: 1px solid rgba(210,153,34,.25); }
+.tr-banner.ontheway { background: linear-gradient(135deg, rgba(88,166,255,.08) 0%, rgba(88,166,255,.03) 100%); border: 1px solid rgba(88,166,255,.2); }
+.tr-banner.completed{ background: linear-gradient(135deg, rgba(35,134,54,.1) 0%, rgba(35,134,54,.04) 100%); border: 1px solid rgba(35,134,54,.25); }
+.tr-banner.cancelled{ background: rgba(139,148,158,.06); border: 1px solid var(--border); }
+.tr-banner::before  {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 200px; height: 200px; border-radius: 50%;
+    pointer-events: none;
+}
+.tr-banner.ontheway::before  { background: radial-gradient(circle, rgba(88,166,255,.12) 0%, transparent 70%); }
+.tr-banner.pending::before   { background: radial-gradient(circle, rgba(210,153,34,.12) 0%, transparent 70%); }
+.tr-banner.completed::before { background: radial-gradient(circle, rgba(63,185,80,.12)  0%, transparent 70%); }
+.tr-live-pill {
+    display: inline-flex; align-items: center; gap: .45rem;
+    border-radius: 999px; font-size: .68rem; font-weight: 700;
+    padding: .28rem .85rem; letter-spacing: .4px; text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+.tr-live-pill.blue   { background: rgba(88,166,255,.12);  border: 1px solid rgba(88,166,255,.25);  color: var(--blue); }
+.tr-live-pill.yellow { background: rgba(210,153,34,.12);  border: 1px solid rgba(210,153,34,.25);  color: var(--yellow-t); }
+.tr-live-pill.green  { background: rgba(63,185,80,.1);    border: 1px solid rgba(63,185,80,.25);   color: var(--green-t); }
+.tr-live-dot { width: 7px; height: 7px; border-radius: 50%; animation: tr-blink 1.3s infinite; }
+.blue   .tr-live-dot { background: var(--blue); }
+.yellow .tr-live-dot { background: var(--yellow-t); }
+.green  .tr-live-dot { background: var(--green-t); }
+@@keyframes tr-blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.65)} }
+.tr-shop-row { display: flex; align-items: center; gap: 1rem; }
+.tr-shop-avatar {
+    width: 56px; height: 56px; border-radius: 14px; flex-shrink: 0;
+    background: rgba(230,57,70,.15); border: 1px solid rgba(230,57,70,.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; font-weight: 900; color: var(--red); overflow: hidden;
+}
+.tr-shop-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.tr-shop-name { font-size: 1.1rem; font-weight: 800; color: var(--white); letter-spacing: -.3px; margin-bottom: .2rem; }
+.tr-shop-sub  { font-size: .78rem; color: var(--muted); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+.tr-shop-sub i { font-size: .72rem; }
+.tr-eta {
+    display: flex; align-items: center; gap: .8rem;
+    background: rgba(255,255,255,.04); border: 1px solid var(--border);
+    border-radius: 12px; padding: .75rem 1rem; margin-top: 1rem;
+}
+.tr-eta-icon { width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; background: rgba(88,166,255,.1); border: 1px solid rgba(88,166,255,.2); display: flex; align-items: center; justify-content: center; color: var(--blue); font-size: .9rem; }
+.tr-eta-title { font-size: .82rem; font-weight: 700; color: var(--white); }
+.tr-eta-sub   { font-size: .72rem; color: var(--muted); }
+.btn-tr-call {
+    display: flex; align-items: center; justify-content: center; gap: .5rem;
+    width: 100%; background: var(--red); color: #fff; border: none;
+    border-radius: 12px; font-size: .95rem; font-weight: 800;
+    padding: .85rem; text-decoration: none; margin-top: 1rem;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    font-family: var(--font);
+}
+.btn-tr-call:hover { background: var(--red-d); transform: translateY(-1px); box-shadow: 0 8px 22px rgba(230,57,70,.3); color: #fff; }
+.tr-reassure { font-size: .75rem; color: var(--muted); text-align: center; margin-top: .85rem; line-height: 1.6; }
+.tr-reassure i { color: var(--green-t); }
+.tr-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden; margin-bottom: 1.25rem;
+}
+.tr-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .9rem 1.3rem; border-bottom: 1px solid var(--border);
+    font-size: .85rem; font-weight: 700; color: var(--white);
+}
+.tr-card-head i { color: var(--red); margin-right: .45rem; }
+.tr-card-body { padding: 1.3rem; }
+.tr-steps { display: flex; align-items: flex-start; gap: 0; position: relative; padding: .5rem 0; }
+.tr-step  { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .45rem; position: relative; z-index: 1; }
+.tr-dot   {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 2px solid var(--border);
+    background: rgba(255,255,255,.04);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem; font-weight: 700; color: var(--muted);
+    transition: all .3s;
+}
+.tr-step.done   .tr-dot { background: var(--green); border-color: var(--green); color: #fff; }
+.tr-step.active .tr-dot {
+    background: var(--red); border-color: var(--red); color: #fff;
+    box-shadow: 0 0 0 4px rgba(230,57,70,.2);
+    animation: tr-step-pulse 1.6s ease-in-out infinite;
+}
+@@keyframes tr-step-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(230,57,70,.35)} 50%{box-shadow:0 0 0 8px rgba(230,57,70,0)} }
+.tr-lbl  { font-size: .65rem; color: var(--muted); text-align: center; line-height: 1.35; max-width: 58px; }
+.tr-step.done   .tr-lbl, .tr-step.active .tr-lbl { color: var(--light); font-weight: 600; }
+.tr-line { position: absolute; top: 16px; left: 50%; right: -50%; height: 2px; background: var(--border); z-index: 0; }
+.tr-step.done .tr-line { background: var(--green); }
+.tr-field-label { font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .3rem; }
+.tr-field-value { font-size: .9rem; color: var(--white); line-height: 1.55; margin-bottom: 1rem; }
+.tr-quote { font-style: italic; color: var(--light); }
+.tr-diagnosis {
+    background: rgba(88,166,255,.06); border-left: 3px solid var(--blue);
+    border-radius: 0 10px 10px 0; padding: .75rem 1rem;
+    font-size: .85rem; color: var(--light); line-height: 1.6; margin-bottom: 1rem;
+}
+.tr-resolution {
+    background: rgba(63,185,80,.06); border-left: 3px solid var(--green-t);
+    border-radius: 0 10px 10px 0; padding: .75rem 1rem;
+    font-size: .85rem; color: var(--light); line-height: 1.6; margin-bottom: 1rem;
+}
+.tr-payment {
+    background: rgba(230,57,70,.07); border: 1px solid rgba(230,57,70,.18);
+    border-radius: 14px; padding: 1.1rem; text-align: center; margin-bottom: 1rem;
+}
+.tr-payment-label { font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .2rem; }
+.tr-payment-amount { font-size: 2rem; font-weight: 900; color: var(--white); letter-spacing: -1px; line-height: 1; }
+.tr-payment-amount span { font-size: 1rem; color: var(--muted); font-weight: 600; }
+.tr-feedback-card {
+    background: var(--card); border: 1px solid rgba(230,57,70,.18);
+    border-radius: 16px; padding: 1.4rem; text-align: center; margin-bottom: 1.25rem;
+}
+.tr-stars-display { display: flex; justify-content: center; gap: .3rem; margin-bottom: .8rem; }
+.tr-stars-display i { font-size: 1.3rem; color: rgba(255,255,255,.1); transition: color .15s; }
+.tr-stars-display:hover i { color: #fbbf24; }
+.btn-tr-feedback {
+    display: block; background: var(--red); color: #fff;
+    border-radius: 12px; font-size: .9rem; font-weight: 800;
+    padding: .8rem; text-decoration: none; font-family: var(--font);
+    transition: background .2s, transform .15s, box-shadow .2s;
+}
+.btn-tr-feedback:hover { background: var(--red-d); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(230,57,70,.3); color: #fff; }
+.tr-status-badge {
+    display: inline-flex; align-items: center; gap: .3rem;
+    border-radius: 999px; font-size: .68rem; font-weight: 700;
+    padding: .25rem .75rem; text-transform: uppercase; letter-spacing: .4px;
+}
+.sb-pending         { background: rgba(210,153,34,.12);  color: var(--yellow-t); border: 1px solid rgba(210,153,34,.25); }
+.sb-accepted        { background: rgba(88,166,255,.1);   color: var(--blue);     border: 1px solid rgba(88,166,255,.2); }
+.sb-mechanicarrived { background: rgba(167,139,250,.1);  color: var(--purple);   border: 1px solid rgba(167,139,250,.2); }
+.sb-inprogress      { background: rgba(230,57,70,.1);    color: var(--red);      border: 1px solid rgba(230,57,70,.2); }
+.sb-completed       { background: rgba(35,134,54,.1);    color: var(--green-t);  border: 1px solid rgba(35,134,54,.25); }
+.sb-cancelled,
+.sb-rejected        { background: rgba(139,148,158,.08); color: var(--muted);    border: 1px solid var(--border); }
+.btn-tr-back {
+    display: inline-flex; align-items: center; gap: .4rem;
+    color: var(--muted); font-size: .8rem; text-decoration: none;
+    transition: color .2s;
+}
+.btn-tr-back:hover { color: var(--light); }
+</style>
+}
+
+<div class="tr-page">
+<div class="container" style="max-width: 900px;">
+
+    <!-- ── Back + title row ── -->
+    <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+        <a asp-action="Dashboard" class="btn-tr-back"><i class="fas fa-arrow-left"></i> @L["Track.Dashboard"]</a>
+        <div style="font-size:.75rem;color:var(--border);">·</div>
+        <div style="font-size:.8rem;color:var(--muted);">@L["Track.Request"] <strong style="color:var(--white);">#@Model.Request.Id</strong></div>
+        <div class="ms-auto">
+            @{ var sbClass = status.ToString().ToLower(); }
+            <span class="tr-status-badge sb-@sbClass">@L["Status." + status.ToString()]</span>
+        </div>
+    </div>
+
+    <!-- ══ STATUS BANNERS ══ -->
+    @if (helpOnWay && hasShop)
+    {
+        <div class="tr-banner ontheway">
+            <span class="tr-live-pill blue"><span class="tr-live-dot"></span> @L["Track.HelpIsOnTheWay"]</span>
+
+            <div class="tr-shop-row">
+                <div class="tr-shop-avatar">
+                    @if (!string.IsNullOrEmpty(Model.Request.Shop!.LogoUrl))
+                    { <img src="@Model.Request.Shop.LogoUrl" alt="@Model.Request.Shop.ShopName" /> }
+                    else
+                    { @char.ToUpper(Model.Request.Shop.ShopName[0]) }
+                </div>
+                <div>
+                    <div class="tr-shop-name">@Model.Request.Shop.ShopName</div>
+                    <div class="tr-shop-sub">
+                        @if (avgRating > 0)
+                        {
+                            @for (int i = 1; i <= 5; i++)
+                            { <i class="fas fa-star" style="color:@(i <= avgRating ? "#fbbf24" : "rgba(255,255,255,.12)");" ></i> }
+                            <span>@avgRating.ToString("F1")</span>
+                            <span style="color:var(--border);">·</span>
+                        }
+                        <i class="fas fa-shield-check"></i>
+                        <span>@L["Track.VerifiedMechanicShop"]</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tr-eta">
+                <div class="tr-eta-icon"><i class="fas fa-clock"></i></div>
+                <div>
+                    <div class="tr-eta-title">
+                        @(status == RequestStatus.Accepted ? L["Track.Accepted"].Value :
+                          status == RequestStatus.MechanicArrived ? L["Track.MechanicArrived"].Value : L["Track.WorkInProgress"].Value)
+                        — @(minutesAgo < 2 ? L["Track.JustNow"].Value : $"{minutesAgo} {L["Track.MinAgo"].Value}")
+                    </div>
+                    <div class="tr-eta-sub">
+                        @if (status == RequestStatus.Accepted)
+                        { <text>@L["Track.MechanicHeading"]</text> }
+                        else if (status == RequestStatus.MechanicArrived)
+                        { <text>@L["Track.MechanicAtLocation"]</text> }
+                        else
+                        { <text>@L["Track.WorkOnVehicle"]</text> }
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Request.Shop.PhoneNumber))
+            {
+                <button type="button" class="btn-tr-call"
+                        onclick="showCallModal('@Model.Request.Shop.ShopName', '@Model.Request.Shop.PhoneNumber')">
+                    <i class="fas fa-phone"></i> @L["Track.CallMechanicNow"]
+                </button>
+            }
+
+            <p class="tr-reassure">
+                <i class="fas fa-shield-alt me-1"></i>
+                @L["Track.StayCalm"]
+            </p>
+        </div>
+    }
+    else if (status == RequestStatus.Pending)
+    {
+        <div class="tr-banner pending" style="text-align:center;">
+            <span class="tr-live-pill yellow" style="margin:0 auto 1rem;"><span class="tr-live-dot"></span> @L["Track.SearchingNearbyShops"]</span>
+            <div class="d-flex justify-content-center mb-3">
+                <div class="spinner-border" style="color:var(--yellow-t);width:38px;height:38px;" role="status"></div>
+            </div>
+            <div style="font-size:1rem;font-weight:800;color:var(--white);margin-bottom:.35rem;">@L["Track.LookingForShop"]</div>
+            <p style="font-size:.82rem;color:var(--muted);margin:0;">@L["Track.NotifyingShops"]</p>
+        </div>
+    }
+    else if (status == RequestStatus.Completed)
+    {
+        <div class="tr-banner completed" style="text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:.6rem;">✅</div>
+            <span class="tr-live-pill green" style="margin:0 auto .8rem;"><i class="fas fa-check me-1"></i> @L["Track.Completed"]</span>
+            <div style="font-size:1.05rem;font-weight:800;color:var(--white);margin-bottom:.3rem;">@L["Track.YourCarIsFixed"]</div>
+            <p style="font-size:.82rem;color:var(--muted);margin:0;">@L["Track.JobCompletedBy"] <strong style="color:var(--white);">@(Model.Request.Shop?.ShopName ?? "")</strong></p>
+        </div>
+    }
+    else if (status == RequestStatus.Cancelled || status == RequestStatus.Rejected)
+    {
+        <div class="tr-banner cancelled">
+            <div style="display:flex;align-items:center;gap:.8rem;">
+                <div style="width:40px;height:40px;background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--red);flex-shrink:0;">
+                    <i class="fas fa-times"></i>
+                </div>
+                <div>
+                    <div style="font-size:.9rem;font-weight:700;color:var(--white);">@L["Track.WasRequest"] @L["Status." + status.ToString()]</div>
+                    <div style="font-size:.78rem;color:var(--muted);">@L["Track.RequestNoLongerActive"]</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ══ MAIN CONTENT ══ -->
+    <div class="row g-4">
+
+        <!-- Left: Status stepper -->
+        <div class="col-lg-6">
+            <div class="tr-card">
+                <div class="tr-card-head">
+                    <span><i class="fas fa-route"></i> @L["Track.Progress"]</span>
+                    <span class="tr-status-badge sb-@sbClass">@L["Status." + status.ToString()]</span>
+                </div>
+                <div class="tr-card-body">
+                    @if (status == RequestStatus.Cancelled || status == RequestStatus.Rejected)
+                    {
+                        <div style="background:rgba(230,57,70,.08);border:1px solid rgba(230,57,70,.18);border-radius:10px;padding:.85rem 1rem;font-size:.85rem;color:#ff6b74;">
+                            <i class="fas fa-times-circle me-2"></i>@L["Track.WasRequest"] @L["Status." + status.ToString()].
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="tr-steps">
+                            @for (int i = 0; i < Model.Steps.Count; i++)
+                            {
+                                var step   = Model.Steps[i];
+                                bool done   = Model.CurrentStepIndex > i;
+                                bool active = Model.CurrentStepIndex == i;
+                                <div class="tr-step @(done ? "done" : active ? "active" : "")">
+                                    <div class="tr-dot">
+                                        @if (done)       { <i class="fas fa-check" style="font-size:.7rem;"></i> }
+                                        else if (active) { <i class="fas @step.Icon" style="font-size:.7rem;"></i> }
+                                        else             { <span>@(i + 1)</span> }
+                                    </div>
+                                    <div class="tr-lbl">@step.Label</div>
+                                    @if (i < Model.Steps.Count - 1) { <div class="tr-line"></div> }
+                                </div>
+                            }
+                        </div>
+
+                        @if (isActive)
+                        {
+                            <div style="display:flex;align-items:center;gap:.5rem;margin-top:1.1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.72rem;color:var(--muted);">
+                                <div style="width:6px;height:6px;background:var(--green-t);border-radius:50%;animation:tr-blink 1.3s infinite;flex-shrink:0;"></div>
+                                @L["Track.PageAutoRefreshes"]
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            @if (hasShop && !helpOnWay && status != RequestStatus.Pending)
+            {
+                <div class="tr-card">
+                    <div class="tr-card-head"><span><i class="fas fa-store"></i> @L["Track.Shop"]</span></div>
+                    <div class="tr-card-body">
+                        <div class="tr-shop-row">
+                            <div class="tr-shop-avatar" style="width:46px;height:46px;border-radius:12px;font-size:1rem;">
+                                @if (!string.IsNullOrEmpty(Model.Request.Shop!.LogoUrl))
+                                { <img src="@Model.Request.Shop.LogoUrl" alt="@Model.Request.Shop.ShopName" /> }
+                                else
+                                { @char.ToUpper(Model.Request.Shop.ShopName[0]) }
+                            </div>
+                            <div>
+                                <div style="font-size:.9rem;font-weight:700;color:var(--white);">@Model.Request.Shop.ShopName</div>
+                                <div style="font-size:.75rem;color:var(--muted);">@Model.Request.Shop.City</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Right: Request details -->
+        <div class="col-lg-6">
+            <div class="tr-card">
+                <div class="tr-card-head"><span><i class="fas fa-car"></i> @L["Track.YourRequest"]</span></div>
+                <div class="tr-card-body">
+
+                    <div class="tr-field-label">@L["Track.SituationDescribed"]</div>
+                    <div class="tr-field-value tr-quote">"@Model.Request.SituationDescription"</div>
+
+                    @if (!string.IsNullOrEmpty(Model.Request.DiagnosisNotes))
+                    {
+                        <div class="tr-field-label">@L["Track.MechanicDiagnosis"]</div>
+                        <div class="tr-diagnosis">@Model.Request.DiagnosisNotes</div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Request.Resolution))
+                    {
+                        <div class="tr-field-label">@L["Track.Resolution"]</div>
+                        <div class="tr-resolution">@Model.Request.Resolution</div>
+                    }
+
+                    @if (Model.Request.Payment != null)
+                    {
+                        <div class="tr-payment">
+                            <div class="tr-payment-label">@L["Track.AmountDue"]</div>
+                            <div class="tr-payment-amount">@Model.Request.Payment.Amount.ToString("F2") <span>JOD</span></div>
+                        </div>
+                    }
+
+                    <div style="font-size:.72rem;color:var(--muted);">
+                        <i class="fas fa-clock me-1"></i>@L["Track.Submitted"] @Model.Request.CreatedAt.ToLocalTime().ToString("f")
+                    </div>
+                </div>
+            </div>
+
+            @if (status == RequestStatus.Completed && Model.Request.Feedback == null)
+            {
+                <div class="tr-feedback-card">
+                    <div class="tr-stars-display">
+                        @for (int i = 1; i <= 5; i++) { <i class="fas fa-star"></i> }
+                    </div>
+                    <div style="font-size:.95rem;font-weight:800;color:var(--white);margin-bottom:.35rem;">@L["Track.HowWasService"] @(Model.Request.Shop?.ShopName ?? "")?</div>
+                    <p style="font-size:.78rem;color:var(--muted);margin-bottom:1rem;">@L["Track.FeedbackHelps"]</p>
+                    <a asp-action="Feedback" asp-route-requestId="@Model.Request.Id" class="btn-tr-feedback">
+                        <i class="fas fa-star me-2"></i>@L["Track.RateThisService"]
+                    </a>
+                </div>
+            }
+
+            @if (status == RequestStatus.Completed && Model.Request.Feedback != null)
+            {
+                <div class="tr-card" style="border-color:rgba(63,185,80,.2);">
+                    <div class="tr-card-body" style="text-align:center;">
+                        <div style="font-size:.75rem;font-weight:700;color:var(--green-t);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem;"><i class="fas fa-check-circle me-1"></i>@L["Track.FeedbackSubmitted"]</div>
+                        <div style="display:flex;justify-content:center;gap:.2rem;margin-bottom:.35rem;">
+                            @for (int i = 1; i <= 5; i++) { <i class="fas fa-star" style="font-size:.85rem;color:@(i <= Model.Request.Feedback.Rating ? "#fbbf24" : "rgba(255,255,255,.1)");"></i> }
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Request.Feedback.Comment))
+                        { <p style="font-size:.78rem;color:var(--muted);font-style:italic;margin:0;">"@Model.Request.Feedback.Comment"</p> }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+</div>
+
+@if (isActive)
+{
+    @section Scripts { <script>setTimeout(() => location.reload(), 15000);</script> }
+}

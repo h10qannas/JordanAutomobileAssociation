@@ -1,0 +1,328 @@
+@{ ViewData["Title"] = L["Contact.Support"].Value; Layout = "_Layout"; }
+
+@{
+    var jsSending     = L["Contact.Sending"].Value;
+    var jsMessageSent = L["Contact.MessageSent"].Value;
+}
+
+@section Styles {
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+.contact-page { padding-top: 64px; background: var(--dark); }
+.contact-hero {
+  padding: 80px 0 70px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.contact-hero::before {
+  content: '';
+  position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(230,57,70,.09) 0%, transparent 65%);
+  border-radius: 50%; pointer-events: none;
+}
+.contact-tag {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.3);
+  color: var(--red); border-radius: 999px;
+  font-size: .7rem; font-weight: 700; letter-spacing: .7px; text-transform: uppercase;
+  padding: .3rem .9rem; margin-bottom: 1.3rem;
+}
+.contact-hero h1 {
+  font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 900;
+  color: var(--white); letter-spacing: -1.5px; margin-bottom: .9rem;
+}
+.contact-hero h1 span { color: var(--red); }
+.contact-hero p {
+  font-size: .95rem; color: var(--muted); max-width: 460px;
+  margin: 0 auto; line-height: 1.75;
+}
+.contact-info-row { padding: 0 0 60px; }
+.ci-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.5rem;
+  display: flex; align-items: flex-start; gap: .9rem;
+  height: 100%;
+  transition: border-color .2s, transform .2s;
+}
+.ci-card:hover { border-color: rgba(230,57,70,.28); transform: translateY(-2px); }
+.ci-icon {
+  width: 40px; height: 40px; flex-shrink: 0;
+  background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.2);
+  border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: var(--red);
+}
+.ci-label {
+  font-size: .68rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .6px; margin-bottom: .2rem;
+}
+.ci-value {
+  font-size: .9rem; font-weight: 600; color: var(--white);
+}
+.ci-sub {
+  font-size: .75rem; color: var(--muted); margin-top: .15rem;
+}
+.contact-main { padding: 0 0 100px; }
+.contact-panel {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2rem;
+  height: 100%;
+}
+.contact-panel h3 {
+  font-size: 1.05rem; font-weight: 800; color: var(--white);
+  margin-bottom: 1.4rem; letter-spacing: -.3px;
+}
+.cp-item {
+  display: flex; align-items: flex-start; gap: .8rem;
+  padding: .85rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.cp-item:last-child { border-bottom: none; padding-bottom: 0; }
+.cp-icon {
+  width: 34px; height: 34px; flex-shrink: 0;
+  background: rgba(230,57,70,.08); border: 1px solid rgba(230,57,70,.15);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .85rem; color: var(--red);
+}
+.cp-label { font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.cp-value { font-size: .88rem; color: var(--light); font-weight: 500; margin-top: .1rem; }
+.cp-badge {
+  display: inline-flex; align-items: center; gap: .35rem;
+  background: rgba(63,185,80,.1); border: 1px solid rgba(63,185,80,.2);
+  color: var(--green-t); border-radius: 999px;
+  font-size: .68rem; font-weight: 700; padding: .25rem .7rem;
+  margin-top: 1.4rem;
+}
+.contact-form-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2rem 2.25rem;
+}
+.contact-form-card h3 {
+  font-size: 1.05rem; font-weight: 800; color: var(--white);
+  margin-bottom: 1.4rem; letter-spacing: -.3px;
+}
+.cf-field { margin-bottom: 1rem; }
+.cf-label {
+  display: block; font-size: .7rem; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; letter-spacing: .6px;
+  margin-bottom: .4rem;
+}
+.cf-input,
+.cf-textarea {
+  width: 100%; background: var(--dark);
+  border: 1px solid var(--border); border-radius: 10px;
+  color: var(--white); font-size: .9rem; font-family: var(--font);
+  padding: .72rem .95rem;
+  transition: border-color .2s, box-shadow .2s; outline: none;
+}
+.cf-input:focus,
+.cf-textarea:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(230,57,70,.12);
+}
+.cf-input::placeholder,
+.cf-textarea::placeholder { color: #3d444e; }
+.cf-textarea { resize: none; line-height: 1.65; }
+.cf-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+@@media (max-width: 480px) { .cf-row { grid-template-columns: 1fr; } }
+.btn-cf-submit {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: .5rem;
+  background: var(--red); color: #fff; border: none; border-radius: 10px;
+  font-size: .95rem; font-weight: 700; font-family: var(--font);
+  padding: .82rem; cursor: pointer; margin-top: .25rem;
+  transition: background .2s, transform .15s, box-shadow .2s;
+}
+.btn-cf-submit:hover {
+  background: var(--red-d); transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(230,57,70,.3);
+}
+.btn-cf-submit:active { transform: translateY(0); }
+.btn-cf-submit.sent {
+  background: var(--green); box-shadow: none; transform: none; cursor: default;
+}
+.cf-success {
+  display: none;
+  align-items: center; gap: .6rem;
+  background: rgba(63,185,80,.09); border: 1px solid rgba(63,185,80,.2);
+  border-radius: 10px; padding: .7rem 1rem;
+  font-size: .82rem; color: var(--green-t);
+  margin-top: .75rem;
+}
+</style>
+}
+
+<div class="contact-page">
+
+  <!-- ══ HERO ══ -->
+  <section class="contact-hero">
+    <div class="container">
+      <div class="contact-tag"><i class="fas fa-headset"></i> @L["Contact.Support"]</div>
+      <h1>@L["Contact.HeroTitle"]</h1>
+      <p>@L["Contact.HeroDesc"]</p>
+    </div>
+  </section>
+
+  <!-- ══ INFO CARDS ROW ══ -->
+  <div class="contact-info-row">
+    <div class="container">
+      <div class="row g-3">
+        @foreach (var (icon, labelKey, value, subKey) in new (string,string,string,string)[] {
+          ("fa-phone",          "Contact.Phone",    "+962 6 000 0000", "Contact.CallUsAnytime"),
+          ("fa-envelope",       "Contact.Email",    "help@jaa.jo",     "Contact.ReplyWithin2Hours"),
+          ("fa-map-marker-alt", "Contact.Location", "Amman, Jordan",   "Contact.ServingAllJordan"),
+          ("fa-clock",          "Contact.Hours",    "24 / 7",          "Contact.Days365")
+        })
+        {
+          <div class="col-6 col-md-3">
+            <div class="ci-card">
+              <div class="ci-icon"><i class="fas @icon"></i></div>
+              <div>
+                <div class="ci-label">@L[labelKey]</div>
+                <div class="ci-value">@value</div>
+                <div class="ci-sub">@L[subKey]</div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MAIN: PANEL + FORM ══ -->
+  <section class="contact-main">
+    <div class="container">
+      <div class="row g-4 align-items-start">
+
+        <!-- Left panel -->
+        <div class="col-lg-4">
+          <div class="contact-panel">
+            <h3>@L["Contact.GetInTouch"]</h3>
+
+            @foreach (var (icon, labelKey, value) in new (string,string,string)[] {
+              ("fa-phone",          "Contact.Phone",    "+962 6 000 0000"),
+              ("fa-envelope",       "Contact.Email",    "help@jaa.jo"),
+              ("fa-map-marker-alt", "Contact.Location", "Amman, Jordan"),
+              ("fa-clock",          "Contact.Hours",    "24 / 7")
+            })
+            {
+              <div class="cp-item">
+                <div class="cp-icon"><i class="fas @icon"></i></div>
+                <div>
+                  <div class="cp-label">@L[labelKey]</div>
+                  <div class="cp-value">@value</div>
+                </div>
+              </div>
+            }
+
+            <div class="cp-badge">
+              <span style="width:7px;height:7px;background:var(--green-t);border-radius:50%;display:inline-block;animation:pulse-dot 1.5s ease-in-out infinite;"></span>
+              @L["Contact.TeamOnlineNow"]
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: form -->
+        <div class="col-lg-8">
+          <div class="contact-form-card">
+            <h3>@L["Contact.SendUsMessage"]</h3>
+            <form id="contactForm" novalidate>
+
+              <div class="cf-row">
+                <div class="cf-field">
+                  <label class="cf-label">@L["Contact.FullName"]</label>
+                  <input type="text" class="cf-input" placeholder="@L["Register.FullNamePlaceholder"]" id="cfName" />
+                </div>
+                <div class="cf-field">
+                  <label class="cf-label">@L["Contact.PhoneNumber"]</label>
+                  <input type="tel" class="cf-input" placeholder="+962 7x xxx xxxx" id="cfPhone" inputmode="tel" />
+                </div>
+              </div>
+
+              <div class="cf-field">
+                <label class="cf-label">@L["Contact.EmailAddress"]</label>
+                <input type="email" class="cf-input" placeholder="you@example.com" id="cfEmail" />
+              </div>
+
+              <div class="cf-field">
+                <label class="cf-label">@L["Contact.Subject"]</label>
+                <input type="text" class="cf-input" placeholder="@L["Contact.SubjectPlaceholder"]" id="cfSubject" />
+              </div>
+
+              <div class="cf-field">
+                <label class="cf-label">@L["Contact.Message"]</label>
+                <textarea class="cf-textarea" rows="5" placeholder="@L["Contact.MessagePlaceholder"]" id="cfMsg"></textarea>
+              </div>
+
+              <button type="button" class="btn-cf-submit" id="cfSubmit" onclick="sendMessage()">
+                <i class="fas fa-paper-plane" id="cfBtnIcon"></i>
+                <span id="cfBtnText">@L["Contact.SendMessage"]</span>
+              </button>
+
+              <div class="cf-success" id="cfSuccess">
+                <i class="fas fa-check-circle"></i>
+                <span>@L["Contact.MessageSentSuccess"]</span>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div>
+
+@section Scripts {
+<style>
+@@keyframes pulse-dot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.5; transform:scale(1.3); }
+}
+</style>
+<script>
+const _contactI18n = {
+    sending:     '@Html.Raw(jsSending.Replace("'", "\\'"))',
+    messageSent: '@Html.Raw(jsMessageSent.Replace("'", "\\'"))'
+};
+
+function sendMessage() {
+  const name    = document.getElementById('cfName').value.trim();
+  const email   = document.getElementById('cfEmail').value.trim();
+  const msg     = document.getElementById('cfMsg').value.trim();
+  const btn     = document.getElementById('cfSubmit');
+  const icon    = document.getElementById('cfBtnIcon');
+  const txt     = document.getElementById('cfBtnText');
+  const success = document.getElementById('cfSuccess');
+
+  if (!name || !email || !msg) {
+    [['cfName', name], ['cfEmail', email], ['cfMsg', msg]].forEach(([id, val]) => {
+      if (!val) {
+        const el = document.getElementById(id);
+        el.style.borderColor = 'var(--red)';
+        el.style.boxShadow   = '0 0 0 3px rgba(230,57,70,.15)';
+        el.addEventListener('input', () => {
+          el.style.borderColor = '';
+          el.style.boxShadow   = '';
+        }, { once: true });
+      }
+    });
+    return;
+  }
+
+  btn.disabled        = true;
+  icon.className      = 'fas fa-spinner fa-spin';
+  txt.textContent     = _contactI18n.sending;
+
+  setTimeout(() => {
+    btn.classList.add('sent');
+    icon.className   = 'fas fa-check';
+    txt.textContent  = _contactI18n.messageSent;
+    success.style.display = 'flex';
+    document.getElementById('contactForm').reset();
+  }, 1200);
+}
+</script>
+}

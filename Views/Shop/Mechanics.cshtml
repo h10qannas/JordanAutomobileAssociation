@@ -1,0 +1,91 @@
+@model JAA.ViewModels.MechanicListViewModel
+@using JAA.Models
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["ShopMech.Title"].Value; ViewData["PageTitle"] = L["ShopMech.Title"].Value; ViewData["PageSub"] = $"{Model.ApprovedCount} {L["ShopMech.Approved"].Value} | {Model.PendingCount} {L["ShopMech.Pending"].Value}"; }
+
+@section TopbarActions {
+  <a asp-action="AddMechanic" class="btn-jaa btn-primary btn-sm"><i class="bi bi-person-plus-fill"></i> @L["ShopMech.AddMechanic"]</a>
+}
+
+<div class="row g-3 mb-4">
+  <div class="col-4">
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-green"><i class="bi bi-person-check-fill"></i></div>
+      <div><div class="stat-num">@Model.ApprovedCount</div><div class="stat-label">@L["ShopMech.Approved"]</div></div>
+    </div>
+  </div>
+  <div class="col-4">
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-yellow"><i class="bi bi-hourglass-split"></i></div>
+      <div><div class="stat-num">@Model.PendingCount</div><div class="stat-label">@L["ShopMech.Pending"]</div></div>
+    </div>
+  </div>
+  <div class="col-4">
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-red"><i class="bi bi-person-x-fill"></i></div>
+      <div><div class="stat-num">@Model.RejectedCount</div><div class="stat-label">@L["ShopMech.Rejected"]</div></div>
+    </div>
+  </div>
+</div>
+
+@if (!Model.Mechanics.Any())
+{
+  <div class="card-jaa text-center" style="padding:3rem;">
+    <div style="font-size:2.5rem;margin-bottom:1rem;opacity:.3;"><i class="bi bi-people"></i></div>
+    <h5 style="color:var(--white);margin-bottom:.5rem;">@L["ShopMech.NoMechanicsYet"]</h5>
+    <p style="color:var(--muted);font-size:.85rem;">@L["ShopMech.NoMechanicsDesc"]</p>
+    <a asp-action="AddMechanic" class="btn-jaa btn-primary btn-sm"><i class="bi bi-person-plus-fill"></i> @L["ShopMech.AddMechanic"]</a>
+  </div>
+}
+else
+{
+  <div class="row g-3">
+    @foreach (var m in Model.Mechanics)
+    {
+      <div class="col-md-6 col-lg-4">
+        <div class="card-jaa h-100" style="padding:1.2rem;">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            @if (!string.IsNullOrEmpty(m.ProfileImageUrl))
+            {
+              <img src="@m.ProfileImageUrl" style="width:44px;height:44px;border-radius:50%;object-fit:cover;" alt="" />
+            }
+            else
+            {
+              <div style="width:44px;height:44px;background:rgba(255,255,255,.06);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:var(--muted);">
+                @m.FullName.Substring(0,1).ToUpper()
+              </div>
+            }
+            <div>
+              <div style="font-size:.9rem;font-weight:700;color:var(--white);">@m.FullName</div>
+              <div style="font-size:.75rem;color:var(--muted);">
+                @if (m.YearsOfExperience.HasValue) { <text>@m.YearsOfExperience @L["ShopMech.YrsExp"]</text> }
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge-jaa @(m.Status == MechanicStatus.Approved ? "badge-completed" : m.Status == MechanicStatus.Pending ? "badge-pending" : "badge-rejected")"
+              style="font-size:.65rem;">
+              @(m.Status == MechanicStatus.Approved ? L["ShopMech.Approved"].Value : m.Status == MechanicStatus.Pending ? L["ShopMech.Pending"].Value : L["ShopMech.Rejected"].Value)
+            </span>
+            @if (m.Status == MechanicStatus.Approved)
+            {
+              <span style="font-size:.72rem;font-weight:600;color:@(m.IsAvailable ? "#3fb950" : "#f59e0b");">
+                <i class="bi bi-@(m.IsAvailable ? "circle-fill" : "pause-circle-fill")"></i>
+                @(m.IsAvailable ? L["ShopMech.Available"].Value : L["ShopMech.OnJob"].Value)
+              </span>
+            }
+          </div>
+
+          <div style="font-size:.75rem;color:var(--muted);margin-bottom:1rem;">
+            <div><i class="bi bi-phone me-1"></i>@m.PhoneNumber</div>
+            <div class="mt-1"><i class="bi bi-card-text me-1"></i>ID: @m.NationalId</div>
+          </div>
+
+          <a asp-action="EditMechanic" asp-route-id="@m.Id" class="btn-jaa btn-ghost btn-sm btn-full">
+            <i class="bi bi-pencil-fill"></i> @L["ShopMech.Edit"]
+          </a>
+        </div>
+      </div>
+    }
+  </div>
+}

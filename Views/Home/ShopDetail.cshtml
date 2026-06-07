@@ -1,0 +1,343 @@
+@model JAA.ViewModels.ShopDetailViewModel
+@{ ViewData["Title"] = Model.Shop.ShopName; Layout = "_Layout"; }
+
+@section Styles {
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+.detail-page { padding-top: 64px; background: var(--dark); min-height: 100vh; }
+
+/* ── Header band ── */
+.detail-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+  padding: 36px 0 32px;
+}
+
+.detail-back {
+  display: inline-flex; align-items: center; gap: .4rem;
+  color: var(--muted); font-size: .78rem; text-decoration: none;
+  margin-bottom: 1.3rem; transition: color .2s;
+}
+.detail-back:hover { color: var(--light); }
+
+.detail-logo {
+  width: 68px; height: 68px; flex-shrink: 0;
+  border-radius: 16px; overflow: hidden;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; color: rgba(230,57,70,.3);
+}
+.detail-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+.detail-name {
+  font-size: 1.45rem; font-weight: 900; color: var(--white);
+  letter-spacing: -.4px; margin-bottom: .35rem;
+}
+.detail-verified {
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: rgba(35,134,54,.15); border: 1px solid rgba(35,134,54,.3);
+  color: var(--green-t); border-radius: 999px;
+  font-size: .65rem; font-weight: 700; padding: .22rem .65rem;
+}
+.detail-meta {
+  display: flex; align-items: center; gap: .55rem; flex-wrap: wrap;
+  font-size: .82rem; color: var(--muted); margin-top: .35rem;
+}
+.detail-meta i { font-size: .78rem; }
+.detail-meta a { color: var(--red); text-decoration: none; }
+.detail-meta a:hover { text-decoration: underline; }
+.detail-meta-sep { color: var(--border); }
+
+.detail-stars { display: flex; align-items: center; gap: .25rem; margin-top: .45rem; }
+.detail-stars i { font-size: .78rem; }
+.detail-stars span { font-size: .78rem; color: var(--muted); margin-left: .2rem; }
+
+/* ── Main body ── */
+.detail-body { padding: 36px 0 80px; }
+
+/* Section cards */
+.detail-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden; margin-bottom: 1.25rem;
+}
+.detail-card-head {
+  display: flex; align-items: center; gap: .5rem;
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid var(--border);
+  font-size: .82rem; font-weight: 700; color: var(--white);
+}
+.detail-card-head i { color: var(--red); }
+.detail-card-body { padding: 1.4rem; }
+
+/* About text */
+.detail-about-text { font-size: .9rem; color: var(--muted); line-height: 1.8; margin: 0; }
+
+/* Reviews */
+.review-item {
+  display: flex; align-items: flex-start; gap: .85rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.review-item:last-child { border-bottom: none; padding-bottom: 0; }
+.review-avatar {
+  width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%;
+  background: rgba(88,166,255,.15); border: 1px solid rgba(88,166,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .82rem; font-weight: 700; color: var(--blue);
+}
+.review-name { font-size: .85rem; font-weight: 700; color: var(--white); }
+.review-date { font-size: .72rem; color: var(--muted); }
+.review-stars { display: flex; align-items: center; gap: .2rem; }
+.review-stars i { font-size: .68rem; }
+.review-comment { font-size: .82rem; color: var(--muted); margin: .4rem 0 0; line-height: 1.6; font-style: italic; }
+
+.reviews-empty {
+  text-align: center; padding: 2.5rem 1rem; color: var(--muted);
+  font-size: .85rem;
+}
+.reviews-empty i { font-size: 2rem; display: block; margin-bottom: .75rem; opacity: .35; }
+
+/* ── Sidebar ── */
+.detail-stats-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.4rem; margin-bottom: 1rem;
+}
+.detail-stats-card h5 {
+  font-size: .72rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .6px; margin-bottom: 1rem;
+}
+.stat-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: .6rem 0; border-bottom: 1px solid var(--border);
+}
+.stat-row:last-child { border-bottom: none; padding-bottom: 0; }
+.stat-row-label { font-size: .83rem; color: var(--muted); }
+.stat-row-val { font-size: .9rem; font-weight: 700; color: var(--white); }
+.stat-row-val.gold { color: #fbbf24; }
+
+/* CTA card */
+.detail-cta-card {
+  background: rgba(230,57,70,.06);
+  border: 1px solid rgba(230,57,70,.18);
+  border-radius: 16px; padding: 1.4rem; text-align: center;
+}
+.detail-cta-card i { font-size: 1.6rem; color: var(--red); display: block; margin-bottom: .8rem; }
+.detail-cta-card p { font-size: .82rem; color: var(--muted); margin-bottom: 1rem; line-height: 1.6; }
+
+.btn-detail-help {
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  background: var(--red); color: #fff; border: none; border-radius: 10px;
+  font-size: .9rem; font-weight: 700; font-family: var(--font);
+  padding: .75rem; text-decoration: none; cursor: pointer;
+  transition: background .2s, transform .15s, box-shadow .2s;
+  width: 100%;
+}
+.btn-detail-help:hover {
+  background: var(--red-d); transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(230,57,70,.3); color: #fff;
+}
+</style>
+}
+
+<div class="detail-page">
+
+  <!-- ══ HEADER ══ -->
+  <div class="detail-header">
+    <div class="container" style="max-width: 940px;">
+
+      <a asp-action="Shops" class="detail-back">
+        <i class="fas fa-arrow-left"></i> @L["ShopDtl.AllShops"]
+      </a>
+
+      <div class="d-flex align-items-start gap-4 flex-wrap">
+
+        <!-- Logo -->
+        <div class="detail-logo">
+          @if (!string.IsNullOrEmpty(Model.Shop.LogoUrl))
+          { <img src="@Model.Shop.LogoUrl" alt="@Model.Shop.ShopName" /> }
+          else
+          { <i class="fas fa-store"></i> }
+        </div>
+
+        <!-- Info -->
+        <div class="flex-grow-1">
+          <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+            <div class="detail-name">@Model.Shop.ShopName</div>
+            @if (Model.Shop.IsVerified)
+            {
+              <span class="detail-verified">
+                <i class="fas fa-check-circle"></i> @L["ShopDtl.Verified"]
+              </span>
+            }
+          </div>
+
+          <div class="detail-meta">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>@Model.Shop.City</span>
+            @if (!string.IsNullOrEmpty(Model.Shop.Address))
+            {
+              <span class="detail-meta-sep">·</span>
+              <span>@Model.Shop.Address</span>
+            }
+            @if (!string.IsNullOrEmpty(Model.Shop.PhoneNumber))
+            {
+              <span class="detail-meta-sep">·</span>
+              <i class="fas fa-phone"></i>
+              <button type="button"
+                      onclick="showCallModal('@Model.Shop.ShopName', '@Model.Shop.PhoneNumber')"
+                      style="background:none;border:none;color:var(--red);font-size:.82rem;font-weight:600;cursor:pointer;padding:0;font-family:var(--font);">
+                  @Model.Shop.PhoneNumber
+              </button>
+            }
+          </div>
+
+          @if (Model.AverageRating > 0)
+          {
+            <div class="detail-stars">
+              @for (int i = 1; i <= 5; i++)
+              {
+                <i class="fas fa-star" style="color:@(i <= Model.AverageRating ? "#fbbf24" : "rgba(255,255,255,.12)");"></i>
+              }
+              <span>@Model.AverageRating.ToString("F1") · @Model.Feedbacks.Count @(Model.Feedbacks.Count != 1 ? L["ShopDtl.ReviewPlural"].Value : L["ShopDtl.ReviewSingular"].Value)</span>
+            </div>
+          }
+        </div>
+
+        <!-- Request help (desktop) -->
+        @if (User.IsInRole("Customer"))
+        {
+          <div class="ms-auto d-none d-md-block">
+            <a asp-controller="Customer" asp-action="RequestHelp"
+               class="btn-jaa btn-primary" style="padding:.65rem 1.4rem;font-size:.88rem;text-decoration:none;">
+              <i class="fas fa-exclamation-triangle"></i> @L["ShopDtl.RequestHelp"]
+            </a>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ BODY ══ -->
+  <div class="detail-body">
+    <div class="container" style="max-width: 940px;">
+      <div class="row g-4 align-items-start">
+
+        <!-- Main column -->
+        <div class="col-lg-8">
+
+          @if (!string.IsNullOrEmpty(Model.Shop.Description))
+          {
+            <div class="detail-card">
+              <div class="detail-card-head"><i class="fas fa-info-circle"></i> @L["ShopDtl.AboutThisShop"]</div>
+              <div class="detail-card-body">
+                <p class="detail-about-text">@Model.Shop.Description</p>
+              </div>
+            </div>
+          }
+
+          <div class="detail-card">
+            <div class="detail-card-head">
+              <i class="fas fa-star"></i> @L["ShopDtl.CustomerReviews"]
+              <span style="background:rgba(255,255,255,.06);border-radius:999px;font-size:.7rem;color:var(--muted);padding:.18rem .6rem;margin-left:.25rem;">@Model.Feedbacks.Count</span>
+            </div>
+            <div class="detail-card-body" style="padding: @(Model.Feedbacks.Any() ? "1rem 1.4rem" : "0");">
+              @if (!Model.Feedbacks.Any())
+              {
+                <div class="reviews-empty">
+                  <i class="fas fa-comment-dots"></i>
+                  @L["ShopDtl.NoReviewsFirst"]
+                </div>
+              }
+              else
+              {
+                @foreach (var f in Model.Feedbacks)
+                {
+                  var initial = f.Customer?.FullName?.Length > 0 ? char.ToUpper(f.Customer.FullName[0]).ToString() : "C";
+                  <div class="review-item">
+                    <div class="review-avatar">@initial</div>
+                    <div class="flex-grow-1">
+                      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div>
+                          <div class="review-name">@f.Customer?.FullName</div>
+                          <div class="review-date">@f.CreatedAt.ToLocalTime().ToString("d MMM yyyy")</div>
+                        </div>
+                        <div class="review-stars">
+                          @for (int i = 1; i <= 5; i++)
+                          {
+                            <i class="fas fa-star" style="color:@(i <= f.Rating ? "#fbbf24" : "rgba(255,255,255,.12)");"></i>
+                          }
+                        </div>
+                      </div>
+                      @if (!string.IsNullOrEmpty(f.Comment))
+                      {
+                        <p class="review-comment">"@f.Comment"</p>
+                      }
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+
+          <!-- Stats -->
+          <div class="detail-stats-card">
+            <h5>@L["ShopDtl.ShopStats"]</h5>
+            <div class="stat-row">
+              <span class="stat-row-label">@L["ShopDtl.CompletedJobs"]</span>
+              <span class="stat-row-val">@Model.CompletedJobs</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-row-label">@L["ShopDtl.AvgRating"]</span>
+              <span class="stat-row-val gold">
+                @(Model.AverageRating > 0 ? Model.AverageRating.ToString("F1") + " ★" : "—")
+              </span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-row-label">@L["ShopDtl.TotalReviews"]</span>
+              <span class="stat-row-val">@Model.Feedbacks.Count</span>
+            </div>
+            @if (Model.Shop.IsVerified)
+            {
+              <div class="stat-row">
+                <span class="stat-row-label">@L["ShopDtl.Status"]</span>
+                <span style="display:inline-flex;align-items:center;gap:.3rem;font-size:.8rem;font-weight:700;color:var(--green-t);">
+                  <i class="fas fa-check-circle"></i> @L["ShopDtl.Verified"]
+                </span>
+              </div>
+            }
+          </div>
+
+          <!-- Request help CTA -->
+          @if (User.IsInRole("Customer"))
+          {
+            <div class="detail-cta-card">
+              <i class="fas fa-car-crash"></i>
+              <p>@L["ShopDtl.StrandedNearby"]</p>
+              <a asp-controller="Customer" asp-action="RequestHelp" class="btn-detail-help">
+                <i class="fas fa-exclamation-triangle"></i> @L["ShopDtl.RequestHelpNow"]
+              </a>
+            </div>
+          }
+          else if (!User.Identity!.IsAuthenticated)
+          {
+            <div class="detail-cta-card">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>@L["ShopDtl.NeedAssistance"]</p>
+              <a asp-controller="Account" asp-action="Login" class="btn-detail-help">
+                <i class="fas fa-sign-in-alt"></i> @L["ShopDtl.SignInToGetHelp"]
+              </a>
+            </div>
+          }
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

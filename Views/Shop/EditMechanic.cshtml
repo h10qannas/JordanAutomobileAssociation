@@ -1,0 +1,88 @@
+@model JAA.ViewModels.EditMechanicViewModel
+@using JAA.Models
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["ShopMech.Edit"].Value; ViewData["PageTitle"] = L["ShopMech.Edit"].Value; ViewData["PageSub"] = Model.FullName; }
+
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card-jaa">
+      <form asp-action="EditMechanic" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        @if (Model.Status == MechanicStatus.Pending)
+        {
+          <div style="background:rgba(255,193,7,.06);border:1px solid rgba(255,193,7,.2);border-radius:10px;padding:.7rem 1rem;margin-bottom:1.3rem;font-size:.78rem;color:#f59e0b;">
+            <i class="bi bi-hourglass-split me-1"></i> @L["ShopEM.PendingApproval"]
+          </div>
+        }
+        else if (Model.Status == MechanicStatus.Rejected)
+        {
+          <div style="background:var(--red-bg);border:1px solid var(--red-border);border-radius:10px;padding:.7rem 1rem;margin-bottom:1.3rem;font-size:.78rem;color:var(--red);">
+            <i class="bi bi-x-circle-fill me-1"></i> @L["ShopEM.Rejected"]
+          </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.ExistingProfileImageUrl))
+        {
+          <div class="text-center mb-3">
+            <img src="@Model.ExistingProfileImageUrl" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--border);" alt="" />
+          </div>
+        }
+
+        <div class="mb-4">
+          <label class="form-label-jaa" asp-for="FullName">@L["Prof.FullName"]</label>
+          <input asp-for="FullName" class="form-control-jaa" />
+          <span asp-validation-for="FullName" class="val-msg"></span>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label-jaa">@L["ShopEM.NationalId"]</label>
+          <input type="text" value="@Model.NationalId" class="form-control-jaa" readonly style="opacity:.6;" />
+          <div style="font-size:.72rem;color:var(--muted);margin-top:.3rem;">@L["ShopEM.NationalIdReadOnly"]</div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label-jaa" asp-for="PhoneNumber">@L["Prof.PhoneNumber"]</label>
+          <input asp-for="PhoneNumber" class="form-control-jaa" />
+          <span asp-validation-for="PhoneNumber" class="val-msg"></span>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label-jaa" asp-for="YearsOfExperience">@L["ShopEM.YearsExp"]</label>
+          <input asp-for="YearsOfExperience" type="number" min="0" max="60" class="form-control-jaa" />
+        </div>
+
+        @if (Model.Status == MechanicStatus.Approved)
+        {
+          <div class="mb-4">
+            <label class="form-label-jaa" asp-for="IsAvailable">@L["ShopEM.Availability"]</label>
+            <div class="d-flex gap-3 mt-1">
+              <label style="cursor:pointer;display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--text2);">
+                <input type="radio" name="IsAvailable" value="True" @(Model.IsAvailable ? "checked" : "") /> @L["ShopEM.Available"]
+              </label>
+              <label style="cursor:pointer;display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--text2);">
+                <input type="radio" name="IsAvailable" value="False" @(!Model.IsAvailable ? "checked" : "") /> @L["ShopEM.Offline"]
+              </label>
+            </div>
+          </div>
+        }
+
+        <div class="mb-4">
+          <label class="form-label-jaa">@L["ShopEM.UpdateProfilePhoto"]</label>
+          <input asp-for="ProfileImage" type="file" accept="image/*" class="form-control-jaa" />
+        </div>
+
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn-jaa btn-primary flex-grow-1">
+            <i class="bi bi-floppy-fill"></i> @L["ShopEM.SaveChanges"]
+          </button>
+          <a asp-action="Mechanics" class="btn-jaa btn-ghost">@L["ShopEM.Cancel"]</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

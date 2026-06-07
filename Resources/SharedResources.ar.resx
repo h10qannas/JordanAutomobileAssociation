@@ -1,0 +1,1057 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- Navigation -->
+  <data name="Nav.Home"><value>الرئيسية</value></data>
+  <data name="Nav.FindShop"><value>ابحث عن ورشة</value></data>
+  <data name="Nav.About"><value>من نحن</value></data>
+  <data name="Nav.Contact"><value>اتصل بنا</value></data>
+  <data name="Nav.Dashboard"><value>لوحة التحكم</value></data>
+  <data name="Nav.SignIn"><value>تسجيل الدخول</value></data>
+  <data name="Nav.SignOut"><value>تسجيل الخروج</value></data>
+  <data name="Nav.GetHelp"><value>اطلب المساعدة الآن</value></data>
+  <data name="Nav.ForShops"><value>للورشات</value></data>
+  <data name="Nav.ShopLogin"><value>دخول الورشة</value></data>
+  <data name="Nav.RegisterShop"><value>سجّل ورشتك</value></data>
+  <data name="Nav.Status"><value>الحالة</value></data>
+
+  <!-- Auth -->
+  <data name="Auth.Login"><value>تسجيل الدخول</value></data>
+  <data name="Auth.Register"><value>إنشاء حساب</value></data>
+  <data name="Auth.Password"><value>كلمة المرور</value></data>
+  <data name="Auth.ConfirmPassword"><value>تأكيد كلمة المرور</value></data>
+  <data name="Auth.FullName"><value>الاسم الكامل</value></data>
+  <data name="Auth.PhoneNumber"><value>رقم الهاتف</value></data>
+  <data name="Auth.RememberMe"><value>تذكرني</value></data>
+  <data name="Auth.ForgotPassword"><value>نسيت كلمة المرور؟</value></data>
+
+  <!-- Login page -->
+  <data name="Login.BackToHome"><value>العودة للرئيسية</value></data>
+  <data name="Login.WelcomeBack"><value>مرحباً بعودتك</value></data>
+  <data name="Login.SignInToAccount"><value>تسجيل الدخول إلى حسابك في JAA</value></data>
+  <data name="Login.SignIn"><value>تسجيل الدخول</value></data>
+  <data name="Login.NoAccount"><value>ليس لديك حساب؟</value></data>
+  <data name="Login.CreateOne"><value>أنشئ حساباً ←</value></data>
+  <data name="Login.PhonePlaceholder"><value>+962 7x xxx xxxx</value></data>
+
+  <!-- Register page -->
+  <data name="Register.BackToHome"><value>العودة للرئيسية</value></data>
+  <data name="Register.CreateAccount"><value>إنشاء حساب</value></data>
+  <data name="Register.JoinJAAFree"><value>انضم إلى JAA اليوم — مجاناً</value></data>
+  <data name="Register.PasswordMin"><value>٦ أحرف على الأقل</value></data>
+  <data name="Register.ReEnterPassword"><value>أعد إدخال كلمة المرور</value></data>
+  <data name="Register.CreateAccountBtn"><value>إنشاء الحساب</value></data>
+  <data name="Register.AlreadyHaveAccount"><value>هل لديك حساب بالفعل؟</value></data>
+  <data name="Register.SignInLink"><value>تسجيل الدخول ←</value></data>
+  <data name="Register.AreYouShopOwner"><value>هل أنت صاحب ورشة؟</value></data>
+  <data name="Register.RegisterYourShop"><value>سجّل ورشتك</value></data>
+  <data name="Register.JoinPartnerNetwork"><value>انضم إلى شبكة شركاء JAA ←</value></data>
+  <data name="Register.NamePlaceholder"><value>أحمد الراشد</value></data>
+
+  <!-- Shop Login page -->
+  <data name="ShopLogin.BackToHome"><value>العودة للرئيسية</value></data>
+  <data name="ShopLogin.ShopOwnerPortal"><value>بوابة أصحاب الورشات</value></data>
+  <data name="ShopLogin.GrowBusiness"><value>نمّ أعمالك في الإصلاح</value></data>
+  <data name="ShopLogin.AccessDashboard"><value>ادخل إلى لوحة تحكم JAA لإدارة الطلبات وتتبع الأرباح والتواصل مع العملاء.</value></data>
+  <data name="ShopLogin.InstantJobAlerts"><value>تنبيهات فورية بالطلبات</value></data>
+  <data name="ShopLogin.InstantJobAlertsDesc"><value>احصل على إشعار فور احتياج عميل قريب للمساعدة.</value></data>
+  <data name="ShopLogin.EarningsTracking"><value>تتبع الأرباح</value></data>
+  <data name="ShopLogin.EarningsTrackingDesc"><value>راقب إيراداتك والأعمال المنجزة بشكل فوري.</value></data>
+  <data name="ShopLogin.CustomerReviews"><value>تقييمات العملاء</value></data>
+  <data name="ShopLogin.CustomerReviewsDesc"><value>ابنِ سمعتك بتقييمات موثوقة من العملاء الحقيقيين.</value></data>
+  <data name="ShopLogin.VerifiedBadge"><value>شارة الاعتماد</value></data>
+  <data name="ShopLogin.VerifiedBadgeDesc"><value>اكسب ثقة العملاء بعلامة التحقق الرسمية من JAA.</value></data>
+  <data name="ShopLogin.Shops"><value>ورشة</value></data>
+  <data name="ShopLogin.Active"><value>نشطة</value></data>
+  <data name="ShopLogin.Rating"><value>التقييم</value></data>
+  <data name="ShopLogin.WelcomeBack"><value>مرحباً بعودتك</value></data>
+  <data name="ShopLogin.SignInToShopAccount"><value>تسجيل الدخول إلى حساب ورشتك</value></data>
+  <data name="ShopLogin.SignInToShopPortal"><value>الدخول إلى بوابة الورشة</value></data>
+  <data name="ShopLogin.NewShopOwner"><value>ورشة جديدة؟</value></data>
+  <data name="ShopLogin.RegisterYourShopLink"><value>سجّل ورشتك ←</value></data>
+  <data name="ShopLogin.NotAShop"><value>لست صاحب ورشة؟</value></data>
+  <data name="ShopLogin.CustomerSignIn"><value>دخول العميل ←</value></data>
+
+  <!-- Shop Register page -->
+  <data name="ShopReg.BackToShopLogin"><value>العودة إلى دخول الورشة</value></data>
+  <data name="ShopReg.RegisterYourShop"><value>سجّل ورشتك</value></data>
+  <data name="ShopReg.ApplicationReview"><value>انضم إلى شبكة JAA — سيراجع فريق الإدارة طلبك</value></data>
+  <data name="ShopReg.AccountDetails"><value>بيانات الحساب</value></data>
+  <data name="ShopReg.PersonalLoginCredentials"><value>بيانات تسجيل الدخول الشخصية</value></data>
+  <data name="ShopReg.YourPhoneLogin"><value>هاتفك (للدخول)</value></data>
+  <data name="ShopReg.ShopDetails"><value>بيانات الورشة</value></data>
+  <data name="ShopReg.BusinessInfoReviewed"><value>معلومات نشاطك التجاري (تراجعها الإدارة)</value></data>
+  <data name="ShopReg.ShopName"><value>اسم الورشة</value></data>
+  <data name="ShopReg.OwnerName"><value>اسم المالك</value></data>
+  <data name="ShopReg.ShopPhone"><value>هاتف الورشة</value></data>
+  <data name="ShopReg.City"><value>المدينة</value></data>
+  <data name="ShopReg.SelectCity"><value>اختر المدينة…</value></data>
+  <data name="ShopReg.CityOther"><value>أخرى</value></data>
+  <data name="ShopReg.ShopAddress"><value>عنوان الورشة</value></data>
+  <data name="ShopReg.BusinessCertificate"><value>شهادة السجل التجاري</value></data>
+  <data name="ShopReg.CertificateNote"><value>ارفع شهادة السجل التجاري الحكومية (PDF، JPG، PNG). مرئية للمشرفين فقط.</value></data>
+  <data name="ShopReg.SubmitForReview"><value>إرسال للمراجعة</value></data>
+  <data name="ShopReg.AlreadyRegistered"><value>مسجّل بالفعل؟</value></data>
+  <data name="ShopReg.SignIn"><value>تسجيل الدخول ←</value></data>
+
+  <!-- Status -->
+  <data name="Status.Pending"><value>قيد الانتظار</value></data>
+  <data name="Status.InspectionPaid"><value>تم دفع رسوم الفحص</value></data>
+  <data name="Status.Accepted"><value>مقبول</value></data>
+  <data name="Status.MechanicArrived"><value>الميكانيكي وصل</value></data>
+  <data name="Status.Diagnosed"><value>تم التشخيص</value></data>
+  <data name="Status.QuotationApproved"><value>تمت الموافقة على العرض</value></data>
+  <data name="Status.Completed"><value>مكتمل</value></data>
+  <data name="Status.Cancelled"><value>ملغي</value></data>
+  <data name="Status.Rejected"><value>مرفوض</value></data>
+
+  <!-- Payment -->
+  <data name="Payment.Cash"><value>نقداً</value></data>
+  <data name="Payment.Online"><value>دفع إلكتروني</value></data>
+  <data name="Payment.InspectionFee"><value>رسوم الفحص</value></data>
+  <data name="Payment.RepairCost"><value>تكلفة الإصلاح</value></data>
+  <data name="Payment.Total"><value>المجموع</value></data>
+  <data name="Payment.VAT"><value>ضريبة القيمة المضافة</value></data>
+  <data name="Payment.Commission"><value>عمولة المنصة</value></data>
+  <data name="Payment.Invoice"><value>الفاتورة</value></data>
+
+  <!-- Actions -->
+  <data name="Action.Submit"><value>إرسال</value></data>
+  <data name="Action.Cancel"><value>إلغاء</value></data>
+  <data name="Action.Approve"><value>موافقة</value></data>
+  <data name="Action.Reject"><value>رفض</value></data>
+  <data name="Action.Save"><value>حفظ</value></data>
+  <data name="Action.Edit"><value>تعديل</value></data>
+  <data name="Action.Delete"><value>حذف</value></data>
+  <data name="Action.ViewAll"><value>عرض الكل</value></data>
+
+  <!-- Customer -->
+  <data name="Customer.Dashboard"><value>لوحة تحكم العميل</value></data>
+  <data name="Customer.RequestHelp"><value>طلب مساعدة</value></data>
+  <data name="Customer.MyRequests"><value>طلباتي</value></data>
+  <data name="Customer.History"><value>السجل</value></data>
+  <data name="Customer.Profile"><value>الملف الشخصي</value></data>
+  <data name="Customer.FindShop"><value>ابحث عن ورشة</value></data>
+
+  <!-- Customer Dashboard -->
+  <data name="Cust.WelcomeBack"><value>أهلاً بك</value></data>
+  <data name="Cust.ViewAll"><value>عرض الكل</value></data>
+  <data name="Cust.TotalRequests"><value>إجمالي الطلبات</value></data>
+  <data name="Cust.Completed"><value>مكتملة</value></data>
+  <data name="Cust.Pending"><value>معلقة</value></data>
+  <data name="Cust.ActiveNow"><value>نشطة الآن</value></data>
+  <data name="Cust.ActiveRequest"><value>طلب نشط</value></data>
+  <data name="Cust.TrackLive"><value>تتبع مباشر</value></data>
+  <data name="Cust.RecentRequests"><value>الطلبات الأخيرة</value></data>
+  <data name="Cust.Request"><value>الطلب</value></data>
+  <data name="Cust.Date"><value>التاريخ</value></data>
+  <data name="Cust.Amount"><value>المبلغ</value></data>
+  <data name="Cust.NoRequestsYet"><value>لا توجد طلبات بعد.</value></data>
+  <data name="Cust.SubmitFirstRequest"><value>قدّم طلبك الأول ←</value></data>
+  <data name="Cust.QuickActions"><value>إجراءات سريعة</value></data>
+  <data name="Cust.RequestHelpNow"><value>اطلب المساعدة الآن</value></data>
+  <data name="Cust.ViewAllRequests"><value>عرض جميع الطلبات</value></data>
+  <data name="Cust.TipsTitle"><value>نصائح للحصول على مساعدة أسرع</value></data>
+  <data name="Cust.Tip1"><value>فعّل GPS قبل إرسال الطلب.</value></data>
+  <data name="Cust.Tip2"><value>صف الأعراض بوضوح.</value></data>
+  <data name="Cust.Tip3"><value>أبقِ هاتفك متاحاً للميكانيكي.</value></data>
+
+  <!-- Request Help page -->
+  <data name="RH.GetHelp"><value>طلب مساعدة</value></data>
+  <data name="RH.YourLocation"><value>موقعك</value></data>
+  <data name="RH.TapToSetPin"><value>اضغط على الخريطة لتحديد موقع يدوي</value></data>
+  <data name="RH.UseMyLocation"><value>استخدم موقعي</value></data>
+  <data name="RH.MyGPSLocation"><value>موقعي عبر GPS</value></data>
+  <data name="RH.Locating"><value>جارٍ تحديد الموقع…</value></data>
+  <data name="RH.DetectingLocation"><value>جارٍ رصد موقع GPS…</value></data>
+  <data name="RH.CouldNotDetect"><value>تعذّر رصد الموقع — اضغط على الخريطة لتحديده يدوياً.</value></data>
+  <data name="RH.GeolocationNotSupported"><value>تحديد الموقع غير مدعوم — اضغط على الخريطة لوضع الدبوس.</value></data>
+  <data name="RH.DescribeYourSituation"><value>صف مشكلتك</value></data>
+  <data name="RH.MoreDetailFasterHelp"><value>كلما زادت التفاصيل، كانت المساعدة أسرع</value></data>
+  <data name="RH.WhatsHappening"><value>ماذا يحدث مع سيارتك؟</value></data>
+  <data name="RH.CommonSituations"><value>مواقف شائعة — اضغط للاختيار</value></data>
+  <data name="RH.CarWontStart"><value>السيارة لا تشتغل</value></data>
+  <data name="RH.FlatTire"><value>إطار مثقوب</value></data>
+  <data name="RH.EngineStopped"><value>المحرك توقف</value></data>
+  <data name="RH.Overheating"><value>ارتفاع درجة الحرارة</value></data>
+  <data name="RH.BatteryDead"><value>البطارية فارغة</value></data>
+  <data name="RH.StrangeNoise"><value>صوت غريب</value></data>
+  <data name="RH.CarIsLeaking"><value>السيارة تسرب</value></data>
+  <data name="RH.GrindingBrakes"><value>صرير الفرامل</value></data>
+  <data name="RH.SituationPlaceholder"><value>مثال: السيارة لا تشتغل، يصدر صوت نقر عند تشغيل المفتاح…</value></data>
+  <data name="RH.SendHelpRequest"><value>إرسال طلب المساعدة</value></data>
+  <data name="RH.SignInNote"><value>ستُطلب منك تسجيل الدخول أو إنشاء حساب مجاني.</value></data>
+  <data name="RH.PendingSignIn"><value>يرجى تسجيل الدخول أو إنشاء حساب مجاني لإرسال طلب المساعدة على الطريق. تم حفظ بياناتك.</value></data>
+  <data name="RH.DispatchNote"><value>سيُرسَل ميكانيكي معتمد إلى موقعك عبر GPS.</value></data>
+  <data name="RH.GpsError1"><value>تم رفض الوصول إلى الموقع. يرجى السماح به في إعدادات المتصفح والمحاولة مجدداً.</value></data>
+  <data name="RH.GpsError2"><value>موقعك غير متوفر حالياً. تحقق من GPS أو اتصال الشبكة.</value></data>
+  <data name="RH.GpsError3"><value>انتهت مهلة طلب الموقع. يرجى المحاولة مجدداً.</value></data>
+  <data name="RH.GpsErrorFallback"><value>تعذّر رصد موقعك. يرجى المحاولة مجدداً.</value></data>
+  <data name="RH.GeolocationNotSupportedBtn"><value>تحديد الموقع الجغرافي غير مدعوم في متصفحك.</value></data>
+  <data name="RH.GPSCoords"><value>GPS</value></data>
+  <data name="RH.SelectedCoords"><value>محدد</value></data>
+
+  <!-- Track Request page -->
+  <data name="Track.Dashboard"><value>لوحة التحكم</value></data>
+  <data name="Track.Request"><value>الطلب</value></data>
+  <data name="Track.HelpIsOnTheWay"><value>المساعدة في الطريق</value></data>
+  <data name="Track.VerifiedMechanicShop"><value>ورشة ميكانيك معتمدة</value></data>
+  <data name="Track.Accepted"><value>مقبول</value></data>
+  <data name="Track.MechanicArrived"><value>الميكانيكي وصل</value></data>
+  <data name="Track.WorkInProgress"><value>الإصلاح جارٍ</value></data>
+  <data name="Track.JustNow"><value>الآن</value></data>
+  <data name="Track.MinAgo"><value>دقيقة مضت</value></data>
+  <data name="Track.MechanicHeading"><value>الميكانيكي في طريقه إلى موقع GPS الخاص بك</value></data>
+  <data name="Track.MechanicAtLocation"><value>الميكانيكي في موقعك — يشخّص المشكلة الآن</value></data>
+  <data name="Track.WorkOnVehicle"><value>الإصلاح جارٍ على سيارتك</value></data>
+  <data name="Track.CallMechanicNow"><value>اتصل بالميكانيكي الآن</value></data>
+  <data name="Track.StayCalm"><value>ابقَ هادئاً وآمناً. ميكانيكينا المعتمد في طريقه إلى موقعك بالضبط. أبقِ خط هاتفك مفتوحاً.</value></data>
+  <data name="Track.SearchingNearbyShops"><value>البحث عن ورشات قريبة</value></data>
+  <data name="Track.LookingForShop"><value>جارٍ البحث عن ورشة قريبة…</value></data>
+  <data name="Track.NotifyingShops"><value>جميع الورشات المعتمدة في منطقتك تتلقى الإشعار. يستغرق هذا عادةً أقل من دقيقة.</value></data>
+  <data name="Track.Completed"><value>مكتمل</value></data>
+  <data name="Track.YourCarIsFixed"><value>تم إصلاح سيارتك!</value></data>
+  <data name="Track.JobCompletedBy"><value>أنجز العمل بواسطة</value></data>
+  <data name="Track.RequestNoLongerActive"><value>هذا الطلب لم يعد نشطاً.</value></data>
+  <data name="Track.WasRequest"><value>هذا الطلب</value></data>
+  <data name="Track.Progress"><value>التقدم</value></data>
+  <data name="Track.PageAutoRefreshes"><value>تتجدد الصفحة تلقائياً كل ١٥ ثانية</value></data>
+  <data name="Track.Shop"><value>الورشة</value></data>
+  <data name="Track.YourRequest"><value>طلبك</value></data>
+  <data name="Track.SituationDescribed"><value>الوضع المُبلَّغ عنه</value></data>
+  <data name="Track.MechanicDiagnosis"><value>تشخيص الميكانيكي</value></data>
+  <data name="Track.Resolution"><value>الحل</value></data>
+  <data name="Track.AmountDue"><value>المبلغ المستحق</value></data>
+  <data name="Track.Submitted"><value>وقت الإرسال</value></data>
+  <data name="Track.HowWasService"><value>كيف كانت خدمة</value></data>
+  <data name="Track.FeedbackHelps"><value>تقييمك يساعد السائقين الآخرين على اختيار الورشة المناسبة.</value></data>
+  <data name="Track.RateThisService"><value>قيّم هذه الخدمة</value></data>
+  <data name="Track.FeedbackSubmitted"><value>تم إرسال التقييم</value></data>
+
+  <!-- Home page -->
+  <data name="Home.HeroTag"><value>منصة المساعدة على الطريق في الأردن</value></data>
+  <data name="Home.HeroTitle"><value>تعطّلت؟ المساعدة في الطريق.</value></data>
+  <data name="Home.HeroLead"><value>JAA تربط سائقي الأردن بورشات الإصلاح المعتمدة القريبة منهم فوراً — صف وضعك، شارك موقعك، ودعنا نتولى الباقي.</value></data>
+  <data name="Home.RequestAssistanceNow"><value>اطلب المساعدة الآن</value></data>
+  <data name="Home.SignIn"><value>تسجيل الدخول</value></data>
+  <data name="Home.GpsAutoDetection"><value>كشف GPS تلقائي</value></data>
+  <data name="Home.VerifiedShopsOnly"><value>ورشات معتمدة فقط</value></data>
+  <data name="Home.RealTimeTracking"><value>تتبع فوري</value></data>
+  <data name="Home.RatedMechanics"><value>ميكانيكيون مُقيَّمون</value></data>
+  <data name="Home.LiveRequest"><value>طلب مباشر</value></data>
+  <data name="Home.Situation"><value>الوضع</value></data>
+  <data name="Home.Location"><value>الموقع</value></data>
+  <data name="Home.HeroStatus"><value>الحالة</value></data>
+  <data name="Home.HeroSampleSituation"><value>السيارة لا تشتغل — صوت نقر عند تشغيل المفتاح.</value></data>
+  <data name="Home.HeroSampleLocation"><value>الدوار السابع، عمّان (GPS)</value></data>
+  <data name="Home.HeroSampleStatus"><value>الميكانيكي وصل</value></data>
+  <data name="Home.SubmitYourRequest"><value>أرسل طلبك</value></data>
+  <data name="Home.VerifiedShops"><value>ورشة معتمدة</value></data>
+  <data name="Home.RequestsHandled"><value>طلب تم التعامل معه</value></data>
+  <data name="Home.AlwaysAvailable"><value>متاح دائماً</value></data>
+  <data name="Home.CompletionRate"><value>معدل الإنجاز</value></data>
+  <data name="Home.HelpIn3Steps"><value>مساعدة في ٣ خطوات بسيطة</value></data>
+  <data name="Home.Step01Num"><value>خطوة ٠١</value></data>
+  <data name="Home.Step01Title"><value>سجّل وادخل</value></data>
+  <data name="Home.Step01Desc"><value>أنشئ حساباً مجانياً في ثوانٍ لطلب المساعدة على الطريق.</value></data>
+  <data name="Home.Step02Num"><value>خطوة ٠٢</value></data>
+  <data name="Home.Step02Title"><value>شارك موقعك وصف المشكلة</value></data>
+  <data name="Home.Step02Desc"><value>شارك موقع GPS الخاص بك وصف ما يعاني منه سيارتك.</value></data>
+  <data name="Home.Step03Num"><value>خطوة ٠٣</value></data>
+  <data name="Home.Step03Title"><value>تصل المساعدة وتقيّم</value></data>
+  <data name="Home.Step03Desc"><value>ورشة معتمدة تقبل وترسل ميكانيكياً. تتبّع مباشرةً وقيّم بعد الانتهاء.</value></data>
+  <data name="Home.EverythingYouNeed"><value>كل ما تحتاجه</value></data>
+  <data name="Home.AutoGPSDetection"><value>كشف GPS تلقائي</value></data>
+  <data name="Home.AutoGPSDetectionDesc"><value>بضغطة واحدة يُشارَك موقعك الدقيق مع الميكانيكي.</value></data>
+  <data name="Home.RealTimeTrackingDesc"><value>تابع الحالة مباشرةً من الانتظار إلى الإكمال.</value></data>
+  <data name="Home.VerifiedShopsOnlyDesc"><value>كل ورشة تُراجَع يدوياً من قِبل مشرفي JAA.</value></data>
+  <data name="Home.RatingsFeedback"><value>التقييمات والتغذية الراجعة</value></data>
+  <data name="Home.RatingsFeedbackDesc"><value>قيّم الورشات بعد كل خدمة للحفاظ على مستوى الجودة.</value></data>
+  <data name="Home.ThreeRolesOnePlatform"><value>ثلاثة أدوار، منصة واحدة</value></data>
+  <data name="Home.Motorists"><value>السائقون</value></data>
+  <data name="Home.CustomersLabel"><value>العملاء</value></data>
+  <data name="Home.RepairShops"><value>ورشات الإصلاح</value></data>
+  <data name="Home.ServiceProviders"><value>مزودو الخدمة</value></data>
+  <data name="Home.OperationsTeam"><value>فريق العمليات</value></data>
+  <data name="Home.Administrators"><value>المشرفون</value></data>
+  <data name="Home.MotoristFeature1"><value>GPS يكشف موقعك تلقائياً</value></data>
+  <data name="Home.MotoristFeature2"><value>صف وضعك بكلماتك</value></data>
+  <data name="Home.MotoristFeature3"><value>تابع حالة الطلب مباشرةً</value></data>
+  <data name="Home.MotoristFeature4"><value>قيّم الورشة وراجعها</value></data>
+  <data name="Home.ShopFeature1"><value>استعرض الطلبات واقبلها</value></data>
+  <data name="Home.ShopFeature2"><value>حدّث حالة العمل فوراً</value></data>
+  <data name="Home.ShopFeature3"><value>أضف التشخيص وسجّل الدفع</value></data>
+  <data name="Home.ShopFeature4"><value>اعرض الأرباح والتقييمات</value></data>
+  <data name="Home.AdminFeature1"><value>تحقق يدوياً من بيانات الورشة</value></data>
+  <data name="Home.AdminFeature2"><value>راقب جميع الطلبات النشطة مباشرةً</value></data>
+  <data name="Home.AdminFeature3"><value>أدّر المستخدمين والورشات</value></data>
+  <data name="Home.AdminFeature4"><value>أنشئ التقارير</value></data>
+  <data name="Home.BrokenDown"><value>تعطّلت؟ نحن جاهزون متى كنت.</value></data>
+  <data name="Home.JoinThousands"><value>انضم إلى آلاف سائقي الأردن الذين يثقون بـ JAA للحصول على مساعدة سريعة وموثوقة.</value></data>
+  <data name="Home.RegisterYourShop"><value>سجّل ورشتك</value></data>
+  <data name="Home.Process"><value>العملية</value></data>
+  <data name="Home.Features"><value>المميزات</value></data>
+  <data name="Home.WhoWeServe"><value>من نخدم</value></data>
+  <data name="Home.GetStarted"><value>ابدأ الآن</value></data>
+
+  <!-- About page -->
+  <data name="About.OurStory"><value>قصتنا</value></data>
+  <data name="About.HeroTitle"><value>مساعدة على الطريق، معادة تصميماً من أجل الأردن.</value></data>
+  <data name="About.HeroDesc"><value>JAA هي أول سوق رقمي في الأردن للمساعدة على الطريق عند الطلب — تربط السائقين بالميكانيكيين المعتمدين في دقائق لا ساعات.</value></data>
+  <data name="About.AlwaysAvailable"><value>متاح دائماً</value></data>
+  <data name="About.FixedPricing"><value>أسعار ثابتة</value></data>
+  <data name="About.InJordan"><value>في الأردن</value></data>
+  <data name="About.SmartDispatch"><value>إرسال ذكي</value></data>
+  <data name="About.OurMission"><value>مهمتنا</value></data>
+  <data name="About.MissionText"><value>سد فجوة الثقة والشفافية في سوق المساعدة على الطريق في الأردن — باستبدال المفاوضات الشاقة في الشارع بأسعار موحدة ومطابقة GPS آلية. نربط السائقين المتعطلين مباشرةً بالميكانيكيين المستقلين وعمال السحب عبر منصة واحدة موثوقة.</value></data>
+  <data name="About.WhyChooseJAA"><value>لماذا يختار السائقون JAA</value></data>
+  <data name="About.EverythingYouNeed"><value>كل ما تحتاجه حين تخذلك سيارتك.</value></data>
+  <data name="About.GPSDispatch"><value>إرسال GPS</value></data>
+  <data name="About.GPSDispatchDesc"><value>مشاركة الموقع الفوري تربطك بأقرب ميكانيكي متاح فوراً — دون مكالمات أو انتظار.</value></data>
+  <data name="About.FixedPricingTitle"><value>أسعار ثابتة</value></data>
+  <data name="About.FixedPricingDesc"><value>ما تراه هو ما تدفعه. لا تفاوض، لا رسوم مخفية، أبداً.</value></data>
+  <data name="About.VerifiedMechanics"><value>ميكانيكيون معتمدون</value></data>
+  <data name="About.VerifiedMechanicsDesc"><value>كل مزود خدمة على منصتنا تم التحقق منه وتقييمه من قِبل عملاء حقيقيين.</value></data>
+  <data name="About.Coverage247"><value>تغطية ٢٤/٧</value></data>
+  <data name="About.Coverage247Desc"><value>متاح على مدار الساعة، ٣٦٥ يوماً في السنة في جميع أنحاء الأردن.</value></data>
+  <data name="About.RatedReviewed"><value>مُقيَّم ومُراجَع</value></data>
+  <data name="About.RatedReviewedDesc"><value>نظام تغذية راجعة شفاف حتى تعرف دائماً من يأتيك وماذا تتوقع.</value></data>
+  <data name="About.NoAppNeeded"><value>لا تطبيق مطلوب</value></data>
+  <data name="About.NoAppNeededDesc"><value>يعمل مباشرةً من متصفحك. اطلب المساعدة فوراً — لا تحميل مطلوب.</value></data>
+  <data name="About.WhatWeStandFor"><value>ما نؤمن به</value></data>
+  <data name="About.BuiltOnTrust"><value>مبني على الثقة، مدفوع بالأمانة.</value></data>
+  <data name="About.CorePrinciples"><value>كل قرار نتخذه يسترشد بثلاثة مبادئ جوهرية تضع السائق في المقدمة.</value></data>
+  <data name="About.Value1Title"><value>الشفافية</value></data>
+  <data name="About.Value1Desc"><value>لا رسوم مخفية، لا خداع. السعر محدد من لحظة طلب المساعدة.</value></data>
+  <data name="About.Value2Title"><value>السرعة</value></data>
+  <data name="About.Value2Desc"><value>نُحسّن كل جزء من العملية — من رصد GPS إلى إرسال السائق — لتقليل وقت انتظارك.</value></data>
+  <data name="About.Value3Title"><value>الموثوقية</value></data>
+  <data name="About.Value3Desc"><value>مزودون معتمدون، تحديثات حالة فورية، وفريق دعم يمكنك الوصول إليه فعلاً.</value></data>
+  <data name="About.ReadyToGetOnRoad"><value>مستعد للعودة إلى الطريق؟</value></data>
+  <data name="About.JoinThousands"><value>انضم إلى آلاف السائقين الذين يثقون بـ JAA في أصعب اللحظات.</value></data>
+  <data name="About.GetHelpNow"><value>احصل على المساعدة الآن</value></data>
+  <data name="About.CreateAccount"><value>إنشاء حساب</value></data>
+
+  <!-- Contact page -->
+  <data name="Contact.Support"><value>الدعم</value></data>
+  <data name="Contact.HeroTitle"><value>نحن هنا للمساعدة.</value></data>
+  <data name="Contact.HeroDesc"><value>تواصل في أي وقت — فريقنا متاح ٢٤/٧ للأسئلة والدعم واستفسارات الشراكة.</value></data>
+  <data name="Contact.Phone"><value>الهاتف</value></data>
+  <data name="Contact.CallUsAnytime"><value>اتصل بنا في أي وقت</value></data>
+  <data name="Contact.Email"><value>البريد الإلكتروني</value></data>
+  <data name="Contact.ReplyWithin2Hours"><value>نرد خلال ساعتين</value></data>
+  <data name="Contact.Location"><value>الموقع</value></data>
+  <data name="Contact.ServingAllJordan"><value>نخدم جميع أنحاء الأردن</value></data>
+  <data name="Contact.Hours"><value>ساعات العمل</value></data>
+  <data name="Contact.Days365"><value>٣٦٥ يوماً في السنة</value></data>
+  <data name="Contact.GetInTouch"><value>تواصل معنا</value></data>
+  <data name="Contact.Support247"><value>٢٤/٧ — دائماً متاح</value></data>
+  <data name="Contact.TeamOnlineNow"><value>الفريق متصل الآن</value></data>
+  <data name="Contact.SendUsMessage"><value>أرسل لنا رسالة</value></data>
+  <data name="Contact.FullName"><value>الاسم الكامل</value></data>
+  <data name="Contact.PhoneNumber"><value>رقم الهاتف</value></data>
+  <data name="Contact.EmailAddress"><value>البريد الإلكتروني</value></data>
+  <data name="Contact.Subject"><value>الموضوع</value></data>
+  <data name="Contact.SubjectPlaceholder"><value>كيف يمكننا مساعدتك؟</value></data>
+  <data name="Contact.Message"><value>الرسالة</value></data>
+  <data name="Contact.MessagePlaceholder"><value>أخبرنا المزيد عن سؤالك أو مشكلتك…</value></data>
+  <data name="Contact.SendMessage"><value>إرسال الرسالة</value></data>
+  <data name="Contact.Sending"><value>جارٍ الإرسال…</value></data>
+  <data name="Contact.MessageSent"><value>تم الإرسال!</value></data>
+  <data name="Contact.MessageSentSuccess"><value>تم إرسال رسالتك! سنرد خلال ساعتين.</value></data>
+
+  <!-- Shop -->
+  <data name="Shop.Dashboard"><value>لوحة تحكم الورشة</value></data>
+  <data name="Shop.IncomingRequests"><value>الطلبات الواردة</value></data>
+  <data name="Shop.ActiveJobs"><value>الأعمال النشطة</value></data>
+  <data name="Shop.Completed"><value>المكتملة</value></data>
+  <data name="Shop.Mechanics"><value>الميكانيكيون</value></data>
+  <data name="Shop.Earnings"><value>الأرباح</value></data>
+  <data name="Shop.Reviews"><value>التقييمات</value></data>
+  <data name="Shop.Available"><value>متاح</value></data>
+  <data name="Shop.Busy"><value>مشغول</value></data>
+
+  <!-- Admin -->
+  <data name="Admin.Dashboard"><value>لوحة المشرف</value></data>
+  <data name="Admin.PendingShops"><value>الورشات قيد المراجعة</value></data>
+  <data name="Admin.PendingMechanics"><value>الميكانيكيون قيد المراجعة</value></data>
+  <data name="Admin.Refunds"><value>استرداد المدفوعات</value></data>
+  <data name="Admin.AllRequests"><value>جميع الطلبات</value></data>
+  <data name="Admin.AllShops"><value>جميع الورشات</value></data>
+  <data name="Admin.Users"><value>المستخدمون</value></data>
+  <data name="Admin.Settings"><value>الإعدادات</value></data>
+  <data name="Admin.Reports"><value>التقارير</value></data>
+
+  <!-- Validation -->
+  <data name="Val.Required"><value>هذا الحقل مطلوب</value></data>
+  <data name="Val.InvalidPhone"><value>رقم هاتف غير صالح</value></data>
+  <data name="Val.PasswordMismatch"><value>كلمات المرور غير متطابقة</value></data>
+  <data name="Val.MinLength"><value>الحد الأدنى {0} أحرف</value></data>
+
+  <!-- Notifications -->
+  <data name="Notify.RequestSubmitted"><value>تم إرسال الطلب بنجاح</value></data>
+  <data name="Notify.PaymentSuccessful"><value>تم الدفع بنجاح</value></data>
+  <data name="Notify.RequestCancelled"><value>تم إلغاء الطلب</value></data>
+  <data name="Notify.FeedbackSubmitted"><value>شكراً على تقييمك!</value></data>
+
+  <!-- Suspension -->
+  <data name="Suspend.Title"><value>تم تعليق الحساب</value></data>
+  <data name="Suspend.Msg"><value>تم تعليق حسابك مؤقتاً. يمكنك الاطلاع على سجلك، لكن لا يمكنك تقديم طلبات خدمة جديدة. يرجى التواصل مع support@jaa.jo للمساعدة.</value></data>
+  <data name="Suspend.DashMsg"><value>تم تعليق حسابك مؤقتاً. يمكنك الوصول إلى حسابك وعرض سجل طلباتك، لكن لا يمكنك تقديم طلبات خدمة جديدة حالياً. يرجى التواصل مع الدعم الفني للمساعدة.</value></data>
+  <data name="Suspend.ActionBlocked"><value>هذا الإجراء غير متاح أثناء تعليق الحساب. يرجى التواصل مع الدعم الفني.</value></data>
+
+  <!-- Footer -->
+  <data name="Footer.Platform"><value>المنصة</value></data>
+  <data name="Footer.GetHelp"><value>احصل على المساعدة</value></data>
+  <data name="Footer.RequestAssistance"><value>طلب المساعدة</value></data>
+  <data name="Footer.JoinProvider"><value>انضم كمزود خدمة</value></data>
+  <data name="Footer.Desc"><value>رابطة السيارات الأردنية — تربط السائقين المتعطلين بورش الإصلاح والميكانيكيين المعتمدين، بشكل فوري وشفاف.</value></data>
+  <data name="Footer.Address"><value>عمّان، الأردن</value></data>
+  <data name="Footer.Available247"><value>٢٤/٧ — متاح دائماً</value></data>
+  <data name="Footer.Copyright"><value>رابطة السيارات الأردنية. جميع الحقوق محفوظة.</value></data>
+  <data name="Footer.Tagline"><value>بُني بـ ♥ لسائقي الأردن.</value></data>
+
+  <!-- Customer History -->
+  <data name="Hist.MyRequests"><value>طلباتي</value></data>
+  <data name="Hist.NewRequest"><value>طلب جديد</value></data>
+  <data name="Hist.Situation"><value>الوضع</value></data>
+  <data name="Hist.Shop"><value>الورشة</value></data>
+  <data name="Hist.Date"><value>التاريخ</value></data>
+  <data name="Hist.Amount"><value>المبلغ</value></data>
+  <data name="Hist.Rating"><value>التقييم</value></data>
+  <data name="Hist.Rate"><value>قيّم</value></data>
+  <data name="Hist.NoRequestsYet"><value>لا طلبات بعد.</value></data>
+  <data name="Hist.SubmitFirst"><value>أرسل أول طلب لك →</value></data>
+
+  <!-- Customer Profile -->
+  <data name="Prof.MyProfile"><value>ملفي الشخصي</value></data>
+  <data name="Prof.AccountDetails"><value>تفاصيل الحساب والإعدادات</value></data>
+  <data name="Prof.EditProfile"><value>تعديل الملف</value></data>
+  <data name="Prof.TotalRequests"><value>إجمالي الطلبات</value></data>
+  <data name="Prof.Completed"><value>المكتملة</value></data>
+  <data name="Prof.MemberSince"><value>عضو منذ</value></data>
+  <data name="Prof.AccountStatus"><value>حالة الحساب</value></data>
+  <data name="Prof.Active"><value>نشط</value></data>
+  <data name="Prof.Suspended"><value>موقوف</value></data>
+  <data name="Prof.VerifiedMember"><value>عضو موثّق</value></data>
+  <data name="Prof.AccountSuspended"><value>الحساب موقوف</value></data>
+  <data name="Prof.ViewHistory"><value>عرض السجل</value></data>
+  <data name="Prof.EditDisabled"><value>التعديل معطّل</value></data>
+  <data name="Prof.PersonalInformation"><value>المعلومات الشخصية</value></data>
+  <data name="Prof.Security"><value>الأمان</value></data>
+  <data name="Prof.FullName"><value>الاسم الكامل</value></data>
+  <data name="Prof.EmailAddress"><value>البريد الإلكتروني</value></data>
+  <data name="Prof.PhoneNumber"><value>رقم الهاتف</value></data>
+  <data name="Prof.City"><value>المدينة</value></data>
+  <data name="Prof.NotProvided"><value>غير مُدخَل</value></data>
+  <data name="Prof.Password"><value>كلمة المرور</value></data>
+  <data name="Prof.LoginEmail"><value>بريد تسجيل الدخول</value></data>
+  <data name="Prof.AccountProtection"><value>حماية الحساب</value></data>
+  <data name="Prof.ReadOnly"><value>للقراءة فقط</value></data>
+  <data name="Prof.EmailCannotChange"><value>لا يمكن تغيير البريد الإلكتروني</value></data>
+  <data name="Prof.SaveChanges"><value>حفظ التغييرات</value></data>
+
+  <!-- Customer Feedback -->
+  <data name="FB.RateExperience"><value>قيّم تجربتك</value></data>
+  <data name="FB.BackToHistory"><value>العودة إلى السجل</value></data>
+  <data name="FB.VerifiedShop"><value>ورشة معتمدة</value></data>
+  <data name="FB.YourSituation"><value>وضعك</value></data>
+  <data name="FB.YourRating"><value>تقييمك</value></data>
+  <data name="FB.Comment"><value>تعليق</value></data>
+  <data name="FB.CommentOptional"><value>(اختياري)</value></data>
+  <data name="FB.CommentPlaceholder"><value>أخبر الآخرين عن احترافية الميكانيكي ووقت الاستجابة والأسعار…</value></data>
+  <data name="FB.SubmitFeedback"><value>إرسال التقييم</value></data>
+  <data name="FB.SubmitNote"><value>مراجعتك تساعد السائقين الآخرين في اختيار الورشات الموثوقة.</value></data>
+  <data name="FB.Label1"><value>سيء جداً</value></data>
+  <data name="FB.Label2"><value>سيء</value></data>
+  <data name="FB.Label3"><value>مقبول</value></data>
+  <data name="FB.Label4"><value>جيد</value></data>
+  <data name="FB.Label5"><value>ممتاز</value></data>
+
+  <!-- Inspection Payment -->
+  <data name="Insp.Step1of2"><value>الخطوة ١ من ٢</value></data>
+  <data name="Insp.PayInspectionFee"><value>دفع رسوم الفحص</value></data>
+  <data name="Insp.FeePaymentTitle"><value>دفع رسوم الفحص</value></data>
+  <data name="Insp.FeePaymentSub"><value>ادفع رسوم التوجيه لتفعيل طلبك</value></data>
+  <data name="Insp.YourRequest"><value>طلبك</value></data>
+  <data name="Insp.FeeBreakdown"><value>تفصيل الرسوم</value></data>
+  <data name="Insp.InspectionDispatchFee"><value>رسوم الفحص / التوجيه</value></data>
+  <data name="Insp.ShopReceives"><value>← تستلم الورشة</value></data>
+  <data name="Insp.PlatformFee"><value>← رسوم المنصة</value></data>
+  <data name="Insp.FeeNote"><value>تغطي هذه الرسوم تكاليف تنقل الميكانيكي وهي مطلوبة بصرف النظر عن قرار الإصلاح.</value></data>
+  <data name="Insp.ChoosePaymentMethod"><value>اختر طريقة الدفع</value></data>
+  <data name="Insp.Cash"><value>نقداً</value></data>
+  <data name="Insp.CashDesc"><value>الدفع في الموقع للميكانيكي</value></data>
+  <data name="Insp.Online"><value>إلكترونياً</value></data>
+  <data name="Insp.OnlineDesc"><value>ادفع بالبطاقة بأمان</value></data>
+
+  <!-- Quotation Approval -->
+  <data name="Quot.RepairQuotation"><value>عرض سعر الإصلاح</value></data>
+  <data name="Quot.ReviewApprove"><value>راجع وافق على تشخيص الميكانيكي</value></data>
+  <data name="Quot.DiagnosisComplete"><value>اكتمل تشخيص الميكانيكي</value></data>
+  <data name="Quot.Mechanic"><value>الميكانيكي</value></data>
+  <data name="Quot.MechanicsDiagnosis"><value>تشخيص الميكانيكي</value></data>
+  <data name="Quot.CostSummary"><value>ملخص التكلفة</value></data>
+  <data name="Quot.InspectionAlreadyPaid"><value>رسوم الفحص (مدفوعة مسبقاً)</value></data>
+  <data name="Quot.RepairCost"><value>تكلفة الإصلاح</value></data>
+  <data name="Quot.VAT"><value>ضريبة القيمة المضافة</value></data>
+  <data name="Quot.TotalToPayNow"><value>الإجمالي المطلوب دفعه الآن</value></data>
+  <data name="Quot.ChoosePaymentMethod"><value>اختر طريقة دفع الإصلاح</value></data>
+  <data name="Quot.ApproveCash"><value>موافقة — نقداً</value></data>
+  <data name="Quot.PayOnSite"><value>الدفع في الموقع</value></data>
+  <data name="Quot.ApproveOnline"><value>موافقة — إلكترونياً</value></data>
+  <data name="Quot.PayByCard"><value>الدفع بالبطاقة</value></data>
+  <data name="Quot.RejectionReason"><value>سبب الرفض (اختياري)</value></data>
+  <data name="Quot.RejectionPlaceholder"><value>أخبر الورشة لماذا ترفض...</value></data>
+  <data name="Quot.RejectQuotation"><value>رفض العرض</value></data>
+  <data name="Quot.RejectConfirm"><value>هل تريد رفض عرض سعر الإصلاح؟</value></data>
+
+  <!-- Shops list -->
+  <data name="Shops.FindAShop"><value>ابحث عن ورشة</value></data>
+  <data name="Shops.FindVerified"><value>ابحث عن ورشة <span>معتمدة</span></value></data>
+  <data name="Shops.HeroDesc"><value>كل ورشة في JAA تمت مراجعتها والتحقق منها. صفّح حسب المدينة للعثور على أقرب واحدة.</value></data>
+  <data name="Shops.AllCities"><value>جميع المدن</value></data>
+  <data name="Shops.ClearFilter"><value>مسح الفلتر</value></data>
+  <data name="Shops.ShopSingular"><value>ورشة</value></data>
+  <data name="Shops.ShopPlural"><value>ورشات</value></data>
+  <data name="Shops.In"><value>في</value></data>
+  <data name="Shops.Verified"><value>معتمدة</value></data>
+  <data name="Shops.NoReviewsYet"><value>لا تقييمات بعد</value></data>
+  <data name="Shops.ViewShop"><value>عرض الورشة</value></data>
+  <data name="Shops.NoShopsFound"><value>لا ورشات موجودة</value></data>
+  <data name="Shops.NoVerifiedShops"><value>لا توجد ورشات معتمدة مدرجة بعد.</value></data>
+  <data name="Shops.NoShopsInCity"><value>لا ورشات في</value></data>
+  <data name="Shops.TryDifferentCity"><value>جرّب مدينة مختلفة.</value></data>
+  <data name="Shops.ShowAllCities"><value>عرض جميع المدن</value></data>
+
+  <!-- Shop Detail -->
+  <data name="ShopDtl.AllShops"><value>جميع الورشات</value></data>
+  <data name="ShopDtl.Verified"><value>معتمدة</value></data>
+  <data name="ShopDtl.RequestHelp"><value>طلب مساعدة</value></data>
+  <data name="ShopDtl.AboutThisShop"><value>عن هذه الورشة</value></data>
+  <data name="ShopDtl.CustomerReviews"><value>تقييمات العملاء</value></data>
+  <data name="ShopDtl.NoReviewsFirst"><value>لا تقييمات بعد — كن أول من يقيّم!</value></data>
+  <data name="ShopDtl.ShopStats"><value>إحصائيات الورشة</value></data>
+  <data name="ShopDtl.CompletedJobs"><value>الأعمال المكتملة</value></data>
+  <data name="ShopDtl.AvgRating"><value>متوسط التقييم</value></data>
+  <data name="ShopDtl.TotalReviews"><value>إجمالي التقييمات</value></data>
+  <data name="ShopDtl.Status"><value>الحالة</value></data>
+  <data name="ShopDtl.StrandedNearby"><value>عالق قريباً؟ اطلب مساعدة على الطريق من هذه الورشة فوراً.</value></data>
+  <data name="ShopDtl.RequestHelpNow"><value>اطلب المساعدة الآن</value></data>
+  <data name="ShopDtl.NeedAssistance"><value>تحتاج مساعدة على الطريق؟ سجّل دخولك لطلب المساعدة من هذه الورشة.</value></data>
+  <data name="ShopDtl.SignInToGetHelp"><value>سجّل دخولك للحصول على المساعدة</value></data>
+  <data name="ShopDtl.ReviewSingular"><value>تقييم</value></data>
+  <data name="ShopDtl.ReviewPlural"><value>تقييمات</value></data>
+
+  <!-- Shop Dashboard -->
+  <data name="ShopDB.PendingVerification"><value>في انتظار التحقق.</value></data>
+  <data name="ShopDB.ShopUnderReview"><value>ورشتك قيد المراجعة. لا يمكنك استقبال الطلبات حتى يتم التحقق منها.</value></data>
+  <data name="ShopDB.Incoming"><value>الواردة</value></data>
+  <data name="ShopDB.DoneToday"><value>منجز اليوم</value></data>
+  <data name="ShopDB.AvgRating"><value>متوسط التقييم</value></data>
+  <data name="ShopDB.NewRequest"><value>طلب جديد</value></data>
+  <data name="ShopDB.ViewOnMap"><value>عرض على الخريطة</value></data>
+  <data name="ShopDB.AcceptRequest"><value>قبول الطلب</value></data>
+  <data name="ShopDB.NoIncomingRequests"><value>لا طلبات واردة.</value></data>
+  <data name="ShopDB.NoActiveJobs"><value>لا أعمال نشطة.</value></data>
+  <data name="ShopDB.Manage"><value>إدارة</value></data>
+  <data name="ShopDB.MyShop"><value>ورشتي</value></data>
+  <data name="ShopDB.City"><value>المدينة</value></data>
+  <data name="ShopDB.Rating"><value>التقييم</value></data>
+  <data name="ShopDB.EditShop"><value>تعديل الورشة</value></data>
+  <data name="ShopDB.QuickLinks"><value>روابط سريعة</value></data>
+  <data name="ShopDB.AllIncoming"><value>جميع الواردة</value></data>
+  <data name="ShopDB.VerifiedShop"><value>ورشة معتمدة</value></data>
+  <data name="ShopDB.GPS"><value>GPS</value></data>
+
+  <!-- Shop IncomingRequests -->
+  <data name="ShopIR.NoPendingRequests"><value>لا توجد طلبات معلّقة</value></data>
+  <data name="ShopIR.RequestsAppearHere"><value>طلبات مساعدة العملاء تظهر هنا في الوقت الفعلي.</value></data>
+  <data name="ShopIR.ViewLocationOnMap"><value>عرض الموقع على الخريطة</value></data>
+  <data name="ShopIR.AcceptRequest"><value>قبول الطلب</value></data>
+
+  <!-- Shop ActiveJobs -->
+  <data name="ShopAJ.NoActiveJobs"><value>لا توجد وظائف نشطة</value></data>
+  <data name="ShopAJ.AcceptRequestFirst"><value>اقبل طلبًا من الطلبات الواردة لبدء العمل.</value></data>
+  <data name="ShopAJ.ViewIncomingRequests"><value>عرض الطلبات الواردة</value></data>
+  <data name="ShopAJ.ViewCustomerLocation"><value>عرض موقع العميل</value></data>
+  <data name="ShopAJ.Diagnosis"><value>التشخيص</value></data>
+  <data name="ShopAJ.IveArrived"><value>لقد وصلت</value></data>
+  <data name="ShopAJ.AddDiagnosisPrice"><value>إضافة تشخيص وسعر</value></data>
+  <data name="ShopAJ.DiagnosisNotes"><value>ملاحظات التشخيص</value></data>
+  <data name="ShopAJ.DiagnosisPlaceholder"><value>ماذا وجدت؟</value></data>
+  <data name="ShopAJ.Resolution"><value>الحل</value></data>
+  <data name="ShopAJ.ResolutionPlaceholder"><value>مثال: تم الإصلاح في الموقع / سحب إلى الورشة</value></data>
+  <data name="ShopAJ.Amount"><value>المبلغ (د.أ)</value></data>
+  <data name="ShopAJ.ConfirmStartWork"><value>تأكيد وبدء العمل</value></data>
+  <data name="ShopAJ.MarkCompleted"><value>تحديد كمكتمل</value></data>
+  <data name="ShopAJ.MarkAsCompleted"><value>تحديد كمكتمل؟</value></data>
+  <data name="ShopAJ.CannotBeUndone"><value>لا يمكن التراجع عن هذا الإجراء.</value></data>
+  <data name="ShopAJ.Cancel"><value>إلغاء</value></data>
+
+  <!-- Shop CompletedJobs -->
+  <data name="ShopCJ.NoJobsYet"><value>لا توجد وظائف مكتملة بعد</value></data>
+  <data name="ShopCJ.NoJobsDesc"><value>الوظائف التي تحددها كمكتملة ستظهر هنا مع كامل التفاصيل ومعلومات الدفع.</value></data>
+  <data name="ShopCJ.CompletedJobs"><value>الوظائف المكتملة</value></data>
+  <data name="ShopCJ.TotalEarned"><value>إجمالي الأرباح (د.أ)</value></data>
+  <data name="ShopCJ.AvgPerJob"><value>متوسط لكل وظيفة (د.أ)</value></data>
+  <data name="ShopCJ.JobHistory"><value>سجل الوظائف</value></data>
+  <data name="ShopCJ.Situation"><value>الوضع</value></data>
+  <data name="ShopCJ.Diagnosis"><value>التشخيص</value></data>
+  <data name="ShopCJ.Resolution"><value>الحل</value></data>
+  <data name="ShopCJ.TotalEarnedFooter"><value>إجمالي الأرباح</value></data>
+
+  <!-- Shop Earnings -->
+  <data name="ShopEarn.PaymentHistory"><value>سجل مدفوعاتك</value></data>
+  <data name="ShopEarn.TotalEarned"><value>إجمالي الأرباح (د.أ)</value></data>
+  <data name="ShopEarn.CompletedJobs"><value>الوظائف المكتملة</value></data>
+  <data name="ShopEarn.AvgPerJob"><value>متوسط لكل وظيفة (د.أ)</value></data>
+  <data name="ShopEarn.PaymentHistoryTitle"><value>سجل المدفوعات</value></data>
+  <data name="ShopEarn.Customer"><value>العميل</value></data>
+  <data name="ShopEarn.Situation"><value>الوضع</value></data>
+  <data name="ShopEarn.Notes"><value>ملاحظات</value></data>
+  <data name="ShopEarn.Amount"><value>المبلغ</value></data>
+  <data name="ShopEarn.Date"><value>التاريخ</value></data>
+  <data name="ShopEarn.NoPayments"><value>لا توجد مدفوعات بعد</value></data>
+  <data name="ShopEarn.NoPaymentsDesc"><value>أكمل الوظائف لبدء تتبع أرباحك هنا.</value></data>
+  <data name="ShopEarn.Total"><value>الإجمالي</value></data>
+
+  <!-- Shop Reviews -->
+  <data name="ShopRev.AverageRating"><value>متوسط التقييم</value></data>
+  <data name="ShopRev.TotalReviews"><value>إجمالي التقييمات</value></data>
+  <data name="ShopRev.NoReviewsYet"><value>لا توجد تقييمات بعد</value></data>
+  <data name="ShopRev.NoReviewsDesc"><value>آراء العملاء تظهر هنا بعد إتمام الوظائف.</value></data>
+
+  <!-- Shop Mechanics -->
+  <data name="ShopMech.Title"><value>ميكانيكيّو ورشتي</value></data>
+  <data name="ShopMech.AddMechanic"><value>إضافة ميكانيكي</value></data>
+  <data name="ShopMech.Approved"><value>موافق عليه</value></data>
+  <data name="ShopMech.Pending"><value>قيد المراجعة</value></data>
+  <data name="ShopMech.Rejected"><value>مرفوض</value></data>
+  <data name="ShopMech.NoMechanicsYet"><value>لا يوجد ميكانيكيون بعد</value></data>
+  <data name="ShopMech.NoMechanicsDesc"><value>أضف أول ميكانيكي لبدء قبول الطلبات.</value></data>
+  <data name="ShopMech.YrsExp"><value>سنوات خبرة</value></data>
+  <data name="ShopMech.Available"><value>متاح</value></data>
+  <data name="ShopMech.OnJob"><value>في مهمة</value></data>
+  <data name="ShopMech.Edit"><value>تعديل</value></data>
+
+  <!-- Shop ManageShop -->
+  <data name="ShopMS.ManageDetails"><value>إدارة ملف ورشتك والتفاصيل</value></data>
+  <data name="ShopMS.BasicInformation"><value>المعلومات الأساسية</value></data>
+  <data name="ShopMS.ShopName"><value>اسم الورشة</value></data>
+  <data name="ShopMS.City"><value>المدينة</value></data>
+  <data name="ShopMS.Description"><value>الوصف</value></data>
+  <data name="ShopMS.DescHint"><value>يظهر للعملاء عند تصفح دليل الورش.</value></data>
+  <data name="ShopMS.ContactLocation"><value>التواصل والموقع</value></data>
+  <data name="ShopMS.Address"><value>العنوان</value></data>
+  <data name="ShopMS.PhoneNumber"><value>رقم الهاتف</value></data>
+  <data name="ShopMS.ShopLocation"><value>موقع الورشة</value></data>
+  <data name="ShopMS.MapHint"><value>انقر على الخريطة أو اسحب الدبوس لتحديد موقعك الدقيق</value></data>
+  <data name="ShopMS.ClickMapToPin"><value>انقر على الخريطة لتثبيت موقع ورشتك</value></data>
+  <data name="ShopMS.UseMyLocation"><value>استخدام موقعي</value></data>
+  <data name="ShopMS.Locating"><value>جارٍ تحديد الموقع…</value></data>
+  <data name="ShopMS.MyLocation"><value>موقعي</value></data>
+  <data name="ShopMS.Branding"><value>هوية الورشة</value></data>
+  <data name="ShopMS.ShopLogo"><value>شعار الورشة</value></data>
+  <data name="ShopMS.LogoHint"><value>يظهر على بطاقة ورشتك في الدليل العام.</value></data>
+  <data name="ShopMS.ClickOrDrag"><value>انقر أو اسحب وأفلت لرفع الشعار</value></data>
+  <data name="ShopMS.LogoFormat"><value>PNG، JPG، WEBP — يُنصح بـ 256×256 بكسل أو أكبر</value></data>
+  <data name="ShopMS.VerifiedByJAA"><value>موثّق من JAA</value></data>
+  <data name="ShopMS.PendingVerification"><value>قيد التحقق</value></data>
+  <data name="ShopMS.SaveChanges"><value>حفظ التغييرات</value></data>
+  <data name="ShopMS.ChangesVisible"><value>التغييرات تظهر فورًا على صفحة ورشتك العامة بعد الحفظ.</value></data>
+  <data name="ShopMS.Change"><value>تغيير</value></data>
+  <data name="ShopMS.Expand"><value>توسيع</value></data>
+  <data name="ShopMS.Remove"><value>إزالة</value></data>
+  <data name="ShopMS.GeoNotSupported"><value>متصفحك لا يدعم تحديد الموقع الجغرافي.</value></data>
+  <data name="ShopMS.GeoAccessDenied"><value>تم رفض الوصول للموقع. يرجى السماح بالموقع في إعدادات المتصفح.</value></data>
+  <data name="ShopMS.GeoUnavailable"><value>الموقع غير متاح. تحقق من GPS أو الشبكة.</value></data>
+  <data name="ShopMS.GeoTimeout"><value>انتهت مهلة طلب الموقع. حاول مرة أخرى.</value></data>
+  <data name="ShopMS.GeoFailed"><value>تعذّر الحصول على موقعك.</value></data>
+  <data name="ShopMS.LookingUpAddress"><value>جارٍ البحث عن العنوان…</value></data>
+
+  <!-- Shop AcceptRequest -->
+  <data name="ShopAR.AssignMechanic"><value>تعيين ميكانيكي</value></data>
+  <data name="ShopAR.SelectAvailable"><value>اختر ميكانيكيًا متاحًا لهذه المهمة</value></data>
+  <data name="ShopAR.CustomerRequest"><value>طلب العميل</value></data>
+  <data name="ShopAR.ViewLocation"><value>عرض الموقع</value></data>
+  <data name="ShopAR.AvailableMechanics"><value>الميكانيكيون المتاحون</value></data>
+  <data name="ShopAR.AssignAccept"><value>تعيين وقبول الطلب</value></data>
+  <data name="ShopAR.Cancel"><value>إلغاء</value></data>
+  <data name="ShopAR.YrsExp"><value>سنوات خبرة</value></data>
+
+  <!-- Shop SubmitQuotation -->
+  <data name="ShopSQ.PageTitle"><value>تقديم عرض سعر الإصلاح</value></data>
+  <data name="ShopSQ.PageSub"><value>شخّص المشكلة واعرض تكلفة الإصلاح</value></data>
+  <data name="ShopSQ.Customer"><value>العميل</value></data>
+  <data name="ShopSQ.DiagnosisNotes"><value>ملاحظات التشخيص</value></data>
+  <data name="ShopSQ.DiagnosisPlaceholder"><value>صف المشكلة التي وجدتها والعمل المطلوب...</value></data>
+  <data name="ShopSQ.RepairCost"><value>تكلفة الإصلاح (د.أ)</value></data>
+  <data name="ShopSQ.CustomerSees"><value>معاينة السعر (ما يراه العميل)</value></data>
+  <data name="ShopSQ.RepairCostLine"><value>تكلفة الإصلاح</value></data>
+  <data name="ShopSQ.VAT16"><value>ضريبة القيمة المضافة (16%)</value></data>
+  <data name="ShopSQ.Total"><value>الإجمالي</value></data>
+  <data name="ShopSQ.SendQuotation"><value>إرسال عرض السعر للعميل</value></data>
+  <data name="ShopSQ.Cancel"><value>إلغاء</value></data>
+
+  <!-- Shop PendingApproval -->
+  <data name="ShopPA.ShopPendingApproval"><value>الورشة قيد الموافقة</value></data>
+  <data name="ShopPA.ReviewDesc"><value>تم تقديم تسجيل ورشتك وهو قيد المراجعة حاليًا من قِبَل فريق الإدارة. ستتمكن من الوصول إلى جميع ميزات الورشة بعد الموافقة عليها.</value></data>
+  <data name="ShopPA.YourSubmission"><value>تقديمك</value></data>
+  <data name="ShopPA.QuestionsContact"><value>أسئلة؟ تواصل معنا على</value></data>
+
+  <!-- Shop Rejected -->
+  <data name="ShopRej.NotApproved"><value>الطلب غير مقبول</value></data>
+  <data name="ShopRej.Desc"><value>للأسف، لم يتم قبول تسجيل ورشتك في هذا الوقت.</value></data>
+  <data name="ShopRej.Reason"><value>السبب</value></data>
+  <data name="ShopRej.AssistanceContact"><value>للمساعدة تواصل مع</value></data>
+
+  <!-- Shop AddMechanic -->
+  <data name="ShopAM.PageSub"><value>الميكانيكيون الجدد يحتاجون موافقة المسؤول قبل استقبال الوظائف</value></data>
+  <data name="ShopAM.ProfilePhoto"><value>صورة الملف الشخصي (اختياري)</value></data>
+  <data name="ShopAM.PendingNote"><value>سيكون هذا الميكانيكي قيد المراجعة حتى يوافق عليه المسؤول.</value></data>
+  <data name="ShopAM.SubmitForApproval"><value>تقديم للموافقة</value></data>
+  <data name="ShopAM.Cancel"><value>إلغاء</value></data>
+
+  <!-- Shop EditMechanic -->
+  <data name="ShopEM.PendingApproval"><value>قيد موافقة المسؤول</value></data>
+  <data name="ShopEM.Rejected"><value>تم رفض الطلب من المسؤول</value></data>
+  <data name="ShopEM.NationalId"><value>رقم الهوية الوطنية</value></data>
+  <data name="ShopEM.NationalIdReadOnly"><value>لا يمكن تغيير رقم الهوية الوطنية</value></data>
+  <data name="ShopEM.YearsExp"><value>سنوات الخبرة</value></data>
+  <data name="ShopEM.Availability"><value>التوفر</value></data>
+  <data name="ShopEM.Available"><value>متاح</value></data>
+  <data name="ShopEM.Offline"><value>غير متاح</value></data>
+  <data name="ShopEM.UpdateProfilePhoto"><value>تحديث صورة الملف الشخصي (اختياري)</value></data>
+  <data name="ShopEM.SaveChanges"><value>حفظ التغييرات</value></data>
+  <data name="ShopEM.Cancel"><value>إلغاء</value></data>
+
+  <!-- ForgotPassword -->
+  <data name="FP.Title"><value>نسيت كلمة المرور</value></data>
+  <data name="FP.BackToSignIn"><value>العودة لتسجيل الدخول</value></data>
+  <data name="FP.ResetPassword"><value>إعادة تعيين كلمة المرور</value></data>
+  <data name="FP.Sub"><value>أدخل رقم هاتفك لإعادة تعيين كلمة المرور</value></data>
+  <data name="FP.Hint"><value>أدخل رقم الهاتف المرتبط بحسابك. سيتم توجيهك مباشرةً إلى صفحة إعادة التعيين.</value></data>
+  <data name="FP.Continue"><value>متابعة</value></data>
+  <data name="FP.RememberedIt"><value>تذكرتها؟</value></data>
+  <data name="FP.SignIn"><value>← تسجيل الدخول</value></data>
+
+  <!-- ResetPassword -->
+  <data name="RP.Title"><value>تعيين كلمة مرور جديدة</value></data>
+  <data name="RP.Sub"><value>اختر كلمة مرور قوية لحسابك</value></data>
+  <data name="RP.Back"><value>رجوع</value></data>
+  <data name="RP.NewPassword"><value>كلمة المرور الجديدة</value></data>
+  <data name="RP.NewPasswordPlaceholder"><value>6 أحرف على الأقل</value></data>
+  <data name="RP.ConfirmPassword"><value>تأكيد كلمة المرور</value></data>
+  <data name="RP.ConfirmPlaceholder"><value>أعد إدخال كلمة المرور</value></data>
+  <data name="RP.ResetButton"><value>إعادة تعيين كلمة المرور</value></data>
+  <data name="RP.TooShort"><value>قصيرة جداً</value></data>
+  <data name="RP.Weak"><value>ضعيفة</value></data>
+  <data name="RP.Fair"><value>مقبولة</value></data>
+  <data name="RP.Good"><value>جيدة</value></data>
+  <data name="RP.Strong"><value>قوية</value></data>
+
+  <!-- AccessDenied -->
+  <data name="AD.Title"><value>الوصول مرفوض</value></data>
+  <data name="AD.Desc"><value>ليس لديك صلاحية لعرض هذه الصفحة.</value></data>
+  <data name="AD.GoHome"><value>الصفحة الرئيسية</value></data>
+
+  <!-- Payment/SimulatedPayment -->
+  <data name="Pay.SecurePayment"><value>دفع آمن</value></data>
+  <data name="Pay.PageSub"><value>بوابة دفع تجريبية — لن تُجرى أي معاملة حقيقية</value></data>
+  <data name="Pay.DemoMode"><value>وضع العرض التجريبي</value></data>
+  <data name="Pay.DemoDesc"><value>هذه عملية دفع تجريبية. لن تُجرى أي معاملة حقيقية. أدخل أي بيانات بطاقة.</value></data>
+  <data name="Pay.CardNumber"><value>رقم البطاقة</value></data>
+  <data name="Pay.CardholderName"><value>اسم حامل البطاقة</value></data>
+  <data name="Pay.Expiry"><value>تاريخ الانتهاء</value></data>
+  <data name="Pay.CVV"><value>CVV</value></data>
+  <data name="Pay.Cancel"><value>إلغاء</value></data>
+  <data name="Pay.Processing"><value>جارٍ المعالجة…</value></data>
+
+  <!-- Customer/Map -->
+  <data name="Map.Title"><value>ابحث عن ورشة</value></data>
+  <data name="Map.PageTitle"><value>الورش القريبة</value></data>
+  <data name="Map.PageSub"><value>ابحث عن ورش معتمدة على الخريطة</value></data>
+  <data name="Map.Available"><value>متاح</value></data>
+  <data name="Map.Busy"><value>مشغول</value></data>
+  <data name="Map.YourLocation"><value>موقعك</value></data>
+  <data name="Map.ClickMarker"><value>انقر على علامة لعرض تفاصيل الورشة</value></data>
+  <data name="Map.MapButton"><value>الخريطة</value></data>
+  <data name="Map.RequestButton"><value>طلب</value></data>
+  <data name="Map.Available2"><value>✓ متاح</value></data>
+  <data name="Map.Busy2"><value>✗ مشغول</value></data>
+  <data name="Map.Reviews"><value>تقييمات</value></data>
+  <data name="Map.MechanicsAvailable"><value>ميكانيكي متاح</value></data>
+  <data name="Map.RequestHelp"><value>طلب المساعدة</value></data>
+  <data name="Map.CurrentlyBusy"><value>مشغول حالياً</value></data>
+
+  <!-- Invoice -->
+  <data name="Inv.Title"><value>الفاتورة</value></data>
+  <data name="Inv.PrintPdf"><value>طباعة / PDF</value></data>
+  <data name="Inv.Customer"><value>العميل</value></data>
+  <data name="Inv.Shop"><value>الورشة</value></data>
+  <data name="Inv.Mechanic"><value>الميكانيكي</value></data>
+  <data name="Inv.Description"><value>الوصف</value></data>
+  <data name="Inv.Method"><value>الطريقة</value></data>
+  <data name="Inv.AmountJOD"><value>المبلغ (دينار أردني)</value></data>
+  <data name="Inv.InspectionFee"><value>رسوم الفحص / الإرسال</value></data>
+  <data name="Inv.RepairSubtotal"><value>الإصلاح — المجموع الفرعي</value></data>
+  <data name="Inv.PlatformCommission"><value>عمولة المنصة</value></data>
+  <data name="Inv.VAT"><value>ضريبة القيمة المضافة</value></data>
+  <data name="Inv.Total"><value>المجموع</value></data>
+  <data name="Inv.TotalAmountDue"><value>إجمالي المبلغ المستحق</value></data>
+  <data name="Inv.PaymentMethod"><value>طريقة الدفع</value></data>
+  <data name="Inv.Status"><value>الحالة</value></data>
+  <data name="Inv.PrintSavePdf"><value>طباعة / حفظ كـ PDF</value></data>
+  <data name="Inv.Close"><value>إغلاق</value></data>
+  <data name="Inv.JordanAutoAssistance"><value>مساعدة السيارات الأردنية</value></data>
+
+  <!-- Admin shared columns -->
+  <data name="Adm.Name"><value>الاسم</value></data>
+  <data name="Adm.Email"><value>البريد الإلكتروني</value></data>
+  <data name="Adm.Phone"><value>الهاتف</value></data>
+  <data name="Adm.Role"><value>الدور</value></data>
+  <data name="Adm.Status"><value>الحالة</value></data>
+  <data name="Adm.Joined"><value>تاريخ التسجيل</value></data>
+  <data name="Adm.Actions"><value>إجراءات</value></data>
+  <data name="Adm.Active"><value>نشط</value></data>
+  <data name="Adm.Inactive"><value>غير نشط</value></data>
+  <data name="Adm.NoUsersFound"><value>لم يُعثر على مستخدمين.</value></data>
+  <data name="Adm.NoShopsFound"><value>لم يُعثر على ورش.</value></data>
+  <data name="Adm.NoRequestsFound"><value>لم يُعثر على طلبات.</value></data>
+  <data name="Adm.Owner"><value>المالك</value></data>
+  <data name="Adm.City"><value>المدينة</value></data>
+  <data name="Adm.Jobs"><value>الوظائف</value></data>
+  <data name="Adm.Rating"><value>التقييم</value></data>
+  <data name="Adm.Verified"><value>موثق</value></data>
+  <data name="Adm.Pending"><value>قيد الانتظار</value></data>
+  <data name="Adm.Action"><value>إجراء</value></data>
+  <data name="Adm.Verify"><value>توثيق</value></data>
+  <data name="Adm.Unverify"><value>إلغاء التوثيق</value></data>
+  <data name="Adm.Customer"><value>العميل</value></data>
+  <data name="Adm.Situation"><value>المشكلة</value></data>
+  <data name="Adm.Amount"><value>المبلغ</value></data>
+  <data name="Adm.Date"><value>التاريخ</value></data>
+  <data name="Adm.DeleteUserConfirm"><value>هل تريد حذف هذا المستخدم؟</value></data>
+  <data name="Adm.SearchNameEmail"><value>البحث بالاسم أو البريد الإلكتروني…</value></data>
+  <data name="Adm.SearchNameCity"><value>البحث بالاسم أو المدينة…</value></data>
+  <data name="Adm.Search"><value>بحث…</value></data>
+  <data name="Adm.All"><value>الكل</value></data>
+  <data name="Adm.Approve"><value>موافقة</value></data>
+  <data name="Adm.Reject"><value>رفض</value></data>
+  <data name="Adm.Save"><value>حفظ</value></data>
+  <data name="Adm.Back"><value>رجوع</value></data>
+  <data name="Adm.Comment"><value>تعليق</value></data>
+  <data name="Adm.Shop"><value>الورشة</value></data>
+  <data name="Adm.ID"><value>الرقم</value></data>
+  <data name="Adm.Time"><value>الوقت</value></data>
+
+  <!-- Admin Dashboard -->
+  <data name="ADB.TotalRequests"><value>إجمالي الطلبات</value></data>
+  <data name="ADB.ActiveNow"><value>نشط الآن</value></data>
+  <data name="ADB.Shops"><value>الورش</value></data>
+  <data name="ADB.Users"><value>المستخدمون</value></data>
+  <data name="ADB.PendingShops"><value>ورش قيد المراجعة</value></data>
+  <data name="ADB.AwaitingApproval"><value>← في انتظار الموافقة</value></data>
+  <data name="ADB.PendingMechanics"><value>ميكانيكيون قيد المراجعة</value></data>
+  <data name="ADB.PendingRefunds"><value>استردادات قيد المعالجة</value></data>
+  <data name="ADB.ActionRequired"><value>← يتطلب إجراء</value></data>
+  <data name="ADB.LiveActiveRequests"><value>الطلبات النشطة المباشرة</value></data>
+  <data name="ADB.ViewAll"><value>عرض الكل</value></data>
+  <data name="ADB.NoActiveRequests"><value>لا توجد طلبات نشطة.</value></data>
+  <data name="ADB.ShopApprovals"><value>موافقات الورش</value></data>
+  <data name="ADB.MechanicApprovals"><value>موافقات الميكانيكيين</value></data>
+  <data name="ADB.AllRequestsDesc"><value>جميع الطلبات</value></data>
+  <data name="ADB.Finance"><value>المالية</value></data>
+  <data name="ADB.RevenueReports"><value>تقارير الإيرادات</value></data>
+  <data name="ADB.Active"><value>نشط</value></data>
+  <data name="ADB.Approved"><value>موثق</value></data>
+  <data name="ADB.Customers"><value>عملاء</value></data>
+  <data name="ADB.AllTime"><value>الإجمالي</value></data>
+  <data name="ADB.InProgress"><value>قيد التنفيذ حالياً</value></data>
+
+  <!-- Admin PendingShops -->
+  <data name="APS.NoPendingShops"><value>لا توجد ورش قيد المراجعة</value></data>
+  <data name="APS.AllReviewed"><value>تمت مراجعة جميع الورش.</value></data>
+  <data name="APS.RegisteredBy"><value>مسجَّل بواسطة</value></data>
+  <data name="APS.Submitted"><value>تاريخ التقديم</value></data>
+  <data name="APS.ViewCertificate"><value>عرض الشهادة التجارية</value></data>
+  <data name="APS.NoCertificate"><value>لم يتم رفع أي شهادة</value></data>
+  <data name="APS.ApproveShop"><value>الموافقة على الورشة</value></data>
+  <data name="APS.RejectionReason"><value>سبب الرفض (اختياري)</value></data>
+
+  <!-- Admin PendingMechanics -->
+  <data name="APM.NoPending"><value>لا يوجد ميكانيكيون قيد المراجعة</value></data>
+  <data name="APM.AllReviewed"><value>تمت مراجعة جميع طلبات الميكانيكيين.</value></data>
+  <data name="APM.NationalId"><value>رقم الهوية الوطنية</value></data>
+  <data name="APM.YearsExp"><value>سنوات الخبرة</value></data>
+  <data name="APM.Submitted"><value>تاريخ التقديم</value></data>
+  <data name="APM.ShopLabel"><value>الورشة</value></data>
+
+  <!-- Admin Reports -->
+  <data name="ARep.TotalRevenue"><value>إجمالي الإيرادات (دينار أردني)</value></data>
+  <data name="ARep.CompletedJobs"><value>الوظائف المكتملة</value></data>
+  <data name="ARep.AvgRating"><value>متوسط التقييم</value></data>
+  <data name="ARep.RecentFeedback"><value>آخر التقييمات</value></data>
+  <data name="ARep.NoCompleted"><value>لا توجد وظائف مكتملة بعد.</value></data>
+  <data name="ARep.NoFeedback"><value>لا توجد تقييمات بعد.</value></data>
+
+  <!-- Admin Refunds -->
+  <data name="ARef.PendingRefunds"><value>الاستردادات قيد المعالجة</value></data>
+  <data name="ARef.RefundRequest"><value>طلب استرداد</value></data>
+  <data name="ARef.CustomerLabel"><value>العميل</value></data>
+  <data name="ARef.TypeLabel"><value>النوع</value></data>
+  <data name="ARef.AmountLabel"><value>المبلغ</value></data>
+  <data name="ARef.Requested"><value>تاريخ الطلب</value></data>
+  <data name="ARef.Reason"><value>السبب</value></data>
+  <data name="ARef.AdminNotes"><value>ملاحظات المسؤول (اختياري)</value></data>
+  <data name="ARef.ApproveRefund"><value>الموافقة على الاسترداد</value></data>
+  <data name="ARef.RecentDecisions"><value>القرارات الأخيرة</value></data>
+  <data name="ARef.NoProcessed"><value>لا توجد استردادات معالَجة بعد.</value></data>
+  <data name="ARef.StatusCol"><value>الحالة</value></data>
+  <data name="ARef.Processed"><value>تاريخ المعالجة</value></data>
+
+  <!-- Admin Settings -->
+  <data name="ASet.PageSub"><value>تكوين رسوم المنصة والأسعار والتفضيلات</value></data>
+  <data name="ASet.KeyReferences"><value>مرجع المفاتيح</value></data>
+  <data name="ASet.InspectionFeeDesc"><value>رسوم ثابتة لكل طلب (دينار أردني)</value></data>
+  <data name="ASet.ShopShareDesc"><value>حصة الورشة من رسوم الفحص (دينار أردني)</value></data>
+  <data name="ASet.PlatformShareDesc"><value>حصة JAA من رسوم الفحص (دينار أردني)</value></data>
+  <data name="ASet.CommissionRateDesc"><value>العمولة على تكلفة الإصلاح (0.15 = 15%)</value></data>
+  <data name="ASet.VatRateDesc"><value>ضريبة القيمة المضافة على مجموع الإصلاح (0.16 = 16%)</value></data>
+
+  <!-- Admin ViewCertificate -->
+  <data name="AVC.Owner"><value>المالك</value></data>
+  <data name="AVC.ApproveShop"><value>الموافقة على الورشة</value></data>
+  <data name="AVC.Download"><value>تنزيل الشهادة</value></data>
+
+  <!-- Portal / Dashboard labels -->
+  <data name="Portal.Admin"><value>لوحة الإدارة</value></data>
+  <data name="Portal.Shop"><value>بوابة الورشة</value></data>
+  <data name="Portal.Customer"><value>بوابة المركبة</value></data>
+
+  <!-- Sidebar nav groups -->
+  <data name="Sidebar.Overview"><value>نظرة عامة</value></data>
+  <data name="Sidebar.Approvals"><value>الموافقات</value></data>
+  <data name="Sidebar.Manage"><value>الإدارة</value></data>
+  <data name="Sidebar.System"><value>النظام</value></data>
+  <data name="Sidebar.Main"><value>الرئيسية</value></data>
+  <data name="Sidebar.Team"><value>الفريق</value></data>
+  <data name="Sidebar.ShopGroup"><value>الورشة</value></data>
+  <data name="Sidebar.Account"><value>الحساب</value></data>
+
+  <!-- Sidebar links -->
+  <data name="Sidebar.PendingShops"><value>الورشات المعلقة</value></data>
+  <data name="Sidebar.PendingMechanics"><value>الميكانيكيون المعلقون</value></data>
+  <data name="Sidebar.Refunds"><value>استرداد المدفوعات</value></data>
+  <data name="Sidebar.AllRequests"><value>جميع الطلبات</value></data>
+  <data name="Sidebar.AllShops"><value>جميع الورشات</value></data>
+  <data name="Sidebar.IncomingRequests"><value>الطلبات الواردة</value></data>
+  <data name="Sidebar.ActiveJobs"><value>الأعمال النشطة</value></data>
+  <data name="Sidebar.Completed"><value>المكتملة</value></data>
+  <data name="Sidebar.MyShop"><value>ورشتي</value></data>
+  <data name="Sidebar.RequestHelp"><value>طلب مساعدة</value></data>
+  <data name="Sidebar.FindShop"><value>ابحث عن ورشة</value></data>
+  <data name="Sidebar.MyRequests"><value>طلباتي</value></data>
+  <data name="Sidebar.MyProfile"><value>ملفي الشخصي</value></data>
+  <data name="Sidebar.SuspendedHint"><value>الحساب معلق — لا يمكن تقديم طلبات</value></data>
+
+  <!-- Roles -->
+  <data name="Role.Admin"><value>مدير النظام</value></data>
+  <data name="Role.ShopOwner"><value>صاحب الورشة</value></data>
+  <data name="Role.Customer"><value>عميل</value></data>
+
+  <!-- Modals -->
+  <data name="Modal.Contact"><value>تواصل</value></data>
+  <data name="Modal.TapToCall"><value>اضغط للاتصال</value></data>
+  <data name="Modal.CallNow"><value>اتصل الآن</value></data>
+  <data name="Modal.Cancel"><value>إلغاء</value></data>
+  <data name="Modal.AreYouSure"><value>هل أنت متأكد؟</value></data>
+  <data name="Modal.Confirm"><value>تأكيد</value></data>
+  <data name="Modal.SignOut"><value>تسجيل الخروج</value></data>
+
+  <!-- Track Request step labels -->
+  <data name="StepLabel.QuotationSent"><value>عرض سعر مُرسَل</value></data>
+  <data name="StepLabel.RepairApproved"><value>موافقة على الإصلاح</value></data>
+  <data name="StepDesc.Pending"><value>تم تقديم طلبك</value></data>
+  <data name="StepDesc.InspectionPaid"><value>تم دفع رسوم الفحص — طلبك مرئي للورشات</value></data>
+  <data name="StepDesc.Accepted"><value>تم تعيين ميكانيكي وهو في الطريق</value></data>
+  <data name="StepDesc.MechanicArrived"><value>الميكانيكي يشخّص سيارتك</value></data>
+  <data name="StepDesc.QuotationSent"><value>راجع عرض سعر الإصلاح</value></data>
+  <data name="StepDesc.RepairApproved"><value>الإصلاح جارٍ</value></data>
+  <data name="StepDesc.Completed"><value>تم إصلاح سيارتك</value></data>
+
+  <!-- Controller messages -->
+  <data name="Msg.AccountDeactivated"><value>تم تعطيل حسابك. يرجى التواصل مع الدعم على support@jaa.jo</value></data>
+  <data name="Msg.IncorrectCredentials"><value>رقم الهاتف أو كلمة المرور غير صحيحة.</value></data>
+  <data name="Msg.NoAccountFound"><value>لا يوجد حساب بهذا الرقم.</value></data>
+  <data name="Msg.InvalidResetRequest"><value>طلب إعادة تعيين كلمة المرور غير صالح.</value></data>
+  <data name="Msg.PasswordResetSuccess"><value>تم إعادة تعيين كلمة المرور بنجاح. سجّل الدخول بكلمة المرور الجديدة.</value></data>
+  <data name="Msg.ShopPendingApproval"><value>تم إرسال طلب التسجيل. ورشتك قيد مراجعة الإدارة. ستُبلَّغ عند الموافقة.</value></data>
+  <data name="Msg.AccountDeactivatedNoRequests"><value>حسابك معطّل. لا يمكنك تقديم طلبات جديدة.</value></data>
+  <data name="Msg.AccountDeactivated2"><value>حسابك معطّل.</value></data>
+  <data name="Msg.InvalidRequest"><value>طلب غير صالح.</value></data>
+  <data name="Msg.InvalidOperation"><value>عملية غير صالحة.</value></data>
+  <data name="Msg.InspectionFeePaid"><value>تم دفع رسوم الفحص. طلبك مرئي الآن للورشات القريبة.</value></data>
+  <data name="Msg.RepairApproved"><value>تمت الموافقة على الإصلاح. سيتابع الميكانيكي العمل.</value></data>
+  <data name="Msg.QuotationRejected"><value>تم رفض عرض الإصلاح. تم إبلاغ الورشة.</value></data>
+  <data name="Msg.RequestCancelledSuccess"><value>تم إلغاء الطلب.</value></data>
+  <data name="Msg.CannotCancel"><value>لم يعد بالإمكان إلغاء هذا الطلب.</value></data>
+  <data name="Msg.FeedbackOnlyAfterComplete"><value>يمكنك تقديم تقييم فقط بعد اكتمال العمل.</value></data>
+  <data name="Msg.AlreadyRated"><value>لقد قيّمت هذا العمل بالفعل.</value></data>
+  <data name="Msg.FeedbackThankYou"><value>شكراً على تقييمك!</value></data>
+  <data name="Msg.ProfileUpdated"><value>تم تحديث الملف الشخصي بنجاح.</value></data>
+
+  <!-- ShopController messages -->
+  <data name="Msg.ShopUpdated"><value>تم تحديث بيانات الورشة.</value></data>
+  <data name="Msg.ShopMustBeApproved"><value>يجب أن تحصل الورشة على الموافقة قبل قبول الطلبات.</value></data>
+  <data name="Msg.NoAvailableMechanics"><value>لا يوجد لديك ميكانيكيون معتمدون ومتاحون. أضف أو وافق على ميكانيكيين أولاً.</value></data>
+  <data name="Msg.RequestUnavailable"><value>هذا الطلب لم يعد متاحاً.</value></data>
+  <data name="Msg.MechanicUnavailable"><value>الميكانيكي المختار غير متاح.</value></data>
+  <data name="Msg.RequestAccepted"><value>تم قبول الطلب! تم تعيين {0}.</value></data>
+  <data name="Msg.InvalidTransition"><value>انتقال حالة غير صالح.</value></data>
+  <data name="Msg.JobComplete"><value>تم تحديد الوظيفة كمكتملة! تم إنشاء الفاتورة.</value></data>
+  <data name="Msg.StatusUpdated"><value>تم تحديث الحالة.</value></data>
+  <data name="Msg.QuotationTiming"><value>لا يمكن تقديم العرض إلا بعد وصول الميكانيكي.</value></data>
+  <data name="Msg.QuotationSubmitted"><value>تم تقديم العرض. في انتظار موافقة العميل.</value></data>
+  <data name="Msg.MechanicAdded"><value>تمت إضافة الميكانيكي وهو قيد مراجعة المسؤول.</value></data>
+  <data name="Msg.MechanicUpdated"><value>تم تحديث بيانات الميكانيكي.</value></data>
+  <data name="Msg.NationalIdExists"><value>يوجد ميكانيكي بهذا الرقم الوطني مسبقاً.</value></data>
+
+  <!-- AdminController messages -->
+  <data name="Msg.UserActivated"><value>تم تفعيل المستخدم {0}.</value></data>
+  <data name="Msg.UserDeactivated"><value>تم تعطيل المستخدم {0}.</value></data>
+  <data name="Msg.UserDeleted"><value>تم حذف المستخدم.</value></data>
+  <data name="Msg.ShopVerified"><value>تم توثيق الورشة.</value></data>
+  <data name="Msg.ShopUnverified"><value>تم إلغاء توثيق الورشة.</value></data>
+  <data name="Msg.ShopApproved"><value>تمت الموافقة على الورشة بنجاح.</value></data>
+  <data name="Msg.ShopRejected"><value>تم رفض الورشة.</value></data>
+  <data name="Msg.MechanicApproved"><value>تمت الموافقة على الميكانيكي.</value></data>
+  <data name="Msg.MechanicRejected"><value>تم رفض الميكانيكي.</value></data>
+  <data name="Msg.RefundApproved"><value>تمت الموافقة على الاسترداد.</value></data>
+  <data name="Msg.RefundRejected"><value>تم رفض الاسترداد.</value></data>
+  <data name="Msg.SettingUpdated"><value>تم تحديث الإعداد &apos;{0}&apos;.</value></data>
+</root>

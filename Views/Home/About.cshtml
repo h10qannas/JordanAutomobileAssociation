@@ -1,0 +1,265 @@
+@{ ViewData["Title"] = L["About.OurStory"].Value; Layout = "_Layout"; }
+
+@section Styles {
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+.about-page { padding-top: 64px; background: var(--dark); }
+.about-hero {
+  padding: 90px 0 80px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.about-hero::before {
+  content: '';
+  position: absolute; top: -140px; left: 50%; transform: translateX(-50%);
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(230,57,70,.1) 0%, transparent 65%);
+  border-radius: 50%; pointer-events: none;
+}
+.about-tag {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.3);
+  color: var(--red); border-radius: 999px;
+  font-size: .7rem; font-weight: 700; letter-spacing: .7px; text-transform: uppercase;
+  padding: .3rem .9rem; margin-bottom: 1.3rem;
+}
+.about-hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900;
+  color: var(--white); letter-spacing: -2px; line-height: 1.1;
+  margin-bottom: 1rem;
+}
+.about-hero h1 span { color: var(--red); }
+.about-hero p {
+  font-size: 1rem; color: var(--muted); max-width: 520px;
+  margin: 0 auto; line-height: 1.75;
+}
+.about-stats {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+  padding: 48px 0;
+}
+.about-stat { text-align: center; }
+.about-stat-num {
+  font-size: 2.4rem; font-weight: 900; color: var(--white);
+  letter-spacing: -1.5px; line-height: 1;
+}
+.about-stat-num span { color: var(--red); }
+.about-stat-label {
+  font-size: .7rem; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .8px; margin-top: .4rem;
+}
+.about-stat-div { width: 1px; background: var(--border); }
+.about-mission { padding: 80px 0 70px; }
+.about-mission-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem 2.75rem;
+  position: relative; overflow: hidden;
+}
+.about-mission-card::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, rgba(230,57,70,.08) 0%, transparent 70%);
+  border-radius: 50%; pointer-events: none;
+}
+.about-mission-icon {
+  width: 52px; height: 52px;
+  background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.22);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; color: var(--red); margin-bottom: 1.25rem;
+}
+.about-mission h2 {
+  font-size: 1.5rem; font-weight: 800; color: var(--white);
+  margin-bottom: .8rem; letter-spacing: -.4px;
+}
+.about-mission p {
+  font-size: .95rem; color: var(--muted); line-height: 1.8; max-width: 640px;
+}
+.about-features { padding: 0 0 80px; }
+.about-features h2 {
+  font-size: 1.75rem; font-weight: 900; color: var(--white);
+  letter-spacing: -.5px; margin-bottom: .5rem;
+}
+.about-features .section-sub {
+  font-size: .88rem; color: var(--muted); margin-bottom: 2.5rem;
+}
+.af-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.6rem;
+  height: 100%;
+  transition: border-color .2s, transform .2s;
+}
+.af-card:hover { border-color: rgba(230,57,70,.3); transform: translateY(-3px); }
+.af-icon {
+  width: 44px; height: 44px;
+  background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.18);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; color: var(--red); margin-bottom: 1rem;
+}
+.af-card h5 {
+  font-size: .95rem; font-weight: 700; color: var(--white);
+  margin-bottom: .4rem;
+}
+.af-card p {
+  font-size: .83rem; color: var(--muted); line-height: 1.7; margin: 0;
+}
+.about-values {
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 70px 0;
+}
+.av-item {
+  display: flex; align-items: flex-start; gap: .9rem;
+  padding: 1.1rem 0;
+}
+.av-num {
+  width: 32px; height: 32px; flex-shrink: 0;
+  background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.22);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-weight: 800; color: var(--red);
+}
+.av-item strong { display: block; font-size: .88rem; color: var(--white); margin-bottom: .2rem; }
+.av-item span { font-size: .8rem; color: var(--muted); line-height: 1.6; }
+.about-cta {
+  padding: 80px 0 100px;
+  text-align: center;
+}
+.about-cta h2 {
+  font-size: 2rem; font-weight: 900; color: var(--white);
+  letter-spacing: -.5px; margin-bottom: .7rem;
+}
+.about-cta p { font-size: .9rem; color: var(--muted); margin-bottom: 2rem; }
+.about-cta-btns { display: flex; align-items: center; justify-content: center; gap: .8rem; flex-wrap: wrap; }
+</style>
+}
+
+<div class="about-page">
+
+  <!-- ══ HERO ══ -->
+  <section class="about-hero">
+    <div class="container">
+      <div class="about-tag"><i class="fas fa-car"></i> @L["About.OurStory"]</div>
+      <h1>@L["About.HeroTitle"]</h1>
+      <p>@L["About.HeroDesc"]</p>
+    </div>
+  </section>
+
+  <!-- ══ STATS ══ -->
+  <div class="about-stats">
+    <div class="container">
+      <div class="d-flex align-items-center justify-content-center gap-0 flex-wrap">
+        <div class="about-stat px-4 py-2">
+          <div class="about-stat-num">24<span>/7</span></div>
+          <div class="about-stat-label">@L["About.AlwaysAvailable"]</div>
+        </div>
+        <div class="about-stat-div d-none d-md-block" style="height:52px;"></div>
+        <div class="about-stat px-4 py-2">
+          <div class="about-stat-num">100<span>%</span></div>
+          <div class="about-stat-label">@L["About.FixedPricing"]</div>
+        </div>
+        <div class="about-stat-div d-none d-md-block" style="height:52px;"></div>
+        <div class="about-stat px-4 py-2">
+          <div class="about-stat-num"><span>#</span>1</div>
+          <div class="about-stat-label">@L["About.InJordan"]</div>
+        </div>
+        <div class="about-stat-div d-none d-md-block" style="height:52px;"></div>
+        <div class="about-stat px-4 py-2">
+          <div class="about-stat-num">GPS<span>.</span></div>
+          <div class="about-stat-label">@L["About.SmartDispatch"]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MISSION ══ -->
+  <section class="about-mission">
+    <div class="container" style="max-width:820px;">
+      <div class="about-mission-card">
+        <div class="about-mission-icon"><i class="fas fa-bullseye"></i></div>
+        <h2>@L["About.OurMission"]</h2>
+        <p>@L["About.MissionText"]</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FEATURES ══ -->
+  <section class="about-features">
+    <div class="container">
+      <h2>@L["About.WhyChooseJAA"]</h2>
+      <p class="section-sub">@L["About.EverythingYouNeed"]</p>
+      <div class="row g-3">
+        @foreach (var (icon, titleKey, descKey) in new (string,string,string)[] {
+          ("fa-map-marker-alt", "About.GPSDispatch",       "About.GPSDispatchDesc"),
+          ("fa-tags",           "About.FixedPricingTitle",  "About.FixedPricingDesc"),
+          ("fa-shield-alt",     "About.VerifiedMechanics", "About.VerifiedMechanicsDesc"),
+          ("fa-clock",          "About.Coverage247",        "About.Coverage247Desc"),
+          ("fa-star",           "About.RatedReviewed",      "About.RatedReviewedDesc"),
+          ("fa-mobile-alt",     "About.NoAppNeeded",        "About.NoAppNeededDesc")
+        })
+        {
+          <div class="col-md-6 col-lg-4">
+            <div class="af-card">
+              <div class="af-icon"><i class="fas @icon"></i></div>
+              <h5>@L[titleKey]</h5>
+              <p>@L[descKey]</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ VALUES ══ -->
+  <div class="about-values">
+    <div class="container" style="max-width:860px;">
+      <div class="row g-0 align-items-start">
+        <div class="col-md-5 pe-md-5 mb-4 mb-md-0">
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--red);margin-bottom:.75rem;">@L["About.WhatWeStandFor"]</div>
+          <h2 style="font-size:1.75rem;font-weight:900;color:var(--white);letter-spacing:-.4px;line-height:1.2;margin-bottom:.8rem;">@L["About.BuiltOnTrust"]</h2>
+          <p style="font-size:.85rem;color:var(--muted);line-height:1.75;">@L["About.CorePrinciples"]</p>
+        </div>
+        <div class="col-md-7">
+          @foreach (var (n, titleKey, descKey) in new (string,string,string)[] {
+            ("1","About.Value1Title","About.Value1Desc"),
+            ("2","About.Value2Title","About.Value2Desc"),
+            ("3","About.Value3Title","About.Value3Desc")
+          })
+          {
+            <div class="av-item">
+              <div class="av-num">@n</div>
+              <div>
+                <strong>@L[titleKey]</strong>
+                <span>@L[descKey]</span>
+              </div>
+            </div>
+            if (n != "3") { <hr style="border-color:var(--border);margin:0;"> }
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CTA ══ -->
+  <section class="about-cta">
+    <div class="container">
+      <h2>@L["About.ReadyToGetOnRoad"]</h2>
+      <p>@L["About.JoinThousands"]</p>
+      <div class="about-cta-btns">
+        <a asp-controller="Customer" asp-action="RequestHelp" class="btn-jaa btn-primary btn-glow" style="padding:.75rem 1.8rem;font-size:.95rem;">
+          <i class="fas fa-exclamation-triangle"></i> @L["About.GetHelpNow"]
+        </a>
+        <a asp-controller="Account" asp-action="Register" class="btn-jaa btn-outline" style="padding:.75rem 1.8rem;font-size:.95rem;">
+          <i class="fas fa-user-plus"></i> @L["About.CreateAccount"]
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>

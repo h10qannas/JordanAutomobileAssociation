@@ -1,0 +1,57 @@
+@model List<JAA.Models.Feedback>
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["Shop.Reviews"].Value; ViewData["PageTitle"] = L["Shop.Reviews"].Value; }
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6">
+        <div class="kc kc-amber h-100">
+            <i class="fas fa-star"></i>
+            <div class="kc-val">@(ViewBag.AverageRating > 0 ? ((double)ViewBag.AverageRating).ToString("F1") : "—")</div>
+            <div class="kc-lbl">@L["ShopRev.AverageRating"]</div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="kc kc-blue h-100">
+            <i class="fas fa-comment-dots"></i>
+            <div class="kc-val">@ViewBag.TotalReviews</div>
+            <div class="kc-lbl">@L["ShopRev.TotalReviews"]</div>
+        </div>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="gc"><div class="es"><div class="es-icon"><i class="fas fa-star"></i></div><h5>@L["ShopRev.NoReviewsYet"]</h5><p>@L["ShopRev.NoReviewsDesc"]</p></div></div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var f in Model)
+        {
+            <div class="col-md-6">
+                <div class="gc" style="cursor:default;">
+                    <div class="p-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div style="width:40px;height:40px;background:rgba(37,99,235,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#93c5fd;flex-shrink:0;">
+                                @(f.Customer?.FullName?.Length > 0 ? char.ToUpper(f.Customer.FullName[0]) : 'C')
+                            </div>
+                            <div>
+                                <div style="font-size:13px;font-weight:700;color:var(--color-text);">@f.Customer?.FullName</div>
+                                <div style="font-size:11px;color:var(--color-muted);">@f.CreatedAt.ToLocalTime().ToString("d")</div>
+                            </div>
+                            <div class="ms-auto">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="fas fa-star" style="color:@(i <= f.Rating ? "#fbbf24" : "rgba(255,255,255,.15)");font-size:13px;"></i>
+                                }
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(f.Comment))
+                        {
+                            <p style="font-size:13px;color:var(--color-muted);margin:0;font-style:italic;">"@f.Comment"</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

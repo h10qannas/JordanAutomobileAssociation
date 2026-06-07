@@ -1,0 +1,32 @@
+@model List<JAA.Models.SystemSetting>
+@{ Layout = "_DashboardLayout"; ViewData["Title"] = "Settings"; ViewData["PageTitle"] = "System Settings"; ViewData["PageSub"] = L["ASet.PageSub"].Value; }
+
+<div class="row g-4">
+  @foreach (var setting in Model)
+  {
+    <div class="col-md-6">
+      <div class="card-jaa">
+        <form asp-action="UpdateSetting" method="post">
+          @Html.AntiForgeryToken()
+          <input type="hidden" name="id" value="@setting.Id" />
+          <label style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:.5rem;">@setting.Key</label>
+          <div class="d-flex gap-2">
+            <input type="text" name="value" value="@setting.Value" class="form-control-jaa flex-grow-1" />
+            <button type="submit" class="btn-jaa btn-primary btn-sm">@L["Adm.Save"]</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
+
+<div class="card-jaa mt-4" style="background:rgba(255,255,255,.02);">
+  <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:.6rem;">@L["ASet.KeyReferences"]</div>
+  <div style="font-size:.78rem;color:var(--muted);display:grid;gap:.3rem;">
+    <div><strong style="color:var(--text2);">InspectionFee</strong> — @L["ASet.InspectionFeeDesc"]</div>
+    <div><strong style="color:var(--text2);">ShopInspectionShare</strong> — @L["ASet.ShopShareDesc"]</div>
+    <div><strong style="color:var(--text2);">PlatformInspectionShare</strong> — @L["ASet.PlatformShareDesc"]</div>
+    <div><strong style="color:var(--text2);">RepairCommissionRate</strong> — @L["ASet.CommissionRateDesc"]</div>
+    <div><strong style="color:var(--text2);">VatRate</strong> — @L["ASet.VatRateDesc"]</div>
+  </div>
+</div>
