@@ -1,0 +1,181 @@
+@model JAA.ViewModels.MyTestimonialsViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"]    = "My Testimonials";
+    ViewData["PageTitle"] = "My Testimonials";
+    ViewData["PageSub"]  = "Share your experience and help others discover JAA.";
+}
+
+@section Styles {
+<style>
+.tcard {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.2rem 1.3rem; height: 100%;
+  display: flex; flex-direction: column; gap: .6rem;
+  transition: border-color .2s;
+}
+.tcard:hover { border-color: rgba(230,57,70,.2); }
+
+.tcard-stars { display: flex; gap: .2rem; }
+.tcard-stars i { font-size: .72rem; }
+
+.tcard-title { font-size: .88rem; font-weight: 700; color: var(--white); }
+.tcard-msg { font-size: .8rem; color: var(--muted); line-height: 1.65; font-style: italic; flex: 1; }
+.tcard-meta { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-top: .25rem; }
+
+.status-pill {
+  display: inline-flex; align-items: center; gap: .3rem;
+  border-radius: 999px; font-size: .65rem; font-weight: 700;
+  padding: .22rem .7rem;
+}
+.sp-pending  { background: rgba(251,191,36,.1);  color: #d4a017; border: 1px solid rgba(251,191,36,.25); }
+.sp-approved { background: rgba(63,185,80,.1);   color: var(--green-t); border: 1px solid rgba(63,185,80,.2); }
+.sp-rejected { background: rgba(230,57,70,.08);  color: var(--red);   border: 1px solid rgba(230,57,70,.18); }
+.sp-hidden   { background: rgba(255,255,255,.05); color: var(--muted); border: 1px solid var(--border); }
+.sp-featured { background: rgba(251,191,36,.12); color: #f59e0b; border: 1px solid rgba(251,191,36,.3); }
+
+.eligible-card {
+  background: rgba(255,255,255,.02); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem 1.2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+  transition: border-color .2s;
+}
+.eligible-card:hover { border-color: rgba(230,57,70,.2); }
+.eligible-shop { font-size: .85rem; font-weight: 700; color: var(--white); }
+.eligible-meta { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+</style>
+}
+
+@{
+    string StatusPillClass(JAA.Models.TestimonialStatus s) => s switch {
+        JAA.Models.TestimonialStatus.Approved => "sp-approved",
+        JAA.Models.TestimonialStatus.Rejected => "sp-rejected",
+        JAA.Models.TestimonialStatus.Hidden   => "sp-hidden",
+        _                                     => "sp-pending"
+    };
+    string StatusLabel(JAA.Models.TestimonialStatus s) => s switch {
+        JAA.Models.TestimonialStatus.Approved => "Approved",
+        JAA.Models.TestimonialStatus.Rejected => "Rejected",
+        JAA.Models.TestimonialStatus.Hidden   => "Hidden",
+        _                                     => "Pending Review"
+    };
+    string StatusIcon(JAA.Models.TestimonialStatus s) => s switch {
+        JAA.Models.TestimonialStatus.Approved => "bi-check-circle-fill",
+        JAA.Models.TestimonialStatus.Rejected => "bi-x-circle-fill",
+        JAA.Models.TestimonialStatus.Hidden   => "bi-eye-slash-fill",
+        _                                     => "bi-hourglass-split"
+    };
+}
+
+@* ── Eligible requests ── *@
+@if (Model.EligibleRequests.Any())
+{
+  <div class="card-jaa mb-4">
+    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;">
+      <div style="width:34px;height:34px;background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.2);border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--red);font-size:.88rem;">
+        <i class="bi bi-plus-circle-fill"></i>
+      </div>
+      <div>
+        <div style="font-size:.83rem;font-weight:700;color:var(--white);">Share Your Experience</div>
+        <div style="font-size:.7rem;color:var(--muted);">You have @Model.EligibleRequests.Count completed service@(Model.EligibleRequests.Count != 1 ? "s" : "") awaiting a testimonial</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.6rem;">
+      @foreach (var r in Model.EligibleRequests)
+      {
+        <div class="eligible-card">
+          <div>
+            <div class="eligible-shop"><i class="bi bi-lightning-charge-fill" style="color:var(--red);margin-right:.3rem;"></i>JAA Service — @r.CompletedAt.ToString("d MMM yyyy")</div>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:4px;font-style:italic;">"@(r.SituationDescription.Length > 90 ? r.SituationDescription[..90] + "…" : r.SituationDescription)"</div>
+          </div>
+          <a asp-controller="Testimonial" asp-action="Submit" asp-route-requestId="@r.RequestId"
+             class="btn-jaa btn-primary btn-sm" style="white-space:nowrap;">
+            <i class="bi bi-pencil-fill"></i> Write Testimonial
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@* ── My submitted testimonials ── *@
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;">
+  <div style="font-size:.85rem;font-weight:700;color:var(--white);">
+    <i class="bi bi-chat-quote-fill" style="color:var(--red);margin-right:.4rem;"></i>
+    My Testimonials
+    <span style="background:rgba(255,255,255,.06);border-radius:999px;font-size:.68rem;color:var(--muted);padding:.15rem .6rem;margin-left:.35rem;">@Model.Testimonials.Count</span>
+  </div>
+</div>
+
+@if (!Model.Testimonials.Any())
+{
+  <div class="card-jaa" style="text-align:center;padding:3rem 1rem;color:var(--muted);">
+    <i class="bi bi-chat-square-quote" style="font-size:2.5rem;display:block;margin-bottom:.9rem;opacity:.3;"></i>
+    <div style="font-size:.9rem;font-weight:600;margin-bottom:.3rem;">No testimonials yet</div>
+    <div style="font-size:.78rem;">Complete a service request to share your experience.</div>
+  </div>
+}
+else
+{
+  <div class="row g-3">
+    @foreach (var t in Model.Testimonials)
+    {
+      <div class="col-md-6 col-lg-4">
+        <div class="tcard">
+
+          @* Stars *@
+          <div class="tcard-stars">
+            @for (int i = 1; i <= 5; i++)
+            {
+              <i class="bi bi-star-fill" style="color:@(i <= t.Rating ? "#f59e0b" : "rgba(255,255,255,.1)");"></i>
+            }
+          </div>
+
+          @* Title *@
+          @if (!string.IsNullOrEmpty(t.Title))
+          {
+            <div class="tcard-title">"@t.Title"</div>
+          }
+
+          @* Message *@
+          <div class="tcard-msg">@(t.Message.Length > 200 ? t.Message[..200] + "…" : t.Message)</div>
+
+          @* Date *@
+          <div style="font-size:.72rem;color:var(--muted);">
+            <i class="bi bi-lightning-charge-fill" style="color:var(--red);margin-right:.25rem;"></i>JAA Service
+            &nbsp;·&nbsp;
+            <i class="bi bi-calendar3" style="margin-right:.25rem;"></i>@t.ServiceDate.ToString("d MMM yyyy")
+          </div>
+
+          @* Status + actions *@
+          <div class="tcard-meta">
+            <span class="status-pill @StatusPillClass(t.Status)">
+              <i class="bi @StatusIcon(t.Status)"></i> @StatusLabel(t.Status)
+            </span>
+            @if (t.IsFeatured)
+            {
+              <span class="status-pill sp-featured"><i class="bi bi-star-fill"></i> Featured</span>
+            }
+            @if (t.Status == JAA.Models.TestimonialStatus.Pending)
+            {
+              <a asp-controller="Testimonial" asp-action="Edit" asp-route-id="@t.Id"
+                 style="margin-left:auto;font-size:.72rem;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:.25rem;">
+                <i class="bi bi-pencil"></i> Edit
+              </a>
+            }
+          </div>
+
+          @* Rejection reason *@
+          @if (t.Status == JAA.Models.TestimonialStatus.Rejected && !string.IsNullOrEmpty(t.RejectionReason))
+          {
+            <div style="font-size:.7rem;color:var(--red);background:rgba(230,57,70,.07);border:1px solid rgba(230,57,70,.15);border-radius:7px;padding:.45rem .7rem;">
+              <i class="bi bi-info-circle"></i> @t.RejectionReason
+            </div>
+          }
+
+        </div>
+      </div>
+    }
+  </div>
+}

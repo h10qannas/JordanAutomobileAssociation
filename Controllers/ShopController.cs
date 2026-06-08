@@ -20,6 +20,7 @@ namespace JAA.Controllers
         private readonly MechanicService _mechanicService;
         private readonly PaymentService _paymentService;
         private readonly InvoiceService _invoiceService;
+        private readonly TestimonialService _testimonialService;
         private readonly IWebHostEnvironment _env;
         private readonly IStringLocalizer<SharedResources> _l;
 
@@ -30,17 +31,19 @@ namespace JAA.Controllers
             MechanicService mechanicService,
             PaymentService paymentService,
             InvoiceService invoiceService,
+            TestimonialService testimonialService,
             IWebHostEnvironment env,
             IStringLocalizer<SharedResources> localizer)
         {
-            _db              = db;
-            _userManager     = userManager;
-            _shopService     = shopService;
-            _mechanicService = mechanicService;
-            _paymentService  = paymentService;
-            _invoiceService  = invoiceService;
-            _env             = env;
-            _l               = localizer;
+            _db                 = db;
+            _userManager        = userManager;
+            _shopService        = shopService;
+            _mechanicService    = mechanicService;
+            _paymentService     = paymentService;
+            _invoiceService     = invoiceService;
+            _testimonialService = testimonialService;
+            _env                = env;
+            _l                  = localizer;
         }
 
         private async Task<RepairShop?> GetCurrentShopAsync()
@@ -129,7 +132,10 @@ namespace JAA.Controllers
             if (shop == null) return RedirectToAction("ManageShop");
             if (shop.ShopStatus != ShopStatus.Approved) return View("PendingApproval", shop);
 
-            var requests = await _shopService.GetIncomingRequestsAsync();
+            var requests  = await _shopService.GetIncomingRequestsAsync();
+            var mechanics = await _mechanicService.GetApprovedAvailableMechanicsAsync(shop.Id);
+            ViewBag.AvailableMechanics = mechanics;
+
             return View(requests);
         }
 
@@ -227,13 +233,9 @@ namespace JAA.Controllers
 
             if (request == null) return NotFound();
 
-            var validTransitions = new Dictionary<RequestStatus, RequestStatus>
-            {
-                [RequestStatus.Accepted]          = RequestStatus.MechanicArrived,
-                [RequestStatus.QuotationApproved] = RequestStatus.Completed
-            };
-
-            if (!validTransitions.TryGetValue(request.Status, out var expected) || expected != newStatus)
+            // Only Accepted → MechanicArrived is allowed through UpdateStatus.
+            // QuotationApproved → Completed is no longer direct; use ReportCompletion instead.
+            if (request.Status != RequestStatus.Accepted || newStatus != RequestStatus.MechanicArrived)
             {
                 TempData["Error"] = _l["Msg.InvalidTransition"].Value;
                 return RedirectToAction("ActiveJobs");
@@ -241,23 +243,69 @@ namespace JAA.Controllers
 
             request.Status    = newStatus;
             request.UpdatedAt = DateTime.UtcNow;
-
-            // When completing, free up the mechanic
-            if (newStatus == RequestStatus.Completed && request.MechanicId.HasValue)
-            {
-                var mechanic = await _db.Mechanics.FindAsync(request.MechanicId);
-                if (mechanic != null) mechanic.IsAvailable = true;
-
-                await _invoiceService.GetOrCreateInvoiceAsync(requestId);
-            }
-
             await _db.SaveChangesAsync();
 
-            TempData["Success"] = newStatus == RequestStatus.Completed
-                ? _l["Msg.JobComplete"].Value
-                : _l["Msg.StatusUpdated"].Value;
+            TempData["Success"] = _l["Msg.StatusUpdated"].Value;
+            return RedirectToAction("ActiveJobs");
+        }
 
-            return RedirectToAction(newStatus == RequestStatus.Completed ? "CompletedJobs" : "ActiveJobs");
+        // ── Report Completion ─────────────────────────────────────────────
+        [HttpGet]
+        public async Task<IActionResult> ReportCompletion(int requestId)
+        {
+            var shop    = await GetCurrentShopAsync();
+            var request = await _db.ServiceRequests
+                .Include(r => r.Customer)
+                .Include(r => r.RepairQuotation)
+                .FirstOrDefaultAsync(r => r.Id == requestId && r.ShopId == shop!.Id);
+
+            if (request == null || request.Status != RequestStatus.QuotationApproved)
+            {
+                TempData["Error"] = _l["Msg.InvalidRequest"].Value;
+                return RedirectToAction("ActiveJobs");
+            }
+
+            ViewBag.Request = request;
+            return View(request);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReportCompletion(int requestId, decimal finalAmount, string? mechanicNotes)
+        {
+            var shop    = await GetCurrentShopAsync();
+            var request = await _db.ServiceRequests
+                .Include(r => r.Mechanic)
+                .FirstOrDefaultAsync(r => r.Id == requestId && r.ShopId == shop!.Id);
+
+            if (request == null || request.Status != RequestStatus.QuotationApproved)
+            {
+                TempData["Error"] = _l["Msg.InvalidRequest"].Value;
+                return RedirectToAction("ActiveJobs");
+            }
+
+            if (finalAmount <= 0)
+            {
+                TempData["Error"] = _l["Msg.InvalidAmount"].Value;
+                return RedirectToAction("ReportCompletion", new { requestId });
+            }
+
+            _db.PaymentVerifications.Add(new JAA.Models.PaymentVerification
+            {
+                ServiceRequestId       = requestId,
+                MechanicReportedAmount = finalAmount,
+                MechanicNotes          = mechanicNotes,
+                Status                 = JAA.Models.VerificationStatus.Pending,
+                CreatedAt              = DateTime.UtcNow,
+                UpdatedAt              = DateTime.UtcNow
+            });
+
+            request.Status    = RequestStatus.AwaitingConfirmation;
+            request.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+
+            TempData["Success"] = _l["Msg.RepairReported"].Value;
+            return RedirectToAction("ActiveJobs");
         }
 
         [HttpGet]
@@ -326,6 +374,44 @@ namespace JAA.Controllers
             return RedirectToAction("ActiveJobs");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddDiagnosis(int requestId, string diagnosisNotes, string resolution, decimal amount)
+        {
+            var shop = await GetCurrentShopAsync();
+            if (shop == null) return RedirectToAction("IncomingRequests");
+
+            var request = await _db.ServiceRequests
+                .Include(r => r.Mechanic)
+                .FirstOrDefaultAsync(r => r.Id == requestId && r.ShopId == shop.Id);
+
+            if (request == null || request.Status != RequestStatus.MechanicArrived)
+            {
+                TempData["Error"] = _l["Msg.InvalidRequest"].Value;
+                return RedirectToAction("ActiveJobs");
+            }
+
+            _db.RepairQuotations.Add(new RepairQuotation
+            {
+                ServiceRequestId = requestId,
+                MechanicId       = request.MechanicId ?? 0,
+                DiagnosisNotes   = diagnosisNotes,
+                QuotedAmount     = amount,
+                Status           = QuotationStatus.AwaitingApproval,
+                CreatedAt        = DateTime.UtcNow
+            });
+
+            request.DiagnosisNotes = diagnosisNotes;
+            request.Resolution     = resolution;
+            request.Status         = RequestStatus.Diagnosed;
+            request.UpdatedAt      = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+
+            TempData["Success"] = _l["Msg.QuotationSubmitted"].Value;
+            return RedirectToAction("ActiveJobs");
+        }
+
         public async Task<IActionResult> CompletedJobs()
         {
             var shop = await GetCurrentShopAsync();
@@ -362,10 +448,10 @@ namespace JAA.Controllers
             ViewBag.TotalInspectionEarnings = inspectionEarnings;
             ViewBag.TotalRepairEarnings     = repairEarnings;
             ViewBag.TotalEarnings           = inspectionEarnings + repairEarnings;
-            ViewBag.RepairPayments          = repairPayments;
+            ViewBag.TotalJobs               = repairPayments.Count + inspectionList.Count;
             ViewBag.InspectionPayments      = inspectionList;
 
-            return View();
+            return View(repairPayments);
         }
 
         public async Task<IActionResult> Reviews()
@@ -517,6 +603,25 @@ namespace JAA.Controllers
             await _mechanicService.UpdateMechanicAsync(mechanic);
             TempData["Success"] = _l["Msg.MechanicUpdated"].Value;
             return RedirectToAction("Mechanics");
+        }
+
+        // ── Shop Testimonials ──────────────────────────────────────────────
+
+        public async Task<IActionResult> Testimonials()
+        {
+            var shop = await GetCurrentShopAsync();
+            if (shop == null) return RedirectToAction("Dashboard");
+
+            var testimonials = await _testimonialService.GetShopTestimonialsAsync(shop.Id);
+            var (avgRating, count) = await _testimonialService.GetShopTestimonialStatsAsync(shop.Id);
+
+            var vm = new ShopTestimonialsViewModel
+            {
+                Testimonials = testimonials,
+                AvgRating    = avgRating,
+                TotalCount   = count
+            };
+            return View(vm);
         }
     }
 }

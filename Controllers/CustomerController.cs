@@ -64,24 +64,47 @@ namespace JAA.Controllers
 
         public async Task<IActionResult> Map()
         {
-            var shops = await _shopService.GetAllShopsForMapAsync();
-
-            var markers = shops.Select(s => new ShopMapMarker
+            var userId  = _userManager.GetUserId(User);
+            // Try to get coordinates from the customer's most recent active request
+            double? custLat = null, custLng = null;
+            if (userId != null)
             {
-                Id                = s.Id,
-                Name              = s.ShopName,
-                Lat               = s.Latitude ?? 0,
-                Lng               = s.Longitude ?? 0,
-                AvgRating         = s.Feedbacks.Any() ? Math.Round(s.Feedbacks.Average(f => (double)f.Rating), 1) : 0,
-                ReviewCount       = s.Feedbacks.Count,
-                AvailableMechanics = s.Mechanics.Count(m => m.Status == MechanicStatus.Approved && m.IsAvailable),
-                IsAvailable       = s.Mechanics.Any(m => m.Status == MechanicStatus.Approved && m.IsAvailable),
-                City              = s.City,
-                Phone             = s.PhoneNumber,
-                LogoUrl           = s.LogoUrl
+                var recent = await _db.ServiceRequests
+                    .Where(r => r.CustomerId == userId && r.CustomerLatitude != 0)
+                    .OrderByDescending(r => r.CreatedAt)
+                    .FirstOrDefaultAsync();
+                if (recent != null)
+                {
+                    custLat = recent.CustomerLatitude;
+                    custLng = recent.CustomerLongitude;
+                }
+            }
+
+            var nearby  = await _shopService.GetNearbyShopsAsync(custLat, custLng);
+
+            var markers = nearby.Select(ns => new ShopMapMarker
+            {
+                Id                  = ns.Shop.Id,
+                Name                = ns.Shop.ShopName,
+                Lat                 = ns.Shop.Latitude ?? 0,
+                Lng                 = ns.Shop.Longitude ?? 0,
+                AvgRating           = Math.Round(ns.AvgRating, 1),
+                ReviewCount         = ns.ReviewCount,
+                AvailableMechanics  = ns.AvailableMechanics,
+                IsAvailable         = ns.IsAvailable,
+                City                = ns.Shop.City,
+                Phone               = ns.Shop.PhoneNumber ?? "",
+                LogoUrl             = ns.Shop.LogoUrl,
+                DistanceKm          = ns.DistanceKm.HasValue ? Math.Round(ns.DistanceKm.Value, 1) : null,
+                EstimatedArrivalMin = ns.EstimatedArrivalMin
             }).ToList();
 
-            return View(new CustomerMapViewModel { Shops = markers });
+            return View(new CustomerMapViewModel
+            {
+                Shops       = markers,
+                CustomerLat = custLat,
+                CustomerLng = custLng
+            });
         }
 
         [AllowAnonymous]
@@ -213,10 +236,7 @@ namespace JAA.Controllers
             if (request.Status != RequestStatus.Diagnosed || request.RepairQuotation == null)
                 return RedirectToAction("TrackRequest", new { id = requestId });
 
-            var (commissionRate, vatRate) = await _paymentService.GetRepairRatesAsync();
-            var quoted     = request.RepairQuotation.QuotedAmount;
-            var vatAmount  = Math.Round(quoted * vatRate, 2);
-            var totalWithVat = Math.Round(quoted + vatAmount, 2);
+            var quoted = request.RepairQuotation.QuotedAmount;
 
             var vm = new QuotationApprovalViewModel
             {
@@ -228,9 +248,9 @@ namespace JAA.Controllers
                 MechanicName           = request.Mechanic?.FullName ?? "",
                 ShopName               = request.Shop?.ShopName ?? "",
                 SituationDescription   = request.SituationDescription,
-                VatRate                = vatRate,
-                VatAmount              = vatAmount,
-                TotalWithVat           = totalWithVat
+                VatRate                = 0m,
+                VatAmount              = 0m,
+                TotalWithVat           = quoted
             };
             return View(vm);
         }
@@ -330,6 +350,103 @@ namespace JAA.Controllers
             return RedirectToAction("TrackRequest", new { id = requestId });
         }
 
+        // ── Payment Confirmation ─────────────────────────────────────────
+        [RequireActiveAccount]
+        [HttpGet]
+        public async Task<IActionResult> ConfirmPayment(int requestId)
+        {
+            var userId  = _userManager.GetUserId(User)!;
+            var request = await _db.ServiceRequests
+                .Include(r => r.Shop)
+                .Include(r => r.Mechanic)
+                .Include(r => r.RepairQuotation)
+                .Include(r => r.PaymentVerification)
+                .FirstOrDefaultAsync(r => r.Id == requestId && r.CustomerId == userId);
+
+            if (request == null || request.Status != RequestStatus.AwaitingConfirmation
+                || request.PaymentVerification == null)
+                return RedirectToAction("TrackRequest", new { id = requestId });
+
+            return View(request);
+        }
+
+        [RequireActiveAccount]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmPayment(int requestId, decimal customerAmount)
+        {
+            var userId  = _userManager.GetUserId(User)!;
+            var request = await _db.ServiceRequests
+                .Include(r => r.Mechanic)
+                .Include(r => r.RepairPayment)
+                .Include(r => r.PaymentVerification)
+                .FirstOrDefaultAsync(r => r.Id == requestId && r.CustomerId == userId);
+
+            if (request == null || request.Status != RequestStatus.AwaitingConfirmation
+                || request.PaymentVerification == null)
+            {
+                TempData["Error"] = _l["Msg.InvalidOperation"].Value;
+                return RedirectToAction("Dashboard");
+            }
+
+            var verification = request.PaymentVerification;
+            verification.CustomerConfirmedAmount = customerAmount;
+            verification.UpdatedAt = DateTime.UtcNow;
+
+            var diff = Math.Abs(verification.MechanicReportedAmount - customerAmount);
+            bool amountsMatch = diff <= 0.01m;
+
+            if (amountsMatch)
+            {
+                // Verified — finalise the payment and complete the request
+                verification.Status              = VerificationStatus.Verified;
+                verification.FinalApprovedAmount = verification.MechanicReportedAmount;
+                verification.VerificationDate    = DateTime.UtcNow;
+
+                // Update the RepairPayment total to the verified amount
+                if (request.RepairPayment != null)
+                {
+                    var commRate = request.RepairPayment.CommissionRate;
+                    var finalAmt = verification.FinalApprovedAmount.Value;
+                    request.RepairPayment.QuotedAmount      = finalAmt;
+                    request.RepairPayment.TotalAmount       = finalAmt;
+                    request.RepairPayment.CommissionAmount  = Math.Round(finalAmt * commRate, 2);
+                    request.RepairPayment.ShopAmount        = Math.Round(finalAmt - request.RepairPayment.CommissionAmount, 2);
+                    request.RepairPayment.Status            = PaymentStatus.Paid;
+                    request.RepairPayment.PaidAt            = DateTime.UtcNow;
+                }
+
+                // Free mechanic and generate invoice
+                if (request.MechanicId.HasValue)
+                {
+                    var mechanic = await _db.Mechanics.FindAsync(request.MechanicId);
+                    if (mechanic != null) mechanic.IsAvailable = true;
+                }
+
+                request.Status    = RequestStatus.Completed;
+                request.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+
+                await _invoiceService.GetOrCreateInvoiceAsync(requestId);
+
+                TempData["Success"] = _l["Msg.PaymentVerified"].Value;
+                return RedirectToAction("TrackRequest", new { id = requestId });
+            }
+            else
+            {
+                // Mismatch — flag for admin review
+                verification.Status    = VerificationStatus.Flagged;
+                verification.UpdatedAt = DateTime.UtcNow;
+
+                request.Status    = RequestStatus.UnderReview;
+                request.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+
+                TempData["Info"] = _l["Msg.AmountMismatchFlagged"].Value;
+                return RedirectToAction("TrackRequest", new { id = requestId });
+            }
+        }
+
         public async Task<IActionResult> TrackRequest(int id)
         {
             var userId  = _userManager.GetUserId(User)!;
@@ -339,25 +456,28 @@ namespace JAA.Controllers
 
             var steps = new List<(string Label, string Icon, string Description)>
             {
-                (_l["Status.Pending"],          "bi-clock",        _l["StepDesc.Pending"].Value),
-                (_l["Status.InspectionPaid"],   "bi-credit-card",  _l["StepDesc.InspectionPaid"].Value),
-                (_l["Status.Accepted"],         "bi-handshake",    _l["StepDesc.Accepted"].Value),
-                (_l["Status.MechanicArrived"],  "bi-geo-alt-fill", _l["StepDesc.MechanicArrived"].Value),
-                (_l["StepLabel.QuotationSent"], "bi-file-text",    _l["StepDesc.QuotationSent"].Value),
-                (_l["StepLabel.RepairApproved"],"bi-tools",        _l["StepDesc.RepairApproved"].Value),
-                (_l["Status.Completed"],        "bi-check-circle", _l["StepDesc.Completed"].Value)
+                (_l["Status.Pending"],                   "bi-clock",          _l["StepDesc.Pending"].Value),
+                (_l["Status.InspectionPaid"],            "bi-credit-card",    _l["StepDesc.InspectionPaid"].Value),
+                (_l["Status.Accepted"],                  "bi-handshake",      _l["StepDesc.Accepted"].Value),
+                (_l["Status.MechanicArrived"],           "bi-geo-alt-fill",   _l["StepDesc.MechanicArrived"].Value),
+                (_l["StepLabel.QuotationSent"],          "bi-file-text",      _l["StepDesc.QuotationSent"].Value),
+                (_l["StepLabel.RepairApproved"],         "bi-tools",          _l["StepDesc.RepairApproved"].Value),
+                (_l["Status.AwaitingConfirmation"],      "bi-person-check",   _l["StepDesc.AwaitingConfirmation"].Value),
+                (_l["Status.Completed"],                 "bi-check-circle",   _l["StepDesc.Completed"].Value)
             };
 
             var stepIndex = request.Status switch
             {
-                RequestStatus.Pending           => 0,
-                RequestStatus.InspectionPaid    => 1,
-                RequestStatus.Accepted          => 2,
-                RequestStatus.MechanicArrived   => 3,
-                RequestStatus.Diagnosed         => 4,
-                RequestStatus.QuotationApproved => 5,
-                RequestStatus.Completed         => 6,
-                _                               => 0
+                RequestStatus.Pending                => 0,
+                RequestStatus.InspectionPaid         => 1,
+                RequestStatus.Accepted               => 2,
+                RequestStatus.MechanicArrived        => 3,
+                RequestStatus.Diagnosed              => 4,
+                RequestStatus.QuotationApproved      => 5,
+                RequestStatus.AwaitingConfirmation   => 6,
+                RequestStatus.UnderReview            => 6,
+                RequestStatus.Completed              => 7,
+                _                                   => 0
             };
 
             var vm = new TrackRequestViewModel

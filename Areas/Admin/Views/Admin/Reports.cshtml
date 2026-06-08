@@ -2,9 +2,50 @@
 @{ ViewData["Title"] = "Reports"; ViewData["PageTitle"] = "Reports"; ViewData["PageSub"] = "Revenue and feedback overview"; }
 
 <div class="row g-3 mb-4">
-  <div class="col-sm-4"><div class="stat-card"><div class="stat-icon stat-icon-blue"><i class="bi bi-wallet2"></i></div><div><div class="stat-num">@Model.TotalRevenue.ToString("F0")</div><div class="stat-label">@L["ARep.TotalRevenue"]</div></div></div></div>
+  <div class="col-sm-4"><div class="stat-card"><div class="stat-icon stat-icon-blue"><i class="bi bi-wallet2"></i></div><div><div class="stat-num">@Model.TotalRevenue.ToString("F2")</div><div class="stat-label">@L["ARep.TotalRevenue"] (JOD)</div></div></div></div>
   <div class="col-sm-4"><div class="stat-card"><div class="stat-icon stat-icon-green"><i class="bi bi-check-circle-fill"></i></div><div><div class="stat-num">@Model.TotalCompletedRequests</div><div class="stat-label">@L["ARep.CompletedJobs"]</div></div></div></div>
   <div class="col-sm-4"><div class="stat-card"><div class="stat-icon stat-icon-yellow"><i class="bi bi-star-fill"></i></div><div><div class="stat-num">@(Model.AverageRating>0?Model.AverageRating.ToString("F1")+"★":"—")</div><div class="stat-label">@L["ARep.AvgRating"]</div></div></div></div>
+</div>
+
+<!-- Commission Breakdown Panel -->
+<div class="card-jaa mb-4" style="padding:0;overflow:hidden;">
+  <div class="section-head" style="padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+    <h5 style="margin:0;font-size:.95rem;font-weight:800;">@L["ARep.CommissionBreakdown"]</h5>
+    <span style="font-size:.72rem;color:var(--muted);">@L["ARep.RepairJobsOnly"]</span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;">
+    <div style="padding:1.4rem 1.5rem;border-right:1px solid var(--border);">
+      <div style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;">@L["ARep.TotalRepairRevenue"]</div>
+      <div style="font-size:1.4rem;font-weight:900;color:var(--white);letter-spacing:-1px;">@Model.TotalRepairRevenue.ToString("F2")</div>
+      <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem;">JOD — @L["ARep.CustomersPaid"]</div>
+    </div>
+    <div style="padding:1.4rem 1.5rem;border-right:1px solid var(--border);">
+      <div style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;">@L["ARep.JAACommission"]</div>
+      <div style="font-size:1.4rem;font-weight:900;color:var(--red);letter-spacing:-1px;">@Model.TotalJAACommission.ToString("F2")</div>
+      <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem;">JOD — @L["ARep.PlatformEarnings"]</div>
+    </div>
+    <div style="padding:1.4rem 1.5rem;">
+      <div style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;">@L["ARep.ShopRevenue"]</div>
+      <div style="font-size:1.4rem;font-weight:900;color:var(--green-t);letter-spacing:-1px;">@Model.TotalShopRevenue.ToString("F2")</div>
+      <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem;">JOD — @L["ARep.ShopsNetEarned"]</div>
+    </div>
+  </div>
+  @if (Model.TotalRepairRevenue > 0)
+  {
+    var commissionPct = Math.Round(Model.TotalJAACommission / Model.TotalRepairRevenue * 100, 1);
+    var shopPct       = Math.Round(Model.TotalShopRevenue   / Model.TotalRepairRevenue * 100, 1);
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);background:rgba(255,255,255,.015);">
+      <div style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem;">@L["ARep.RevenueDistribution"]</div>
+      <div style="display:flex;height:8px;border-radius:999px;overflow:hidden;gap:2px;">
+        <div style="width:@commissionPct%;background:var(--red);border-radius:999px 0 0 999px;"></div>
+        <div style="width:@shopPct%;background:var(--green-t);border-radius:0 999px 999px 0;"></div>
+      </div>
+      <div style="display:flex;gap:1.5rem;margin-top:.5rem;font-size:.72rem;color:var(--muted);">
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-right:4px;"></span>JAA @commissionPct%</span>
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green-t);margin-right:4px;"></span>@L["ARep.Shops"] @shopPct%</span>
+      </div>
+    </div>
+  }
 </div>
 
 <div class="card-jaa mb-4" style="padding:0;overflow:hidden;">

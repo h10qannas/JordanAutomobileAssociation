@@ -1,57 +1,292 @@
 @model JAA.ViewModels.AddMechanicViewModel
 @{ Layout = "_DashboardLayout"; ViewData["Title"] = L["ShopMech.AddMechanic"].Value; ViewData["PageTitle"] = L["ShopMech.AddMechanic"].Value; ViewData["PageSub"] = L["ShopAM.PageSub"].Value; }
 
-<div class="row justify-content-center">
-  <div class="col-lg-6">
-    <div class="card-jaa">
-      <form asp-action="AddMechanic" method="post" enctype="multipart/form-data">
-        @Html.AntiForgeryToken()
+@section Styles {
+<style>
+.am-wrap { max-width: 680px; margin: 0 auto; }
 
-        <div class="mb-4">
-          <label class="form-label-jaa" asp-for="FullName"></label>
-          <input asp-for="FullName" class="form-control-jaa" />
-          <span asp-validation-for="FullName" class="val-msg"></span>
-        </div>
+/* ── Header card ── */
+.am-header {
+  background: linear-gradient(135deg, var(--card) 0%, rgba(230,57,70,.04) 100%);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.6rem 2rem;
+  display: flex; align-items: center; gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  position: relative; overflow: hidden;
+}
+.am-header::before {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(230,57,70,.08) 0%, transparent 70%);
+  border-radius: 50%; pointer-events: none;
+}
+.am-header-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: linear-gradient(135deg, var(--red) 0%, #c0392b 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; color: #fff; flex-shrink: 0;
+  box-shadow: 0 6px 20px rgba(230,57,70,.35);
+}
+.am-header-title { font-size: 1.1rem; font-weight: 800; color: var(--white); letter-spacing: -.3px; margin-bottom: .2rem; }
+.am-header-sub   { font-size: .8rem; color: var(--muted); }
 
-        <div class="mb-4">
-          <label class="form-label-jaa" asp-for="NationalId"></label>
-          <input asp-for="NationalId" class="form-control-jaa" />
-          <span asp-validation-for="NationalId" class="val-msg"></span>
-        </div>
+/* ── Form card ── */
+.am-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 2rem;
+}
 
-        <div class="mb-4">
-          <label class="form-label-jaa" asp-for="PhoneNumber"></label>
-          <input asp-for="PhoneNumber" class="form-control-jaa" />
-          <span asp-validation-for="PhoneNumber" class="val-msg"></span>
-        </div>
+/* ── Section label ── */
+.am-section-label {
+  font-size: .65rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--muted);
+  display: flex; align-items: center; gap: .5rem;
+  margin-bottom: 1.1rem;
+}
+.am-section-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.am-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
-        <div class="mb-4">
-          <label class="form-label-jaa" asp-for="YearsOfExperience"></label>
-          <input asp-for="YearsOfExperience" type="number" min="0" max="60" class="form-control-jaa" />
-          <span asp-validation-for="YearsOfExperience" class="val-msg"></span>
-        </div>
+/* ── Fields ── */
+.am-field { margin-bottom: 1.1rem; }
+.am-label { display: block; font-size: .7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .4rem; }
+.am-input-wrap { position: relative; }
+.am-input-wrap .am-ico {
+  position: absolute; left: .9rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .88rem; pointer-events: none; transition: color .2s;
+}
+.am-input-wrap:focus-within .am-ico { color: var(--red); }
+.am-in {
+  width: 100%; background: rgba(13,17,23,.6); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--white); font-size: .88rem; font-family: var(--font);
+  padding: .72rem 1rem .72rem 2.55rem;
+  transition: border-color .2s, box-shadow .2s; outline: none;
+}
+.am-in:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(230,57,70,.12); background: var(--dark); }
+.am-in::placeholder { color: #3d444e; }
+.am-err { font-size: .7rem; color: #ff6b74; margin-top: .28rem; display: block; }
 
-        <div class="mb-4">
-          <label class="form-label-jaa">@L["ShopAM.ProfilePhoto"]</label>
-          <input asp-for="ProfileImage" type="file" accept="image/*" class="form-control-jaa" />
-        </div>
+/* ── File upload ── */
+.am-file-zone {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  position: relative; overflow: hidden;
+}
+.am-file-zone:hover, .am-file-zone.drag-over {
+  border-color: rgba(230,57,70,.4);
+  background: rgba(230,57,70,.03);
+}
+.am-file-zone input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 2;
+}
+.am-file-icon { font-size: 1.8rem; color: var(--muted); margin-bottom: .5rem; }
+.am-file-label { font-size: .82rem; color: var(--light); font-weight: 600; margin-bottom: .2rem; }
+.am-file-sub   { font-size: .72rem; color: var(--muted); }
+.am-file-preview {
+  display: none; margin-top: .85rem; align-items: center; gap: .75rem;
+  background: rgba(13,17,23,.5); border: 1px solid var(--border);
+  border-radius: 10px; padding: .6rem .9rem;
+}
+.am-file-preview img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+.am-file-preview-name { font-size: .78rem; color: var(--light); flex: 1; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+.am-file-clear { background: none; border: none; color: var(--muted); cursor: pointer; font-size: .85rem; padding: .2rem; transition: color .2s; }
+.am-file-clear:hover { color: var(--red); }
 
-        <div style="background:rgba(255,193,7,.06);border:1px solid rgba(255,193,7,.2);border-radius:10px;padding:.8rem 1rem;margin-bottom:1.3rem;font-size:.78rem;color:#f59e0b;">
-          <i class="bi bi-info-circle me-1"></i>
-          @L["ShopAM.PendingNote"]
-        </div>
+/* ── Info notice ── */
+.am-notice {
+  background: rgba(251,191,36,.06);
+  border: 1px solid rgba(251,191,36,.2);
+  border-radius: 12px;
+  padding: .85rem 1.1rem;
+  display: flex; align-items: flex-start; gap: .75rem;
+  margin: 1.5rem 0 1.75rem;
+}
+.am-notice-icon { font-size: 1rem; color: #f59e0b; flex-shrink: 0; margin-top: .05rem; }
+.am-notice-text { font-size: .78rem; color: #d4a017; line-height: 1.6; }
+.am-notice-text strong { color: #f59e0b; }
 
-        <div class="d-flex gap-3">
-          <button type="submit" class="btn-jaa btn-primary flex-grow-1">
-            <i class="bi bi-person-plus-fill"></i> @L["ShopAM.SubmitForApproval"]
-          </button>
-          <a asp-action="Mechanics" class="btn-jaa btn-ghost">@L["ShopAM.Cancel"]</a>
-        </div>
-      </form>
+/* ── Actions ── */
+.am-actions { display: flex; gap: .9rem; }
+.btn-am-submit {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: .5rem;
+  background: var(--red); color: #fff; border: none; border-radius: 10px;
+  font-size: .9rem; font-weight: 700; font-family: var(--font);
+  padding: .78rem 1.5rem; cursor: pointer;
+  transition: background .2s, transform .15s, box-shadow .2s;
+}
+.btn-am-submit:hover { background: var(--red-d); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(230,57,70,.3); }
+.btn-am-submit:active { transform: translateY(0); box-shadow: none; }
+.btn-am-cancel {
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+  background: rgba(255,255,255,.05); border: 1px solid var(--border);
+  color: var(--muted); border-radius: 10px;
+  font-size: .88rem; font-weight: 600; font-family: var(--font);
+  padding: .78rem 1.25rem; text-decoration: none; cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.btn-am-cancel:hover { background: rgba(255,255,255,.09); color: var(--light); }
+
+@@media (max-width: 576px) {
+  .am-row-2 { grid-template-columns: 1fr; }
+  .am-card { padding: 1.5rem 1.25rem; }
+  .am-header { padding: 1.25rem; }
+}
+</style>
+}
+
+<div class="am-wrap">
+
+  <!-- Header -->
+  <div class="am-header">
+    <div class="am-header-icon"><i class="bi bi-person-plus-fill"></i></div>
+    <div>
+      <div class="am-header-title">@L["ShopMech.AddMechanic"]</div>
+      <div class="am-header-sub">@L["ShopAM.PageSub"]</div>
     </div>
+  </div>
+
+  <!-- Form card -->
+  <div class="am-card">
+    <form asp-action="AddMechanic" method="post" enctype="multipart/form-data" novalidate id="amForm">
+      @Html.AntiForgeryToken()
+
+      <!-- Personal Info -->
+      <div class="am-section-label"><i class="bi bi-person-lines-fill"></i> @L["ShopAM.PersonalInfo"]</div>
+
+      <div class="am-field">
+        <label class="am-label">@L["ShopAM.FullName"]</label>
+        <div class="am-input-wrap">
+          <i class="bi bi-person-fill am-ico"></i>
+          <input asp-for="FullName" class="am-in" placeholder="@L["ShopAM.FullNamePlaceholder"]" autocomplete="name" />
+        </div>
+        <span asp-validation-for="FullName" class="am-err"></span>
+      </div>
+
+      <div class="am-row-2">
+        <div class="am-field" style="margin-bottom:0;">
+          <label class="am-label">@L["ShopAM.NationalId"]</label>
+          <div class="am-input-wrap">
+            <i class="bi bi-credit-card-fill am-ico"></i>
+            <input asp-for="NationalId" class="am-in" placeholder="@L["ShopAM.NationalIdPlaceholder"]" />
+          </div>
+          <span asp-validation-for="NationalId" class="am-err"></span>
+        </div>
+        <div class="am-field" style="margin-bottom:0;">
+          <label class="am-label">@L["Login.PhoneNumber"]</label>
+          <div class="am-input-wrap">
+            <i class="bi bi-telephone-fill am-ico"></i>
+            <input asp-for="PhoneNumber" class="am-in" placeholder="+962 7x xxx xxxx" autocomplete="tel" inputmode="tel" />
+          </div>
+          <span asp-validation-for="PhoneNumber" class="am-err"></span>
+        </div>
+      </div>
+
+      <!-- Experience -->
+      <div class="am-section-label" style="margin-top:1.5rem;"><i class="bi bi-tools"></i> @L["ShopAM.Experience"]</div>
+
+      <div class="am-field">
+        <label class="am-label">@L["ShopAM.YearsOfExperience"]</label>
+        <div class="am-input-wrap">
+          <i class="bi bi-calendar-check-fill am-ico"></i>
+          <input asp-for="YearsOfExperience" type="number" min="0" max="60" class="am-in" placeholder="0" style="max-width:200px;" />
+        </div>
+        <span asp-validation-for="YearsOfExperience" class="am-err"></span>
+      </div>
+
+      <!-- Photo -->
+      <div class="am-section-label" style="margin-top:1.5rem;"><i class="bi bi-camera-fill"></i> @L["ShopAM.ProfilePhoto"]</div>
+
+      <div class="am-file-zone" id="fileZone">
+        <input asp-for="ProfileImage" type="file" accept="image/*" id="profileImageInput" onchange="handleFileSelect(this)" />
+        <div id="filePrompt">
+          <div class="am-file-icon"><i class="bi bi-cloud-upload"></i></div>
+          <div class="am-file-label">@L["ShopAM.ClickToUpload"]</div>
+          <div class="am-file-sub">@L["ShopAM.PhotoFormats"]</div>
+        </div>
+        <div class="am-file-preview" id="filePreview">
+          <img id="previewImg" src="#" alt="preview" />
+          <span class="am-file-preview-name" id="previewName"></span>
+          <button type="button" class="am-file-clear" onclick="clearFile(event)" title="Remove">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Notice -->
+      <div class="am-notice">
+        <i class="bi bi-hourglass-split am-notice-icon"></i>
+        <div class="am-notice-text">
+          <strong>@L["ShopAM.PendingNoteTitle"]</strong> @L["ShopAM.PendingNote"]
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="am-actions">
+        <button type="submit" class="btn-am-submit">
+          <i class="bi bi-person-plus-fill"></i> @L["ShopAM.SubmitForApproval"]
+        </button>
+        <a asp-action="Mechanics" class="btn-am-cancel">
+          <i class="bi bi-x-lg"></i> @L["ShopAM.Cancel"]
+        </a>
+      </div>
+    </form>
   </div>
 </div>
 
 @section Scripts {
-  @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+<script>
+function handleFileSelect(input) {
+  const file = input.files[0];
+  const zone = document.getElementById('fileZone');
+  const prompt = document.getElementById('filePrompt');
+  const preview = document.getElementById('filePreview');
+  const previewImg = document.getElementById('previewImg');
+  const previewName = document.getElementById('previewName');
+
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    previewImg.src = e.target.result;
+    previewName.textContent = file.name;
+    prompt.style.display = 'none';
+    preview.style.display = 'flex';
+    zone.style.borderColor = 'rgba(230,57,70,.4)';
+    zone.style.background = 'rgba(230,57,70,.03)';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearFile(e) {
+  e.preventDefault(); e.stopPropagation();
+  const input = document.getElementById('profileImageInput');
+  input.value = '';
+  document.getElementById('filePrompt').style.display = 'block';
+  document.getElementById('filePreview').style.display = 'none';
+  const zone = document.getElementById('fileZone');
+  zone.style.borderColor = ''; zone.style.background = '';
+}
+
+// Drag events
+const zone = document.getElementById('fileZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => {
+  e.preventDefault(); zone.classList.remove('drag-over');
+  const input = document.getElementById('profileImageInput');
+  if (e.dataTransfer.files.length) {
+    input.files = e.dataTransfer.files;
+    handleFileSelect(input);
+  }
+});
+</script>
+@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }

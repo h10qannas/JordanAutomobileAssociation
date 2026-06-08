@@ -36,6 +36,7 @@ namespace JAA.Services
                     .ThenInclude(q => q!.Mechanic)
                 .Include(r => r.RepairPayment)
                 .Include(r => r.Invoice)
+                .Include(r => r.PaymentVerification)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
         public async Task<ServiceRequest?> GetActiveRequestAsync(string customerId) =>

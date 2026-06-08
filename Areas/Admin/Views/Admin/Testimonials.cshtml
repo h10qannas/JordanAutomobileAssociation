@@ -1,0 +1,291 @@
+@model JAA.ViewModels.AdminTestimonialsViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"]    = "Testimonials";
+    ViewData["PageTitle"] = "Testimonials";
+    ViewData["PageSub"]  = "Review, approve, and manage customer testimonials.";
+}
+
+@section Styles {
+<style>
+.filter-tabs { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.25rem; }
+.filter-tab {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: rgba(255,255,255,.04); border: 1px solid var(--border);
+  border-radius: 999px; color: var(--muted); font-size: .76rem;
+  font-weight: 600; padding: .35rem .9rem; text-decoration: none;
+  transition: all .18s;
+}
+.filter-tab:hover { border-color: rgba(255,255,255,.18); color: var(--white); }
+.filter-tab.active { background: rgba(230,57,70,.12); border-color: rgba(230,57,70,.3); color: var(--red); }
+.filter-tab .badge-num {
+  background: rgba(255,255,255,.1); border-radius: 999px;
+  font-size: .62rem; padding: .08rem .45rem; color: var(--muted);
+}
+.filter-tab.active .badge-num { background: rgba(230,57,70,.2); color: var(--red); }
+
+.trow {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 13px; padding: 1.1rem 1.25rem;
+  display: flex; gap: 1rem; flex-direction: column;
+  transition: border-color .18s;
+}
+.trow:hover { border-color: rgba(255,255,255,.12); }
+
+.trow-top { display:flex; align-items:flex-start; gap: .75rem; flex-wrap: wrap; }
+.trow-avatar {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(88,166,255,.12); border: 1px solid rgba(88,166,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .85rem; font-weight: 700; color: #58a6ff;
+}
+.trow-customer { font-size: .84rem; font-weight: 700; color: var(--white); }
+.trow-shop     { font-size: .72rem; color: var(--muted); margin-top: 1px; }
+.trow-title    { font-size: .85rem; font-weight: 700; color: var(--white); font-style: italic; }
+.trow-msg      { font-size: .8rem; color: var(--muted); line-height: 1.65; }
+.trow-stars    { display:flex; gap: .18rem; }
+.trow-stars i  { font-size: .68rem; }
+
+.trow-meta { display:flex; align-items:center; gap: .6rem; flex-wrap: wrap; font-size: .7rem; color: var(--muted); }
+.trow-actions { display:flex; gap:.4rem; flex-wrap: wrap; align-items: center; }
+
+.status-pill {
+  display: inline-flex; align-items: center; gap: .28rem;
+  border-radius: 999px; font-size: .65rem; font-weight: 700; padding: .22rem .7rem;
+}
+.sp-pending  { background: rgba(251,191,36,.1);  color: #d4a017; border: 1px solid rgba(251,191,36,.25); }
+.sp-approved { background: rgba(63,185,80,.1);   color: var(--green-t); border: 1px solid rgba(63,185,80,.2); }
+.sp-rejected { background: rgba(230,57,70,.08);  color: var(--red); border: 1px solid rgba(230,57,70,.18); }
+.sp-hidden   { background: rgba(255,255,255,.05); color: var(--muted); border: 1px solid var(--border); }
+.sp-featured { background: rgba(251,191,36,.12); color: #f59e0b; border: 1px solid rgba(251,191,36,.3); }
+
+.btn-ta {
+  display: inline-flex; align-items: center; gap: .3rem;
+  border: 1px solid var(--border); border-radius: 7px;
+  font-size: .72rem; font-weight: 600; font-family: var(--font);
+  padding: .35rem .75rem; background: transparent; color: var(--muted);
+  cursor: pointer; transition: all .15s; text-decoration: none; white-space: nowrap;
+}
+.btn-ta:hover          { border-color: rgba(255,255,255,.2); color: var(--white); }
+.btn-ta.btn-ta-approve { border-color: rgba(63,185,80,.3); color: var(--green-t); }
+.btn-ta.btn-ta-approve:hover { background: rgba(63,185,80,.1); }
+.btn-ta.btn-ta-reject  { border-color: rgba(230,57,70,.3); color: var(--red); }
+.btn-ta.btn-ta-reject:hover  { background: rgba(230,57,70,.08); }
+.btn-ta.btn-ta-star    { border-color: rgba(251,191,36,.3); color: #f59e0b; }
+.btn-ta.btn-ta-star:hover    { background: rgba(251,191,36,.08); }
+.btn-ta.btn-ta-delete  { border-color: rgba(230,57,70,.2); color: var(--red); }
+.btn-ta.btn-ta-delete:hover  { background: rgba(230,57,70,.06); }
+
+.empty-state { text-align:center; padding:3.5rem 1rem; color:var(--muted); }
+.empty-state i { font-size:2.5rem; display:block; margin-bottom:.9rem; opacity:.3; }
+</style>
+}
+
+@* ── Stats row ── *@
+<div class="row g-3 mb-4">
+  @{
+    var stats = new[] {
+      (Model.PendingCount,  "Pending Review", "bi-hourglass-split", "rgba(251,191,36,.12)", "#d4a017"),
+      (Model.ApprovedCount, "Approved",       "bi-check-circle-fill","rgba(63,185,80,.12)", "#3fb950"),
+      (Model.RejectedCount, "Rejected",       "bi-x-circle-fill",  "rgba(230,57,70,.1)",  "#e63946"),
+      (Model.FeaturedCount, "Featured",       "bi-star-fill",      "rgba(251,191,36,.1)", "#f59e0b"),
+    };
+  }
+  @foreach (var (count, label, icon, bg, clr) in stats)
+  {
+    <div class="col-6 col-md-3">
+      <div class="card-jaa" style="display:flex;align-items:center;gap:.8rem;padding:.9rem 1rem;">
+        <div style="width:38px;height:38px;border-radius:9px;background:@bg;display:flex;align-items:center;justify-content:center;color:@clr;font-size:.9rem;flex-shrink:0;">
+          <i class="bi @icon"></i>
+        </div>
+        <div>
+          <div style="font-size:1.25rem;font-weight:800;color:var(--white);">@count</div>
+          <div style="font-size:.7rem;color:var(--muted);">@label</div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+@* ── Filter tabs ── *@
+<div class="filter-tabs">
+  <a asp-action="Testimonials" class="filter-tab @(Model.FilterStatus == null ? "active" : "")">
+    All <span class="badge-num">@(Model.PendingCount + Model.ApprovedCount + Model.RejectedCount)</span>
+  </a>
+  <a asp-action="Testimonials" asp-route-status="@JAA.Models.TestimonialStatus.Pending"
+     class="filter-tab @(Model.FilterStatus == JAA.Models.TestimonialStatus.Pending ? "active" : "")">
+    <i class="bi bi-hourglass-split"></i> Pending <span class="badge-num">@Model.PendingCount</span>
+  </a>
+  <a asp-action="Testimonials" asp-route-status="@JAA.Models.TestimonialStatus.Approved"
+     class="filter-tab @(Model.FilterStatus == JAA.Models.TestimonialStatus.Approved ? "active" : "")">
+    <i class="bi bi-check-circle-fill"></i> Approved <span class="badge-num">@Model.ApprovedCount</span>
+  </a>
+  <a asp-action="Testimonials" asp-route-status="@JAA.Models.TestimonialStatus.Rejected"
+     class="filter-tab @(Model.FilterStatus == JAA.Models.TestimonialStatus.Rejected ? "active" : "")">
+    <i class="bi bi-x-circle-fill"></i> Rejected <span class="badge-num">@Model.RejectedCount</span>
+  </a>
+</div>
+
+@* ── List ── *@
+@if (!Model.Testimonials.Any())
+{
+  <div class="card-jaa empty-state">
+    <i class="bi bi-chat-square-quote"></i>
+    <div style="font-size:.92rem;font-weight:600;">No testimonials found</div>
+    <div style="font-size:.78rem;margin-top:.3rem;">They will appear here once customers submit them.</div>
+  </div>
+}
+else
+{
+  <div style="display:flex;flex-direction:column;gap:.75rem;">
+    @foreach (var t in Model.Testimonials)
+    {
+      var initial = t.CustomerName.Length > 0 ? char.ToUpper(t.CustomerName[0]).ToString() : "C";
+      <div class="trow">
+        <div class="trow-top">
+
+          @* Avatar *@
+          <div class="trow-avatar">@initial</div>
+
+          @* Customer + shop *@
+          <div style="flex:1;min-width:0;">
+            <div class="trow-customer">@t.CustomerName</div>
+            <div class="trow-shop">
+              <i class="bi bi-shop" style="margin-right:.25rem;"></i>@t.ShopName
+              @if (!string.IsNullOrEmpty(t.MechanicName))
+              {
+                <span style="margin: 0 .3rem;">·</span>
+                <i class="bi bi-person-gear" style="margin-right:.25rem;"></i>@t.MechanicName
+              }
+            </div>
+          </div>
+
+          @* Stars + date *@
+          <div style="text-align:right;flex-shrink:0;">
+            <div class="trow-stars">
+              @for (int i = 1; i <= 5; i++)
+              {
+                <i class="bi bi-star-fill" style="color:@(i <= t.Rating ? "#f59e0b" : "rgba(255,255,255,.1)");"></i>
+              }
+            </div>
+            <div style="font-size:.68rem;color:var(--muted);margin-top:2px;">@t.CreatedAt.ToString("d MMM yyyy")</div>
+          </div>
+        </div>
+
+        @* Content *@
+        @if (!string.IsNullOrEmpty(t.Title))
+        {
+          <div class="trow-title">"@t.Title"</div>
+        }
+        <div class="trow-msg">@t.Message</div>
+
+        @* Rejection reason *@
+        @if (!string.IsNullOrEmpty(t.RejectionReason))
+        {
+          <div style="font-size:.72rem;color:var(--red);background:rgba(230,57,70,.06);border:1px solid rgba(230,57,70,.14);border-radius:7px;padding:.4rem .7rem;">
+            <i class="bi bi-info-circle"></i> Rejected: @t.RejectionReason
+          </div>
+        }
+
+        @* Status + actions row *@
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;">
+            <span class="status-pill @(t.Status switch { JAA.Models.TestimonialStatus.Approved => "sp-approved", JAA.Models.TestimonialStatus.Rejected => "sp-rejected", JAA.Models.TestimonialStatus.Hidden => "sp-hidden", _ => "sp-pending" })">
+              @t.Status
+            </span>
+            @if (t.IsFeatured) { <span class="status-pill sp-featured"><i class="bi bi-star-fill"></i> Featured</span> }
+          </div>
+
+          <div class="trow-actions">
+            @if (t.Status == JAA.Models.TestimonialStatus.Pending)
+            {
+              <form asp-action="ApproveTestimonial" method="post" style="display:inline;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@t.Id" />
+                <button type="submit" class="btn-ta btn-ta-approve">
+                  <i class="bi bi-check2"></i> Approve
+                </button>
+              </form>
+              <button type="button" class="btn-ta btn-ta-reject"
+                      onclick="showRejectModal(@t.Id)">
+                <i class="bi bi-x"></i> Reject
+              </button>
+            }
+            @if (t.Status == JAA.Models.TestimonialStatus.Approved)
+            {
+              <form asp-action="ToggleFeaturedTestimonial" method="post" style="display:inline;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@t.Id" />
+                <button type="submit" class="btn-ta btn-ta-star">
+                  <i class="bi @(t.IsFeatured ? "bi-star-fill" : "bi-star")"></i>
+                  @(t.IsFeatured ? "Unfeature" : "Feature")
+                </button>
+              </form>
+              <form asp-action="HideTestimonial" method="post" style="display:inline;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@t.Id" />
+                <button type="submit" class="btn-ta">
+                  <i class="bi bi-eye-slash"></i> Hide
+                </button>
+              </form>
+            }
+            @if (t.Status == JAA.Models.TestimonialStatus.Rejected || t.Status == JAA.Models.TestimonialStatus.Hidden)
+            {
+              <form asp-action="ApproveTestimonial" method="post" style="display:inline;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@t.Id" />
+                <button type="submit" class="btn-ta btn-ta-approve">
+                  <i class="bi bi-arrow-counterclockwise"></i> Restore
+                </button>
+              </form>
+            }
+            <form asp-action="DeleteTestimonial" method="post" style="display:inline;">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@t.Id" />
+              <button type="submit" class="btn-ta btn-ta-delete"
+                      onclick="return confirm('Delete this testimonial permanently?')">
+                <i class="bi bi-trash3"></i> Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+@* ── Reject modal ── *@
+<div id="rejectModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.75rem;width:100%;max-width:420px;">
+    <div style="font-size:1rem;font-weight:800;color:var(--white);margin-bottom:.4rem;">Reject Testimonial</div>
+    <div style="font-size:.8rem;color:var(--muted);margin-bottom:1rem;">Provide an optional reason (shown to the customer).</div>
+    <form id="rejectForm" asp-action="RejectTestimonial" method="post">
+      @Html.AntiForgeryToken()
+      <input type="hidden" id="rejectId" name="id" value="" />
+      <textarea name="reason" class="form-control-jaa w-100 mb-3" rows="3"
+                placeholder="e.g. Contains inappropriate language…" maxlength="500"></textarea>
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;">
+        <button type="button" class="btn-jaa btn-outline btn-sm" onclick="closeRejectModal()">Cancel</button>
+        <button type="submit" class="btn-jaa btn-primary btn-sm">
+          <i class="bi bi-x-circle-fill"></i> Confirm Reject
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+function showRejectModal(id) {
+  document.getElementById('rejectId').value = id;
+  const modal = document.getElementById('rejectModal');
+  modal.style.display = 'flex';
+}
+function closeRejectModal() {
+  document.getElementById('rejectModal').style.display = 'none';
+}
+document.getElementById('rejectModal').addEventListener('click', function(e) {
+  if (e.target === this) closeRejectModal();
+});
+</script>
+}

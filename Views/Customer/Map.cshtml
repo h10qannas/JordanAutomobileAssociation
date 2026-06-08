@@ -1,148 +1,364 @@
 @model JAA.ViewModels.CustomerMapViewModel
 @using System.Text.Json
-@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["Map.Title"].Value; ViewData["PageTitle"] = L["Map.PageTitle"].Value; ViewData["PageSub"] = L["Map.PageSub"].Value;
-   var jsAvailable        = L["Map.Available2"].Value;
-   var jsBusy             = L["Map.Busy2"].Value;
-   var jsReviews          = L["Map.Reviews"].Value;
-   var jsMechanics        = L["Map.MechanicsAvailable"].Value;
-   var jsRequestHelp      = L["Map.RequestHelp"].Value;
-   var jsCurrentlyBusy    = L["Map.CurrentlyBusy"].Value;
-   var jsYourLocation     = L["Map.YourLocation"].Value;
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"]    = L["Map.Title"].Value;
+    ViewData["PageTitle"] = L["Map.PageTitle"].Value;
+    ViewData["PageSub"]  = L["Map.PageSub"].Value;
+    var _jsonOpts = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 }
 
 @section Styles {
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    #shopMap { height: 500px; border-radius: 14px; border: 1px solid var(--border); }
-    .shop-popup { font-family: 'Inter', sans-serif; min-width: 220px; }
-    .shop-popup h6 { font-weight: 700; margin-bottom: 4px; color: #1a1a1a; }
-    .shop-popup .badge-avail { display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700; }
-    .shop-popup .badge-avail.available { background:#dcfce7;color:#166534; }
-    .shop-popup .badge-avail.busy { background:#fee2e2;color:#991b1b; }
-    .legend-box { background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap; }
-    .legend-item { display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--muted);font-weight:600; }
-    .legend-dot { width:12px;height:12px;border-radius:50%; }
+  #shopMap { height: 480px; border-radius: 14px; border: 1px solid var(--border); }
+
+  /* popup */
+  .shop-popup { font-family: 'Inter',sans-serif; min-width: 230px; }
+  .shop-popup h6 { font-weight: 700; margin-bottom: 3px; color: #111; font-size: .92rem; }
+  .shop-popup .pop-meta { font-size: .75rem; color: #555; margin: 5px 0; display: flex; flex-direction: column; gap: 2px; }
+  .badge-avail { display:inline-block;padding:2px 9px;border-radius:20px;font-size:.68rem;font-weight:700; }
+  .badge-avail.available { background:#dcfce7;color:#166534; }
+  .badge-avail.busy { background:#fee2e2;color:#991b1b; }
+  .pop-dist { display:inline-flex;align-items:center;gap:.25rem;background:#e0f2fe;color:#0369a1;border-radius:20px;padding:2px 9px;font-size:.68rem;font-weight:700;margin-top:3px; }
+
+  /* legend */
+  .legend-box { background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.75rem 1.1rem;display:flex;gap:1.1rem;align-items:center;flex-wrap:wrap; }
+  .legend-item { display:flex;align-items:center;gap:.45rem;font-size:.76rem;color:var(--muted);font-weight:600; }
+  .legend-dot { width:11px;height:11px;border-radius:50%; }
+
+  /* radius bar */
+  .radius-bar {
+    display:flex; align-items:center; gap:.75rem; flex-wrap:wrap;
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:.65rem 1rem; font-size:.8rem; color:var(--muted);
+  }
+  .radius-bar strong { color:var(--white); }
+  #radiusSlider {
+    -webkit-appearance:none; appearance:none; height:4px; border-radius:4px;
+    background:var(--border); outline:none; width:140px; cursor:pointer;
+  }
+  #radiusSlider::-webkit-slider-thumb {
+    -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:var(--red); cursor:pointer; border:2px solid #fff; box-shadow:0 0 0 2px rgba(230,57,70,.3);
+  }
+
+  /* shop list cards */
+  .map-shop-card {
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.5rem;
+    transition:border-color .2s, box-shadow .2s; height:100%;
+  }
+  .map-shop-card:hover { border-color:rgba(230,57,70,.25); box-shadow:0 6px 20px rgba(0,0,0,.3); }
+  .map-shop-head { display:flex; align-items:flex-start; justify-content:space-between; gap:.5rem; }
+  .map-shop-name { font-size:.88rem; font-weight:700; color:var(--white); }
+  .map-shop-city { font-size:.73rem; color:var(--muted); }
+  .map-shop-pills { display:flex; gap:.35rem; flex-wrap:wrap; }
+  .map-pill { display:inline-flex;align-items:center;gap:.25rem;border-radius:999px;font-size:.62rem;font-weight:700;padding:.18rem .6rem; }
+  .mpill-avail   { background:rgba(63,185,80,.1); color:var(--green-t); border:1px solid rgba(63,185,80,.2); }
+  .mpill-busy    { background:rgba(230,57,70,.08); color:var(--red); border:1px solid rgba(230,57,70,.2); }
+  .mpill-dist    { background:rgba(88,166,255,.08); color:var(--blue); border:1px solid rgba(88,166,255,.18); }
+  .mpill-eta     { background:rgba(251,191,36,.08); color:#d4a017; border:1px solid rgba(251,191,36,.2); }
+  .mpill-mechs   { background:rgba(167,139,250,.08); color:var(--purple,#a78bfa); border:1px solid rgba(167,139,250,.18); }
+
+  .map-shop-stars { display:flex;align-items:center;gap:.2rem; }
+  .map-shop-stars i { font-size:.65rem; }
+  .map-shop-rating-num { font-size:.72rem;color:var(--muted);margin-left:.2rem; }
+  .map-shop-actions { display:flex; gap:.5rem; margin-top:.25rem; }
+  .btn-map-focus {
+    flex:1; display:flex;align-items:center;justify-content:center;gap:.35rem;
+    background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:8px;
+    color:var(--muted); font-size:.78rem; font-weight:600; font-family:var(--font);
+    padding:.5rem; cursor:pointer; transition:all .2s;
+  }
+  .btn-map-focus:hover { background:rgba(255,255,255,.08); color:var(--light); }
+  .btn-map-sos {
+    flex:1; display:flex;align-items:center;justify-content:center;gap:.35rem;
+    background:var(--red); border:none; border-radius:8px; color:#fff;
+    font-size:.78rem; font-weight:700; font-family:var(--font);
+    padding:.5rem; cursor:pointer; text-decoration:none; transition:background .2s;
+  }
+  .btn-map-sos:hover { background:var(--red-d); color:#fff; }
+
+  .map-no-shops { text-align:center; padding:2.5rem 1rem; color:var(--muted); font-size:.85rem; }
+  .map-hidden { display:none !important; }
   </style>
 }
 
+<!-- Legend + radius control -->
 <div class="row g-3 mb-3">
-  <div class="col-12">
+  <div class="col-md-7">
     <div class="legend-box">
       <span class="legend-item"><span class="legend-dot" style="background:#3fb950;border:2px solid #2d9244;"></span> @L["Map.Available"]</span>
       <span class="legend-item"><span class="legend-dot" style="background:#e63946;border:2px solid #c1121f;"></span> @L["Map.Busy"]</span>
-      <span class="legend-item"><i class="bi bi-cursor-fill" style="color:var(--accent);font-size:.9rem;"></i> @L["Map.YourLocation"]</span>
-      <div class="ms-auto" style="font-size:.78rem;color:var(--muted);">@L["Map.ClickMarker"]</div>
+      <span class="legend-item" style="color:var(--blue);"><i class="bi bi-cursor-fill" style="font-size:.85rem;"></i> @L["Map.YourLocation"]</span>
+      <button id="locateBtn" onclick="requestUserLocation()" style="margin-left:.5rem;display:inline-flex;align-items:center;gap:.4rem;background:rgba(91,138,245,.12);border:1px solid rgba(91,138,245,.3);border-radius:20px;color:#5b8af5;font-size:.73rem;font-weight:700;padding:.25rem .85rem;cursor:pointer;transition:all .2s;font-family:var(--font);">
+        <i class="bi bi-geo-alt-fill"></i> Use My Location
+      </button>
+      <div class="ms-auto" style="font-size:.72rem;color:var(--muted);">@L["Map.ClickMarker"]</div>
+    </div>
+  </div>
+  <div class="col-md-5">
+    <div class="radius-bar">
+      <i class="bi bi-broadcast-pin" style="color:var(--red);font-size:.95rem;"></i>
+      <span>Radius: <strong><span id="radiusLabel">50</span> km</strong></span>
+      <input type="range" id="radiusSlider" min="5" max="200" value="50" step="5" />
+      <span id="shopsInRadius" style="margin-left:auto;font-size:.73rem;color:var(--muted);"></span>
     </div>
   </div>
 </div>
 
+<!-- Map -->
 <div id="shopMap" class="mb-4"></div>
 
-<div class="row g-3" id="shopCards">
-  @foreach (var s in Model.Shops)
-  {
-    <div class="col-md-6 col-lg-4">
-      <div class="card-jaa h-100" style="padding:1rem;">
-        <div class="d-flex align-items-start justify-content-between mb-2">
-          <div>
-            <div style="font-size:.88rem;font-weight:700;color:var(--white);">@s.Name</div>
-            <div style="font-size:.75rem;color:var(--muted);"><i class="bi bi-geo-alt me-1"></i>@s.City</div>
-          </div>
-          <span class="badge-jaa @(s.IsAvailable ? "badge-completed" : "badge-rejected")" style="font-size:.65rem;">
-            @(s.IsAvailable ? L["Map.Available"].Value : L["Map.Busy"].Value)
-          </span>
-        </div>
-        <div class="d-flex gap-3 mb-3" style="font-size:.78rem;color:var(--muted);">
-          <span><i class="bi bi-star-fill" style="color:#f59e0b;"></i> @s.AvgRating.ToString("F1") (@s.ReviewCount)</span>
-          <span><i class="bi bi-person-gear me-1"></i>@s.AvailableMechanics @L["Map.MechanicsAvailable"]</span>
-        </div>
-        <div class="d-flex gap-2">
-          <button class="btn-jaa btn-ghost btn-sm flex-grow-1" onclick="focusShop(@s.Lat, @s.Lng)">
-            <i class="bi bi-map-fill"></i> @L["Map.MapButton"]
-          </button>
-          @if (s.IsAvailable)
-          {
-            <a asp-controller="Customer" asp-action="RequestHelp" class="btn-jaa btn-primary btn-sm flex-grow-1">
-              <i class="bi bi-exclamation-triangle-fill"></i> @L["Map.RequestButton"]
-            </a>
-          }
-          else
-          {
-            <button class="btn-jaa btn-ghost btn-sm flex-grow-1" disabled style="opacity:.4;cursor:not-allowed;">@L["Map.Busy"]</button>
-          }
-        </div>
-      </div>
-    </div>
-  }
+<!-- Shop cards — dynamically sorted/filtered -->
+<div id="shopCards" class="row g-3"></div>
+<div id="noShopsMsg" class="map-no-shops map-hidden">
+  <i class="bi bi-shop" style="font-size:1.8rem;display:block;margin-bottom:.5rem;"></i>
+  No shops found within <span id="noShopsRadius">50</span> km of your location.
 </div>
 
 @section Scripts {
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const shops = @Html.Raw(JsonSerializer.Serialize(Model.Shops));
-    const _map = {
-      available:      '@Html.Raw(jsAvailable.Replace("'", "\\'"))',
-      busy:           '@Html.Raw(jsBusy.Replace("'", "\\'"))',
-      reviews:        '@Html.Raw(jsReviews.Replace("'", "\\'"))',
-      mechanics:      '@Html.Raw(jsMechanics.Replace("'", "\\'"))',
-      requestHelp:    '@Html.Raw(jsRequestHelp.Replace("'", "\\'"))',
-      currentlyBusy:  '@Html.Raw(jsCurrentlyBusy.Replace("'", "\\'"))',
-      yourLocation:   '@Html.Raw(jsYourLocation.Replace("'", "\\'"))'
-    };
+  const ALL_SHOPS  = @Html.Raw(JsonSerializer.Serialize(Model.Shops, _jsonOpts));
+  const SERVER_LAT = @(Model.CustomerLat.HasValue ? Model.CustomerLat.Value.ToString("F6", System.Globalization.CultureInfo.InvariantCulture) : "null");
+  const SERVER_LNG = @(Model.CustomerLng.HasValue ? Model.CustomerLng.Value.ToString("F6", System.Globalization.CultureInfo.InvariantCulture) : "null");
 
-    const map = L.map('shopMap').setView([31.9522, 35.9330], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors', maxZoom: 19
-    }).addTo(map);
+  const JORDAN_CENTER = [31.9522, 35.9330];
 
-    function makeIcon(available) {
-      return L.divIcon({
-        className: '',
-        html: `<div style="width:32px;height:32px;background:${available ? '#3fb950' : '#e63946'};border:3px solid ${available ? '#2d9244' : '#c1121f'};border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.4);">
-                 <svg width="14" height="14" fill="white" viewBox="0 0 16 16"><path d="M8 1a5.5 5.5 0 0 0-5.5 5.5c0 3.033 5.5 8.5 5.5 8.5s5.5-5.467 5.5-8.5A5.5 5.5 0 0 0 8 1zm0 7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
-               </div>`,
-        iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -34]
-      });
-    }
+  // Haversine in JS for live recalculation
+  function haversineKm(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2
+            + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180)
+            * Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
 
-    shops.forEach(s => {
-      if (!s.lat || !s.lng) return;
-      const marker = L.marker([s.lat, s.lng], { icon: makeIcon(s.isAvailable) }).addTo(map);
-      marker.bindPopup(`
-        <div class="shop-popup">
-          <h6>${s.name}</h6>
-          <span class="badge-avail ${s.isAvailable ? 'available' : 'busy'}">${s.isAvailable ? _map.available : _map.busy}</span>
-          <div style="margin:6px 0;font-size:12px;color:#555;">
-            <div>⭐ ${s.avgRating.toFixed(1)} (${s.reviewCount} ${_map.reviews})</div>
-            <div>🔧 ${s.availableMechanics} ${_map.mechanics}</div>
-            <div>📍 ${s.city}</div>
-            ${s.phone ? `<div>📞 ${s.phone}</div>` : ''}
-          </div>
-          ${s.isAvailable
-            ? `<a href="/Customer/RequestHelp" style="display:block;background:#e63946;color:#fff;text-align:center;padding:6px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;margin-top:8px;">🆘 ${_map.requestHelp}</a>`
-            : `<div style="text-align:center;padding:6px;border-radius:6px;font-size:12px;background:#fee2e2;color:#991b1b;margin-top:8px;">${_map.currentlyBusy}</div>`
-          }
+  function etaMin(km)      { return Math.max(1, Math.ceil(km / 40 * 60)); }
+  function fmtDist(km)     { return km < 1 ? `${Math.round(km*1000)} m` : `${km.toFixed(1)} km`; }
+
+  // State
+  let userLat = SERVER_LAT, userLng = SERVER_LNG;
+  let userMarker = null;
+  let radiusCircle = null;
+  let shopMarkers = {};
+  let currentRadius = 50;
+
+  // Map init
+  const map = L.map('shopMap').setView(
+    userLat && userLng ? [userLat, userLng] : JORDAN_CENTER,
+    userLat && userLng ? 13 : 12
+  );
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors', maxZoom: 19
+  }).addTo(map);
+
+  function shopIcon(available) {
+    return L.divIcon({
+      className: '',
+      html: `<div style="width:32px;height:32px;background:${available?'#3fb950':'#e63946'};border:3px solid ${available?'#2d9244':'#c1121f'};border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.4);">
+               <svg width="14" height="14" fill="white" viewBox="0 0 16 16"><path d="M8 1a5.5 5.5 0 0 0-5.5 5.5c0 3.033 5.5 8.5 5.5 8.5s5.5-5.467 5.5-8.5A5.5 5.5 0 0 0 8 1zm0 7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
+             </div>`,
+      iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-34]
+    });
+  }
+
+  function userIcon() {
+    return L.divIcon({
+      className: '',
+      html: `<div style="width:22px;height:22px;background:#5b8af5;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 4px rgba(91,138,245,.3);"></div>`,
+      iconSize:[22,22], iconAnchor:[11,11]
+    });
+  }
+
+  // Place all shop markers initially
+  ALL_SHOPS.forEach(s => {
+    if (!s.lat || !s.lng) return;
+    const m = L.marker([s.lat, s.lng], { icon: shopIcon(s.isAvailable) }).addTo(map);
+    m.on('click', () => { updatePopup(m, s); m.openPopup(); });
+    shopMarkers[s.id] = m;
+  });
+
+  function updatePopup(marker, s) {
+    const dist = (userLat && userLng && s.lat && s.lng)
+      ? haversineKm(userLat, userLng, s.lat, s.lng) : null;
+    const distHtml = dist != null
+      ? `<div class="pop-dist">📍 ${fmtDist(dist)} · ~${etaMin(dist)} min away</div>` : '';
+    marker.bindPopup(`
+      <div class="shop-popup">
+        <h6>${s.name}</h6>
+        <span class="badge-avail ${s.isAvailable?'available':'busy'}">${s.isAvailable?'Available':'Busy'}</span>
+        ${distHtml}
+        <div class="pop-meta">
+          <div>⭐ ${s.avgRating.toFixed(1)} (${s.reviewCount} reviews)</div>
+          <div>🔧 ${s.availableMechanics} mechanic${s.availableMechanics!==1?'s':''} available</div>
+          <div>📍 ${s.city}</div>
+          ${s.phone ? `<div>📞 ${s.phone}</div>` : ''}
         </div>
-      `);
+        ${s.isAvailable
+          ? `<a href="/Customer/RequestHelp" style="display:block;background:#e63946;color:#fff;text-align:center;padding:7px;border-radius:7px;font-size:.78rem;font-weight:700;text-decoration:none;margin-top:8px;">🆘 Request Help</a>`
+          : `<div style="text-align:center;padding:6px;border-radius:7px;font-size:.75rem;background:#fee2e2;color:#991b1b;margin-top:8px;">Currently Busy</div>`
+        }
+      </div>
+    `);
+  }
+
+  // User location marker
+  function placeUserMarker(lat, lng) {
+    if (userMarker) userMarker.remove();
+    userMarker = L.marker([lat, lng], { icon: userIcon() }).addTo(map)
+      .bindPopup('📍 Your Location').openPopup();
+    updateRadius(currentRadius, lat, lng);
+  }
+
+  // Radius circle
+  function updateRadius(km, lat, lng) {
+    if (radiusCircle) radiusCircle.remove();
+    if (lat == null || lng == null) return;
+    radiusCircle = L.circle([lat, lng], {
+      radius: km * 1000,
+      color: '#e63946', fillColor: '#e63946',
+      fillOpacity: .05, weight: 1.5, dashArray: '6 4'
+    }).addTo(map);
+  }
+
+  // Recalculate distances + re-render card list + toggle marker visibility
+  function refresh() {
+    const shops = ALL_SHOPS.map(s => {
+      const hasDist = userLat != null && userLng != null && s.lat && s.lng;
+      const dist = hasDist ? haversineKm(userLat, userLng, s.lat, s.lng) : null;
+      return { ...s, distKm: dist, eta: dist != null ? etaMin(dist) : null };
     });
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude, lng = pos.coords.longitude;
-        L.marker([lat, lng], {
-          icon: L.divIcon({
-            className: '',
-            html: `<div style="width:20px;height:20px;background:#5b8af5;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 3px rgba(91,138,245,.3);"></div>`,
-            iconSize: [20,20], iconAnchor: [10,10]
-          })
-        }).addTo(map).bindPopup('📍 ' + _map.yourLocation);
-        map.setView([lat, lng], 13);
-      }, () => {});
-    }
+    // Sort: distance → availability → rating
+    shops.sort((a, b) => {
+      const da = a.distKm ?? 99999, db = b.distKm ?? 99999;
+      if (Math.abs(da-db) > 0.05) return da - db;
+      if (a.isAvailable !== b.isAvailable) return b.isAvailable - a.isAvailable;
+      return b.avgRating - a.avgRating;
+    });
 
-    function focusShop(lat, lng) {
-      map.setView([lat, lng], 15);
-      document.getElementById('shopMap').scrollIntoView({ behavior: 'smooth' });
+    // Toggle markers by radius
+    let visible = 0;
+    shops.forEach(s => {
+      const m = shopMarkers[s.id];
+      if (!m) return;
+      const inRadius = s.distKm == null || s.distKm <= currentRadius;
+      if (inRadius) { m.addTo(map); visible++; updatePopup(m, s); }
+      else          { m.remove(); }
+    });
+
+    document.getElementById('shopsInRadius').textContent =
+      userLat ? `${visible} shop${visible!==1?'s':''} nearby` : '';
+    document.getElementById('noShopsRadius').textContent = currentRadius;
+
+    // Render cards
+    const grid = document.getElementById('shopCards');
+    const noMsg = document.getElementById('noShopsMsg');
+    const visShops = shops.filter(s => s.distKm == null || s.distKm <= currentRadius);
+    grid.innerHTML = '';
+
+    if (visShops.length === 0 && userLat) {
+      noMsg.classList.remove('map-hidden');
+      return;
     }
+    noMsg.classList.add('map-hidden');
+
+    visShops.forEach(s => {
+      const distHtml = s.distKm != null
+        ? `<span class="map-pill mpill-dist"><i class="bi bi-location"></i> ${fmtDist(s.distKm)}</span>
+           <span class="map-pill mpill-eta"><i class="bi bi-clock"></i> ~${s.eta} min</span>` : '';
+      const mechsHtml = s.availableMechanics > 0
+        ? `<span class="map-pill mpill-mechs"><i class="bi bi-wrench"></i> ${s.availableMechanics} mech${s.availableMechanics!==1?'s':''}</span>` : '';
+      const stars = Array.from({length:5}, (_,i) =>
+        `<i class="bi bi-star-fill" style="color:${i<Math.round(s.avgRating)?'#f59e0b':'rgba(255,255,255,.1)'}"></i>`).join('');
+
+      const card = document.createElement('div');
+      card.className = 'col-md-6 col-lg-4';
+      card.innerHTML = `
+        <div class="map-shop-card">
+          <div class="map-shop-head">
+            <div>
+              <div class="map-shop-name">${s.name}</div>
+              <div class="map-shop-city"><i class="bi bi-geo-alt" style="font-size:.65rem;"></i> ${s.city}</div>
+            </div>
+            <span class="map-pill ${s.isAvailable?'mpill-avail':'mpill-busy'}">
+              <i class="bi bi-circle-fill" style="font-size:.4rem;"></i>
+              ${s.isAvailable?'Available':'Busy'}
+            </span>
+          </div>
+          <div class="map-shop-pills">
+            ${distHtml}
+            ${mechsHtml}
+          </div>
+          <div class="map-shop-stars">
+            ${stars}
+            <span class="map-shop-rating-num">${s.avgRating.toFixed(1)} (${s.reviewCount})</span>
+          </div>
+          <div class="map-shop-actions">
+            <button class="btn-map-focus" onclick="focusShop(${s.lat},${s.lng})">
+              <i class="bi bi-map-fill"></i> Map
+            </button>
+            ${s.isAvailable
+              ? `<a href="/Customer/RequestHelp" class="btn-map-sos"><i class="bi bi-exclamation-triangle-fill"></i> Request Help</a>`
+              : `<button class="btn-map-focus" disabled style="opacity:.4;cursor:not-allowed;">Busy</button>`
+            }
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  function focusShop(lat, lng) {
+    map.setView([lat, lng], 15);
+    document.getElementById('shopMap').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Radius slider
+  document.getElementById('radiusSlider').addEventListener('input', function() {
+    currentRadius = parseInt(this.value);
+    document.getElementById('radiusLabel').textContent = currentRadius;
+    if (userLat && userLng) updateRadius(currentRadius, userLat, userLng);
+    refresh();
+  });
+
+  // Geolocation
+  function requestUserLocation() {
+    if (!navigator.geolocation) return;
+    const btn = document.getElementById('locateBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" style="width:.75rem;height:.75rem;border-width:2px;"></span> Locating…';
+    navigator.geolocation.getCurrentPosition(pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      map.setView([userLat, userLng], 13);
+      placeUserMarker(userLat, userLng);
+      refresh();
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-geo-alt-fill"></i> Use My Location';
+    }, () => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-geo-alt-fill"></i> Use My Location';
+    });
+  }
+
+  if (userLat && userLng) {
+    placeUserMarker(userLat, userLng);
+  } else if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      map.setView([userLat, userLng], 13);
+      placeUserMarker(userLat, userLng);
+      refresh();
+    }, () => {});
+  }
+
+  // Initial render
+  refresh();
   </script>
 }

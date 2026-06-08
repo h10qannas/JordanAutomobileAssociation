@@ -26,6 +26,25 @@
 .shops-hero h1 span { color: var(--red); }
 .shops-hero p { font-size: .9rem; color: var(--muted); margin-bottom: 1.6rem; }
 
+/* ── Location banner ── */
+.loc-banner {
+  display: flex; align-items: center; gap: .8rem;
+  background: rgba(63,185,80,.07); border: 1px solid rgba(63,185,80,.18);
+  border-radius: 12px; padding: .75rem 1.1rem; margin-bottom: 1.25rem;
+  font-size: .85rem; color: var(--light);
+}
+.loc-banner-detect {
+  background: rgba(88,166,255,.07); border-color: rgba(88,166,255,.18); color: var(--muted);
+}
+.loc-banner i { font-size: 1rem; flex-shrink: 0; }
+.btn-detect-loc {
+  margin-left: auto; display: inline-flex; align-items: center; gap: .4rem;
+  background: var(--red); color: #fff; border: none; border-radius: 8px;
+  font-size: .78rem; font-weight: 700; font-family: var(--font);
+  padding: .42rem .9rem; cursor: pointer; transition: background .2s; white-space: nowrap;
+}
+.btn-detect-loc:hover { background: var(--red-d); }
+
 /* ── Filter bar ── */
 .shops-filter {
   display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
@@ -35,21 +54,27 @@
   border-radius: 10px; color: var(--white);
   font-size: .88rem; font-family: var(--font);
   padding: .6rem 2.2rem .6rem .95rem;
-  outline: none; cursor: pointer;
-  appearance: none;
+  outline: none; cursor: pointer; appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right .75rem center;
-  transition: border-color .2s;
-  min-width: 180px;
+  background-repeat: no-repeat; background-position: right .75rem center;
+  transition: border-color .2s; min-width: 160px;
 }
 .sf-select:focus { border-color: var(--red); }
 .sf-select option { background: var(--card); }
 
-.sf-count {
-  font-size: .8rem; color: var(--muted);
-  margin-left: auto;
+.sf-sort {
+  display: flex; gap: .4rem;
 }
+.btn-sort {
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--muted);
+  font-size: .75rem; font-weight: 600; font-family: var(--font);
+  padding: .45rem .85rem; cursor: pointer; transition: all .2s;
+}
+.btn-sort.active, .btn-sort:hover { border-color: var(--red); color: var(--white); background: rgba(230,57,70,.08); }
+
+.sf-count { font-size: .8rem; color: var(--muted); margin-left: auto; }
 .sf-count strong { color: var(--white); }
 
 .btn-sf-clear {
@@ -57,8 +82,7 @@
   background: rgba(230,57,70,.09); border: 1px solid rgba(230,57,70,.22);
   border-radius: 8px; color: var(--red);
   font-size: .78rem; font-weight: 600; font-family: var(--font);
-  padding: .5rem .9rem; cursor: pointer; text-decoration: none;
-  transition: background .2s;
+  padding: .5rem .9rem; cursor: pointer; text-decoration: none; transition: background .2s;
 }
 .btn-sf-clear:hover { background: rgba(230,57,70,.16); color: var(--red); }
 
@@ -73,16 +97,14 @@
   transition: border-color .2s, transform .2s, box-shadow .2s;
 }
 .shop-card:hover {
-  border-color: rgba(230,57,70,.3);
-  transform: translateY(-3px);
+  border-color: rgba(230,57,70,.3); transform: translateY(-3px);
   box-shadow: 0 12px 32px rgba(0,0,0,.35);
 }
 
 /* cover */
 .shop-cover {
   height: 148px; position: relative; overflow: hidden;
-  background: linear-gradient(135deg, #161b22 0%, #1c2333 100%);
-  flex-shrink: 0;
+  background: linear-gradient(135deg, #161b22 0%, #1c2333 100%); flex-shrink: 0;
 }
 .shop-cover img { width: 100%; height: 100%; object-fit: cover; }
 .shop-cover-placeholder {
@@ -91,8 +113,7 @@
   font-size: 2.8rem; color: rgba(230,57,70,.2);
 }
 .shop-cover::after {
-  content: '';
-  position: absolute; inset: 0;
+  content: ''; position: absolute; inset: 0;
   background: linear-gradient(to top, rgba(13,17,23,.6) 0%, transparent 60%);
   pointer-events: none;
 }
@@ -101,47 +122,57 @@
   display: inline-flex; align-items: center; gap: .3rem;
   background: rgba(35,134,54,.85); backdrop-filter: blur(6px);
   color: #fff; border-radius: 999px;
-  font-size: .65rem; font-weight: 700; padding: .28rem .7rem;
-  letter-spacing: .4px;
+  font-size: .65rem; font-weight: 700; padding: .28rem .7rem; letter-spacing: .4px;
 }
+.shop-dist-badge {
+  position: absolute; bottom: 10px; left: 10px; z-index: 1;
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: rgba(13,17,23,.8); backdrop-filter: blur(8px);
+  color: var(--white); border-radius: 999px;
+  font-size: .68rem; font-weight: 700; padding: .28rem .7rem;
+  border: 1px solid rgba(255,255,255,.12);
+}
+.shop-dist-badge i { color: var(--blue); font-size: .65rem; }
 
 /* body */
 .shop-body { padding: 1.1rem 1.2rem; flex: 1; display: flex; flex-direction: column; }
-
 .shop-name {
   font-size: .98rem; font-weight: 800; color: var(--white);
   margin-bottom: .3rem; letter-spacing: -.2px;
 }
 .shop-meta {
   display: flex; align-items: center; gap: .5rem;
-  font-size: .76rem; color: var(--muted); margin-bottom: .6rem; flex-wrap: wrap;
+  font-size: .76rem; color: var(--muted); margin-bottom: .5rem; flex-wrap: wrap;
 }
 .shop-meta i { font-size: .72rem; }
 .shop-meta-sep { color: var(--border); }
 
-/* stars */
-.shop-stars { display: flex; align-items: center; gap: .25rem; margin-bottom: .7rem; }
+/* pills row */
+.shop-pills { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .65rem; }
+.shop-pill {
+  display: inline-flex; align-items: center; gap: .28rem;
+  border-radius: 999px; font-size: .65rem; font-weight: 700;
+  padding: .2rem .65rem;
+}
+.pill-avail   { background:rgba(63,185,80,.1); color:var(--green-t); border:1px solid rgba(63,185,80,.2); }
+.pill-busy    { background:rgba(230,57,70,.08); color:var(--red); border:1px solid rgba(230,57,70,.2); }
+.pill-eta     { background:rgba(88,166,255,.08); color:var(--blue); border:1px solid rgba(88,166,255,.18); }
+.pill-mechs   { background:rgba(167,139,250,.08); color:var(--purple,#a78bfa); border:1px solid rgba(167,139,250,.18); }
+
+.shop-stars { display: flex; align-items: center; gap: .25rem; margin-bottom: .6rem; }
 .shop-stars i { font-size: .7rem; }
 .shop-stars .rating-num { font-size: .75rem; color: var(--muted); margin-left: .2rem; }
-.shop-no-rating { font-size: .75rem; color: var(--muted); font-style: italic; margin-bottom: .7rem; }
-
-.shop-desc {
-  font-size: .8rem; color: var(--muted); line-height: 1.6;
-  flex: 1; margin-bottom: 1rem;
-}
+.shop-no-rating { font-size: .75rem; color: var(--muted); font-style: italic; margin-bottom: .6rem; }
+.shop-desc { font-size: .8rem; color: var(--muted); line-height: 1.6; flex: 1; margin-bottom: 1rem; }
 
 .btn-shop-view {
   display: flex; align-items: center; justify-content: center; gap: .4rem;
   background: rgba(230,57,70,.09); border: 1px solid rgba(230,57,70,.22);
   border-radius: 9px; color: var(--red);
   font-size: .83rem; font-weight: 700; font-family: var(--font);
-  padding: .6rem; text-decoration: none;
-  transition: background .2s, border-color .2s;
+  padding: .6rem; text-decoration: none; transition: background .2s, border-color .2s;
 }
-.btn-shop-view:hover {
-  background: rgba(230,57,70,.16); border-color: rgba(230,57,70,.4);
-  color: var(--red);
-}
+.btn-shop-view:hover { background: rgba(230,57,70,.16); border-color: rgba(230,57,70,.4); color: var(--red); }
 
 /* ── Empty state ── */
 .shops-empty {
@@ -151,12 +182,19 @@
 .shops-empty-icon {
   width: 64px; height: 64px; margin: 0 auto 1.25rem;
   background: rgba(230,57,70,.08); border: 1px solid rgba(230,57,70,.15);
-  border-radius: 18px;
-  display: flex; align-items: center; justify-content: center;
+  border-radius: 18px; display: flex; align-items: center; justify-content: center;
   font-size: 1.6rem; color: var(--muted);
 }
 .shops-empty h4 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: .4rem; }
 .shops-empty p  { font-size: .85rem; color: var(--muted); }
+
+/* loading skeleton */
+.skel-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  overflow: hidden; height: 340px; animation: skel-pulse 1.4s ease-in-out infinite;
+}
+@@keyframes skel-pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+.skel-bar { background: rgba(255,255,255,.06); border-radius: 6px; }
 </style>
 }
 
@@ -168,7 +206,26 @@
       <h1>@Html.Raw(L["Shops.FindVerified"].Value)</h1>
       <p>@L["Shops.HeroDesc"]</p>
 
-      <form method="get" class="shops-filter">
+      <!-- Location banner -->
+      <div id="locBanner" class="loc-banner loc-banner-detect" style="display:none;">
+        <i class="fas fa-map-marker-alt" style="color:var(--blue);"></i>
+        <span id="locBannerText">Detecting your location…</span>
+        <button class="btn-detect-loc" onclick="detectLocation()">
+          <i class="fas fa-location-arrow"></i> Use My Location
+        </button>
+      </div>
+      <div id="locBannerActive" class="loc-banner" style="display:none;">
+        <i class="fas fa-map-marker-alt" style="color:var(--green-t);"></i>
+        <span id="locBannerActiveText">Showing shops nearest to you</span>
+        <button class="btn-detect-loc" onclick="clearLocation()" style="background:var(--card);border:1px solid var(--border);color:var(--muted);">
+          <i class="fas fa-times"></i> Clear
+        </button>
+      </div>
+
+      <form method="get" id="filterForm" class="shops-filter">
+        <input type="hidden" name="lat" id="latInput" value="@(Model.CustomerLat?.ToString("F6", System.Globalization.CultureInfo.InvariantCulture) ?? "")" />
+        <input type="hidden" name="lng" id="lngInput" value="@(Model.CustomerLng?.ToString("F6", System.Globalization.CultureInfo.InvariantCulture) ?? "")" />
+
         <div style="position:relative;">
           <select name="city" class="sf-select" onchange="this.form.submit()">
             <option value="">@L["Shops.AllCities"]</option>
@@ -184,14 +241,23 @@
 
         @if (!string.IsNullOrEmpty(Model.SelectedCity))
         {
-          <a asp-action="Shops" class="btn-sf-clear">
+          <a asp-action="Shops" asp-route-lat="@Model.CustomerLat" asp-route-lng="@Model.CustomerLng" class="btn-sf-clear">
             <i class="fas fa-times"></i> @L["Shops.ClearFilter"]
           </a>
         }
 
+        <div class="sf-sort">
+          <button type="button" class="btn-sort @(!Model.HasLocation ? "active" : "")" id="btnSortRating" onclick="sortCards('rating')">
+            <i class="fas fa-star"></i> Rating
+          </button>
+          <button type="button" class="btn-sort @(Model.HasLocation ? "active" : "")" id="btnSortDist" onclick="sortCards('distance')">
+            <i class="fas fa-location-arrow"></i> Nearest
+          </button>
+        </div>
+
         <div class="sf-count">
-          <strong>@Model.Shops.Count</strong> @(Model.Shops.Count != 1 ? L["Shops.ShopPlural"].Value : L["Shops.ShopSingular"].Value)
-          @if (!string.IsNullOrEmpty(Model.SelectedCity)) { <text>@L["Shops.In"] <strong>@Model.SelectedCity</strong></text> }
+          <strong id="shopCount">@Model.Shops.Count</strong> <span id="shopCountLabel">@(Model.Shops.Count != 1 ? L["Shops.ShopPlural"].Value : L["Shops.ShopSingular"].Value)</span>
+          @if (!string.IsNullOrEmpty(Model.SelectedCity)) { <text> @L["Shops.In"] <strong>@Model.SelectedCity</strong></text> }
         </div>
       </form>
     </div>
@@ -200,50 +266,59 @@
   <!-- ══ GRID ══ -->
   <div class="shops-grid">
     <div class="container">
-      @if (!Model.Shops.Any())
-      {
-        <div class="shops-empty">
-          <div class="shops-empty-icon"><i class="fas fa-store-slash"></i></div>
-          <h4>@L["Shops.NoShopsFound"]</h4>
-          <p>@(string.IsNullOrEmpty(Model.SelectedCity) ? L["Shops.NoVerifiedShops"].Value : $"{L["Shops.NoShopsInCity"].Value} {Model.SelectedCity}. {L["Shops.TryDifferentCity"].Value}")</p>
-          @if (!string.IsNullOrEmpty(Model.SelectedCity))
+      <div class="row g-4" id="shopsGrid">
+        @if (!Model.Shops.Any())
+        {
+          <div class="col-12">
+            <div class="shops-empty">
+              <div class="shops-empty-icon"><i class="fas fa-store-slash"></i></div>
+              <h4>@L["Shops.NoShopsFound"]</h4>
+              <p>@(string.IsNullOrEmpty(Model.SelectedCity) ? L["Shops.NoVerifiedShops"].Value : $"{L["Shops.NoShopsInCity"].Value} {Model.SelectedCity}. {L["Shops.TryDifferentCity"].Value}")</p>
+              @if (!string.IsNullOrEmpty(Model.SelectedCity))
+              {
+                <a asp-action="Shops" class="btn-jaa btn-outline" style="margin-top:1rem;display:inline-flex;">
+                  <i class="fas fa-arrow-left"></i> @L["Shops.ShowAllCities"]
+                </a>
+              }
+            </div>
+          </div>
+        }
+        else
+        {
+          @foreach (var ns in Model.Shops)
           {
-            <a asp-action="Shops" class="btn-jaa btn-outline" style="margin-top:1rem;display:inline-flex;">
-              <i class="fas fa-arrow-left"></i> @L["Shops.ShowAllCities"]
-            </a>
-          }
-        </div>
-      }
-      else
-      {
-        <div class="row g-4">
-          @foreach (var shop in Model.Shops)
-          {
-            var avg   = shop.Feedbacks.Any() ? shop.Feedbacks.Average(f => f.Rating) : 0.0;
-            var count = shop.Feedbacks.Count;
+            var shop = ns.Shop;
+            var avg   = ns.AvgRating;
+            var count = ns.ReviewCount;
             var desc  = string.IsNullOrEmpty(shop.Description) ? "No description available." : (shop.Description.Length > 88 ? shop.Description[..88] + "…" : shop.Description);
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-4 shop-col"
+                 data-distance="@(ns.DistanceKm?.ToString("F3", System.Globalization.CultureInfo.InvariantCulture) ?? "9999")"
+                 data-rating="@avg.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)"
+                 data-available="@(ns.IsAvailable ? "1" : "0")"
+                 data-id="@shop.Id">
               <div class="shop-card">
-
-                <!-- Cover -->
                 <div class="shop-cover">
                   @if (!string.IsNullOrEmpty(shop.LogoUrl))
-                  {
-                    <img src="@shop.LogoUrl" alt="@shop.ShopName" />
-                  }
+                  { <img src="@shop.LogoUrl" alt="@shop.ShopName" /> }
                   else
-                  {
-                    <div class="shop-cover-placeholder"><i class="fas fa-store"></i></div>
-                  }
+                  { <div class="shop-cover-placeholder"><i class="fas fa-store"></i></div> }
                   @if (shop.IsVerified)
                   {
                     <span class="shop-verified-badge">
                       <i class="fas fa-check-circle"></i> @L["Shops.Verified"]
                     </span>
                   }
+                  @if (ns.DistanceKm.HasValue)
+                  {
+                    <span class="shop-dist-badge">
+                      <i class="fas fa-location-arrow"></i>
+                      @ns.DistanceLabel
+                      @if (ns.EstimatedArrivalMin.HasValue)
+                      { <span style="opacity:.7;margin-left:.2rem;">· @ns.EtaLabel</span> }
+                    </span>
+                  }
                 </div>
 
-                <!-- Body -->
                 <div class="shop-body">
                   <div class="shop-name">@shop.ShopName</div>
 
@@ -258,20 +333,35 @@
                     }
                   </div>
 
+                  <div class="shop-pills">
+                    <span class="shop-pill @(ns.IsAvailable ? "pill-avail" : "pill-busy")">
+                      <i class="fas fa-circle" style="font-size:.45rem;"></i>
+                      @(ns.IsAvailable ? "Available" : "Busy")
+                    </span>
+                    @if (ns.AvailableMechanics > 0)
+                    {
+                      <span class="shop-pill pill-mechs">
+                        <i class="fas fa-wrench"></i> @ns.AvailableMechanics @(ns.AvailableMechanics == 1 ? "mechanic" : "mechanics")
+                      </span>
+                    }
+                    @if (ns.EstimatedArrivalMin.HasValue)
+                    {
+                      <span class="shop-pill pill-eta">
+                        <i class="fas fa-clock"></i> ~@ns.EstimatedArrivalMin min
+                      </span>
+                    }
+                  </div>
+
                   @if (avg > 0)
                   {
                     <div class="shop-stars">
                       @for (int i = 1; i <= 5; i++)
-                      {
-                        <i class="fas fa-star" style="color:@(i <= avg ? "#fbbf24" : "rgba(255,255,255,.12)");"></i>
-                      }
+                      { <i class="fas fa-star" style="color:@(i <= avg ? "#fbbf24" : "rgba(255,255,255,.12)");"></i> }
                       <span class="rating-num">@avg.ToString("F1") (@count)</span>
                     </div>
                   }
                   else
-                  {
-                    <div class="shop-no-rating">@L["Shops.NoReviewsYet"]</div>
-                  }
+                  { <div class="shop-no-rating">@L["Shops.NoReviewsYet"]</div> }
 
                   <p class="shop-desc">@desc</p>
 
@@ -279,13 +369,87 @@
                     @L["Shops.ViewShop"] <i class="fas fa-arrow-right"></i>
                   </a>
                 </div>
-
               </div>
             </div>
           }
-        </div>
-      }
+        }
+      </div>
     </div>
   </div>
-
 </div>
+
+@section Scripts {
+<script>
+const CITY_FILTER = '@(Model.SelectedCity ?? "")';
+const HAS_LOCATION = @(Model.HasLocation ? "true" : "false");
+const AJAX_URL = '/Home/NearbyShopsJson';
+
+// On load: show appropriate banner
+window.addEventListener('DOMContentLoaded', () => {
+  if (HAS_LOCATION) {
+    document.getElementById('locBannerActive').style.display = 'flex';
+    setActiveSort('distance');
+  } else {
+    document.getElementById('locBanner').style.display = 'flex';
+    // Silently attempt auto-detect
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => applyLocation(pos.coords.latitude, pos.coords.longitude),
+        () => {} // user denied — no-op
+      );
+    }
+  }
+});
+
+function detectLocation() {
+  if (!navigator.geolocation) { alert('Geolocation not supported by your browser.'); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => applyLocation(pos.coords.latitude, pos.coords.longitude),
+    () => alert('Could not get your location. Please allow location access.')
+  );
+}
+
+function applyLocation(lat, lng) {
+  document.getElementById('latInput').value = lat.toFixed(6);
+  document.getElementById('lngInput').value = lng.toFixed(6);
+  document.getElementById('filterForm').submit();
+}
+
+function clearLocation() {
+  document.getElementById('latInput').value = '';
+  document.getElementById('lngInput').value = '';
+  document.getElementById('filterForm').submit();
+}
+
+// Client-side sort of existing cards (no server round-trip)
+let currentSort = HAS_LOCATION ? 'distance' : 'rating';
+
+function sortCards(mode) {
+  currentSort = mode;
+  setActiveSort(mode);
+
+  const grid = document.getElementById('shopsGrid');
+  const cols = Array.from(grid.querySelectorAll('.shop-col'));
+
+  cols.sort((a, b) => {
+    if (mode === 'distance') {
+      const da = parseFloat(a.dataset.distance);
+      const db = parseFloat(b.dataset.distance);
+      if (da !== db) return da - db;
+    }
+    // availability first within same bucket
+    const avA = parseInt(a.dataset.available), avB = parseInt(b.dataset.available);
+    if (avA !== avB) return avB - avA;
+    // then rating
+    return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+  });
+
+  cols.forEach(col => grid.appendChild(col));
+}
+
+function setActiveSort(mode) {
+  document.getElementById('btnSortRating').classList.toggle('active', mode === 'rating');
+  document.getElementById('btnSortDist').classList.toggle('active', mode === 'distance');
+}
+</script>
+}

@@ -1,54 +1,292 @@
 @model List<JAA.Models.Feedback>
-@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["Shop.Reviews"].Value; ViewData["PageTitle"] = L["Shop.Reviews"].Value; }
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"]    = L["Shop.Reviews"].Value;
+    ViewData["PageTitle"] = L["Shop.Reviews"].Value;
+    ViewData["PageSub"]  = L["ShopRev.TotalReviews"].Value;
 
-<div class="row g-3 mb-4">
-    <div class="col-sm-6">
-        <div class="kc kc-amber h-100">
-            <i class="fas fa-star"></i>
-            <div class="kc-val">@(ViewBag.AverageRating > 0 ? ((double)ViewBag.AverageRating).ToString("F1") : "—")</div>
-            <div class="kc-lbl">@L["ShopRev.AverageRating"]</div>
+    double avg   = ViewBag.AverageRating != null ? (double)ViewBag.AverageRating : 0;
+    int    total = ViewBag.TotalReviews   != null ? (int)ViewBag.TotalReviews     : 0;
+
+    // Rating distribution
+    int[] dist = new int[6];
+    foreach (var f in Model) if (f.Rating >= 1 && f.Rating <= 5) dist[f.Rating]++;
+    int maxDist = dist.Skip(1).DefaultIfEmpty(1).Max();
+    if (maxDist == 0) maxDist = 1;
+}
+
+@section Styles {
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+/* ── Hero summary ───────────────────────────────────────────── */
+.rev-hero {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 32px;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    overflow: hidden;
+    position: relative;
+}
+.rev-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 0% 50%, rgba(251,191,36,.06) 0%, transparent 60%);
+    pointer-events: none;
+}
+.rev-score-block {
+    display: flex; flex-direction: column; align-items: center;
+    min-width: 130px;
+    padding-right: 32px;
+    border-right: 1px solid var(--border);
+}
+.rev-big-score {
+    font-size: 4rem; font-weight: 900; line-height: 1;
+    color: var(--white);
+    letter-spacing: -2px;
+}
+.rev-big-stars { display: flex; gap: 5px; margin: 8px 0 6px; }
+.rev-big-stars i { font-size: 16px; }
+.rev-big-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
+
+/* ── Distribution bars ──────────────────────────────────────── */
+.rev-dist { display: flex; flex-direction: column; gap: 7px; width: 100%; }
+.rev-dist-row { display: flex; align-items: center; gap: 10px; }
+.rev-dist-label {
+    font-size: 11.5px; font-weight: 700; color: var(--muted);
+    width: 20px; text-align: right; flex-shrink: 0;
+}
+.rev-dist-label i { font-size: 9px; color: #fbbf24; }
+.rev-dist-bar-wrap {
+    flex: 1; height: 8px;
+    background: rgba(255,255,255,.06);
+    border-radius: 99px; overflow: hidden;
+}
+.rev-dist-bar {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+}
+.rev-dist-count {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    width: 18px; text-align: right; flex-shrink: 0;
+}
+.rev-total-chip {
+    margin-top: 14px;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(251,191,36,.08);
+    border: 1px solid rgba(251,191,36,.2);
+    border-radius: 20px; padding: 4px 12px;
+    font-size: 11.5px; font-weight: 700; color: #fbbf24;
+    align-self: flex-start;
+}
+
+@@media (max-width: 640px) {
+    .rev-hero { grid-template-columns: 1fr; gap: 20px; }
+    .rev-score-block { border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 20px; flex-direction: row; gap: 20px; align-items: flex-start; min-width: auto; }
+}
+
+/* ── Review cards ───────────────────────────────────────────── */
+.rev-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    height: 100%;
+    display: flex; flex-direction: column;
+    transition: transform .22s, box-shadow .22s, border-color .22s;
+}
+.rev-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,.4);
+    border-color: rgba(251,191,36,.25);
+}
+.rev-card-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.rev-avatar {
+    width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(88,166,255,.25), rgba(88,166,255,.1));
+    border: 1px solid rgba(88,166,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; color: #58a6ff;
+    text-transform: uppercase;
+}
+.rev-cust-name { font-size: 13.5px; font-weight: 700; color: var(--white); line-height: 1.2; }
+.rev-cust-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.rev-stars { display: flex; gap: 3px; margin-left: auto; flex-shrink: 0; }
+.rev-stars i { font-size: 12px; }
+
+.rev-card-body {
+    padding: 14px 18px 16px;
+    flex-grow: 1; display: flex; flex-direction: column; gap: 10px;
+}
+.rev-comment {
+    font-size: 13.5px; color: var(--text2);
+    font-style: italic; line-height: 1.6;
+    flex-grow: 1;
+    position: relative;
+    padding-left: 18px;
+}
+.rev-comment::before {
+    content: '"';
+    position: absolute; left: 0; top: -4px;
+    font-size: 32px; color: rgba(251,191,36,.3);
+    font-style: normal; line-height: 1;
+}
+.rev-no-comment {
+    font-size: 12px; color: var(--muted);
+    font-style: italic;
+}
+.rev-mechanic-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(63,185,80,.07);
+    border: 1px solid rgba(63,185,80,.18);
+    border-radius: 6px; padding: 4px 9px;
+    font-size: 11px; font-weight: 600; color: var(--green-t);
+    align-self: flex-start;
+}
+.rev-rating-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 800; color: #fbbf24;
+    background: rgba(251,191,36,.08);
+    border: 1px solid rgba(251,191,36,.2);
+    border-radius: 6px; padding: 3px 8px;
+    margin-left: auto; flex-shrink: 0;
+}
+
+/* ── Empty state ────────────────────────────────────────────── */
+.rev-empty {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 70px 24px; text-align: center;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px;
+}
+.rev-empty-icon {
+    width: 64px; height: 64px; border-radius: 18px;
+    background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; color: var(--muted); margin-bottom: 18px;
+}
+.rev-empty h5 { font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 7px; }
+.rev-empty p  { font-size: 13px; color: var(--muted); max-width: 260px; line-height: 1.6; }
+
+/* ── Section title ──────────────────────────────────────────── */
+.rev-section-title {
+    font-size: 11px; font-weight: 800; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .09em;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+}
+.rev-section-title::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+}
+</style>
+}
+
+<!-- ── Hero: Score + Distribution ── -->
+<div class="rev-hero">
+    <div class="rev-score-block">
+        <div class="rev-big-score">@(avg > 0 ? avg.ToString("F1") : "—")</div>
+        <div class="rev-big-stars">
+            @for (int i = 1; i <= 5; i++)
+            {
+                <i class="fas fa-star" style="color:@(avg >= i ? "#fbbf24" : avg >= i - 0.5 ? "#fbbf24" : "rgba(255,255,255,.12)");"></i>
+            }
+        </div>
+        <div class="rev-big-label">@L["ShopRev.AverageRating"]</div>
+        <div class="rev-total-chip">
+            <i class="fas fa-comment-dots" style="font-size:10px;"></i>
+            @total @L["ShopRev.TotalReviews"]
         </div>
     </div>
-    <div class="col-sm-6">
-        <div class="kc kc-blue h-100">
-            <i class="fas fa-comment-dots"></i>
-            <div class="kc-val">@ViewBag.TotalReviews</div>
-            <div class="kc-lbl">@L["ShopRev.TotalReviews"]</div>
+
+    <div>
+        <div class="rev-dist">
+            @for (int star = 5; star >= 1; star--)
+            {
+                int count = dist[star];
+                int pct   = (int)Math.Round(count * 100.0 / maxDist);
+                <div class="rev-dist-row">
+                    <div class="rev-dist-label">@star <i class="fas fa-star"></i></div>
+                    <div class="rev-dist-bar-wrap">
+                        <div class="rev-dist-bar" style="width:@(pct)%;"></div>
+                    </div>
+                    <div class="rev-dist-count">@count</div>
+                </div>
+            }
         </div>
     </div>
 </div>
 
+<!-- ── Review cards ── -->
 @if (!Model.Any())
 {
-    <div class="gc"><div class="es"><div class="es-icon"><i class="fas fa-star"></i></div><h5>@L["ShopRev.NoReviewsYet"]</h5><p>@L["ShopRev.NoReviewsDesc"]</p></div></div>
+    <div class="rev-empty">
+        <div class="rev-empty-icon"><i class="fas fa-star"></i></div>
+        <h5>@L["ShopRev.NoReviewsYet"]</h5>
+        <p>@L["ShopRev.NoReviewsDesc"]</p>
+    </div>
 }
 else
 {
+    <div class="rev-section-title"><i class="fas fa-comment-alt"></i> @L["ShopRev.CustomerFeedback"]</div>
     <div class="row g-3">
         @foreach (var f in Model)
         {
-            <div class="col-md-6">
-                <div class="gc" style="cursor:default;">
-                    <div class="p-4">
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <div style="width:40px;height:40px;background:rgba(37,99,235,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#93c5fd;flex-shrink:0;">
-                                @(f.Customer?.FullName?.Length > 0 ? char.ToUpper(f.Customer.FullName[0]) : 'C')
-                            </div>
-                            <div>
-                                <div style="font-size:13px;font-weight:700;color:var(--color-text);">@f.Customer?.FullName</div>
-                                <div style="font-size:11px;color:var(--color-muted);">@f.CreatedAt.ToLocalTime().ToString("d")</div>
-                            </div>
-                            <div class="ms-auto">
-                                @for (int i = 1; i <= 5; i++)
-                                {
-                                    <i class="fas fa-star" style="color:@(i <= f.Rating ? "#fbbf24" : "rgba(255,255,255,.15)");font-size:13px;"></i>
-                                }
+            string initials = string.IsNullOrWhiteSpace(f.Customer?.FullName) ? "?" :
+                string.Concat(f.Customer.FullName.Split(' ', System.StringSplitOptions.RemoveEmptyEntries)
+                    .Take(2).Select(w => w[0]));
+
+            <div class="col-md-6 col-lg-4">
+                <div class="rev-card">
+                    <div class="rev-card-head">
+                        <div class="rev-avatar">@initials</div>
+                        <div>
+                            <div class="rev-cust-name">@(f.Customer?.FullName ?? "—")</div>
+                            <div class="rev-cust-date">
+                                <i class="fas fa-calendar-alt me-1" style="font-size:9px;"></i>
+                                @f.CreatedAt.ToLocalTime().ToString("d MMM yyyy")
                             </div>
                         </div>
-                        @if (!string.IsNullOrEmpty(f.Comment))
+                        <div class="rev-stars">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="fas fa-star" style="color:@(i <= f.Rating ? "#fbbf24" : "rgba(255,255,255,.12)");"></i>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="rev-card-body">
+                        @if (!string.IsNullOrWhiteSpace(f.Comment))
                         {
-                            <p style="font-size:13px;color:var(--color-muted);margin:0;font-style:italic;">"@f.Comment"</p>
+                            <div class="rev-comment">@f.Comment</div>
                         }
+                        else
+                        {
+                            <div class="rev-no-comment">@L["ShopRev.NoComment"]</div>
+                        }
+
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px;">
+                            @if (f.Mechanic != null)
+                            {
+                                <div class="rev-mechanic-chip">
+                                    <i class="fas fa-wrench" style="font-size:9px;"></i>
+                                    @f.Mechanic.FullName
+                                </div>
+                            }
+                            <div class="rev-rating-badge">
+                                <i class="fas fa-star" style="font-size:9px;"></i>
+                                @f.Rating / 5
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

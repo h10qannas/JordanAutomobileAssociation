@@ -8,5 +8,6 @@ namespace JAA.ViewModels
         public List<Feedback> Feedbacks { get; set; } = new();
         public double AverageRating { get; set; }
         public int CompletedJobs { get; set; }
+        public List<TestimonialListItemViewModel> Testimonials { get; set; } = new();
     }
 }

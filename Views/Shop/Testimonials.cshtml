@@ -1,0 +1,111 @@
+@model JAA.ViewModels.ShopTestimonialsViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"]    = "Testimonials";
+    ViewData["PageTitle"] = "Customer Testimonials";
+    ViewData["PageSub"]  = "Approved testimonials your customers wrote about your shop.";
+}
+
+@section Styles {
+<style>
+.tcard {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.2rem 1.3rem; height: 100%;
+  display: flex; flex-direction: column; gap: .65rem;
+}
+.tcard-stars { display:flex; gap:.2rem; }
+.tcard-stars i { font-size: .72rem; }
+.tcard-title { font-size: .88rem; font-weight: 700; color: var(--white); font-style: italic; }
+.tcard-msg { font-size: .8rem; color: var(--muted); line-height: 1.65; flex: 1; font-style: italic; }
+.tcard-footer { display:flex; align-items: center; gap: .55rem; padding-top: .5rem; border-top: 1px solid var(--border); }
+.tcard-avatar {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(88,166,255,.12); border: 1px solid rgba(88,166,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; font-weight: 700; color: #58a6ff;
+}
+</style>
+}
+
+@* Stats bar *@
+<div class="row g-3 mb-4">
+  <div class="col-sm-4">
+    <div class="card-jaa" style="text-align:center;padding:.9rem;">
+      <div style="font-size:1.8rem;font-weight:900;color:#f59e0b;">@(Model.AvgRating > 0 ? Model.AvgRating.ToString("F1") : "—")</div>
+      <div style="font-size:.72rem;color:var(--muted);">Average Rating</div>
+      @if (Model.AvgRating > 0)
+      {
+        <div style="display:flex;justify-content:center;gap:.15rem;margin-top:.3rem;">
+          @for (int i = 1; i <= 5; i++)
+          {
+            <i class="bi bi-star-fill" style="font-size:.65rem;color:@(i <= Math.Round(Model.AvgRating) ? "#f59e0b" : "rgba(255,255,255,.1)");"></i>
+          }
+        </div>
+      }
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card-jaa" style="text-align:center;padding:.9rem;">
+      <div style="font-size:1.8rem;font-weight:900;color:var(--green-t);">@Model.TotalCount</div>
+      <div style="font-size:.72rem;color:var(--muted);">Approved Testimonials</div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card-jaa" style="text-align:center;padding:.9rem;">
+      <div style="font-size:1.8rem;font-weight:900;color:#a78bfa;">@Model.Testimonials.Count(t => t.IsFeatured)</div>
+      <div style="font-size:.72rem;color:var(--muted);">Featured</div>
+    </div>
+  </div>
+</div>
+
+@if (!Model.Testimonials.Any())
+{
+  <div class="card-jaa" style="text-align:center;padding:3.5rem 1rem;color:var(--muted);">
+    <i class="bi bi-chat-square-quote" style="font-size:2.5rem;display:block;margin-bottom:.9rem;opacity:.3;"></i>
+    <div style="font-size:.9rem;font-weight:600;margin-bottom:.3rem;">No testimonials yet</div>
+    <div style="font-size:.78rem;">Approved customer testimonials will appear here.</div>
+  </div>
+}
+else
+{
+  <div class="row g-3">
+    @foreach (var t in Model.Testimonials)
+    {
+      var initial = t.CustomerName.Length > 0 ? char.ToUpper(t.CustomerName[0]).ToString() : "C";
+      <div class="col-md-6 col-lg-4">
+        <div class="tcard">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div class="tcard-stars">
+              @for (int i = 1; i <= 5; i++)
+              {
+                <i class="bi bi-star-fill" style="color:@(i <= t.Rating ? "#f59e0b" : "rgba(255,255,255,.1)");"></i>
+              }
+            </div>
+            @if (t.IsFeatured)
+            {
+              <span style="font-size:.6rem;font-weight:700;background:rgba(251,191,36,.1);color:#d4a017;border:1px solid rgba(251,191,36,.2);border-radius:999px;padding:.18rem .55rem;">
+                <i class="bi bi-star-fill"></i> Featured
+              </span>
+            }
+          </div>
+          @if (!string.IsNullOrEmpty(t.Title))
+          {
+            <div class="tcard-title">"@t.Title"</div>
+          }
+          <div class="tcard-msg">"@(t.Message.Length > 220 ? t.Message[..220] + "…" : t.Message)"</div>
+          <div class="tcard-footer">
+            <div class="tcard-avatar">@initial</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:.78rem;font-weight:700;color:var(--white);">@t.CustomerName</div>
+              @if (!string.IsNullOrEmpty(t.MechanicName))
+              {
+                <div style="font-size:.68rem;color:var(--muted);"><i class="bi bi-person-gear" style="margin-right:.2rem;"></i>@t.MechanicName</div>
+              }
+            </div>
+            <div style="font-size:.65rem;color:var(--muted);">@t.ServiceDate.ToString("MMM yyyy")</div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}

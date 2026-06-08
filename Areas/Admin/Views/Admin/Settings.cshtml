@@ -1,32 +1,303 @@
 @model List<JAA.Models.SystemSetting>
+@using System.Linq
 @{ Layout = "_DashboardLayout"; ViewData["Title"] = "Settings"; ViewData["PageTitle"] = "System Settings"; ViewData["PageSub"] = L["ASet.PageSub"].Value; }
 
-<div class="row g-4">
-  @foreach (var setting in Model)
+@section Styles {
+<style>
+/* ── Section wrapper ───────────────────────────────────── */
+.settings-block { margin-bottom: 1.75rem; }
+
+.settings-section-header {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .85rem 1.2rem;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  border-radius: 14px 14px 0 0;
+  border-bottom: none;
+}
+.settings-section-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; flex-shrink: 0;
+}
+.settings-section-title { font-size: .82rem; font-weight: 700; color: var(--white); }
+.settings-section-sub   { font-size: .7rem;  color: var(--muted); margin-top: 1px; }
+
+/* ── Rows ──────────────────────────────────────────────── */
+.settings-section-body {
+  border: 1px solid var(--border);
+  border-radius: 0 0 14px 14px;
+  overflow: hidden;
+}
+.setting-row {
+  display: flex; align-items: center; gap: 1rem;
+  padding: .95rem 1.2rem;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  transition: background .15s;
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-row:hover      { background: rgba(255,255,255,.025); }
+
+.setting-row-meta {
+  display: flex; align-items: center; gap: .7rem;
+  flex: 0 0 280px; min-width: 0;
+}
+.setting-row-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .78rem; flex-shrink: 0;
+}
+.setting-label { font-size: .8rem; font-weight: 700; color: var(--white); }
+.setting-desc  { font-size: .67rem; color: var(--muted); margin-top: 1px; }
+
+/* ── Input + save ──────────────────────────────────────── */
+.setting-row-control { flex: 1; display: flex; align-items: center; gap: .5rem; }
+
+.input-affix-wrap {
+  position: relative; display: flex; align-items: center; flex: 1;
+}
+.affix-suffix {
+  position: absolute; right: .75rem; top: 50%; transform: translateY(-50%);
+  font-size: .7rem; font-weight: 700; color: var(--muted); pointer-events: none;
+}
+.input-affix-wrap input { padding-right: 2.5rem; }
+.input-affix-wrap input.no-suffix { padding-right: .75rem; }
+
+.btn-setting-save {
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: var(--red); border: none; border-radius: 8px;
+  color: #fff; font-size: .74rem; font-weight: 700;
+  font-family: var(--font); padding: .46rem 1rem;
+  cursor: pointer; transition: background .18s, transform .1s;
+  white-space: nowrap; flex-shrink: 0;
+}
+.btn-setting-save:hover  { background: var(--red-d); }
+.btn-setting-save:active { transform: scale(.97); }
+.btn-setting-save.saved  { background: #2ea043; }
+
+/* ── Reference card ────────────────────────────────────── */
+.ref-card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.1rem 1.3rem;
+}
+.ref-card-header {
+  display: flex; align-items: center; gap: .45rem;
+  font-size: .71rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .5px; margin-bottom: .85rem;
+}
+.ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.ref-item {
+  display: flex; align-items: flex-start; gap: .5rem;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 9px; padding: .5rem .75rem;
+}
+.ref-dot  { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.ref-key  { font-size: .74rem; font-weight: 700; color: var(--white); }
+.ref-desc { font-size: .67rem; color: var(--muted); margin-top: 1px; }
+
+@@media (max-width: 640px) {
+  .setting-row       { flex-direction: column; align-items: flex-start; }
+  .setting-row-meta  { flex: none; }
+  .ref-grid          { grid-template-columns: 1fr; }
+}
+</style>
+}
+
+@{
+  /* ── Per-key metadata ── */
+  var meta = new Dictionary<string, (string Label, string Desc, string Icon, string IconBg, string IconColor, string Suffix)>(StringComparer.OrdinalIgnoreCase)
   {
-    <div class="col-md-6">
-      <div class="card-jaa">
-        <form asp-action="UpdateSetting" method="post">
-          @Html.AntiForgeryToken()
-          <input type="hidden" name="id" value="@setting.Id" />
-          <label style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:.5rem;">@setting.Key</label>
-          <div class="d-flex gap-2">
-            <input type="text" name="value" value="@setting.Value" class="form-control-jaa flex-grow-1" />
-            <button type="submit" class="btn-jaa btn-primary btn-sm">@L["Adm.Save"]</button>
-          </div>
-        </form>
+    ["PlatformName"]            = ("Platform Name",         "Public display name of this platform",           "bi-building",           "rgba(88,166,255,.15)",   "#58a6ff", ""    ),
+    ["SupportEmail"]            = ("Support Email",         "Contact email shown to customers and drivers",   "bi-envelope-fill",      "rgba(88,166,255,.15)",   "#58a6ff", ""    ),
+    ["SupportPhone"]            = ("Support Phone",         "Hotline number for urgent assistance",           "bi-telephone-fill",     "rgba(88,166,255,.15)",   "#58a6ff", ""    ),
+    ["InspectionFee"]           = ("Inspection Fee",        "Fixed fee charged per service request",          "bi-receipt",            "rgba(251,191,36,.12)",   "#f59e0b", "JOD" ),
+    ["ShopInspectionShare"]     = ("Shop's Cut",            "Amount the repair shop earns per inspection",    "bi-shop",               "rgba(63,185,80,.12)",    "#3fb950", "JOD" ),
+    ["PlatformInspectionShare"] = ("Platform's Cut",        "Amount the platform retains per inspection",     "bi-pie-chart-fill",     "rgba(230,57,70,.12)",    "#e63946", "JOD" ),
+    ["RepairCommissionRate"]    = ("Repair Commission",     "Platform commission rate on completed repairs",  "bi-percent",            "rgba(167,139,250,.12)",  "#a78bfa", "%"   ),
+    ["VatRate"]                 = ("VAT Rate",              "Value-added tax applied to invoices",            "bi-bank",               "rgba(251,191,36,.12)",   "#f59e0b", "%"   ),
+  };
+
+  (string Label, string Desc, string Icon, string IconBg, string IconColor, string Suffix) M(string key)
+    => meta.TryGetValue(key, out var v) ? v : (key, "", "bi-gear-fill", "rgba(255,255,255,.08)", "var(--muted)", "");
+
+  var contactKeys = new[] { "PlatformName", "SupportEmail", "SupportPhone" };
+  var financeKeys = new[] { "InspectionFee", "ShopInspectionShare", "PlatformInspectionShare", "RepairCommissionRate", "VatRate" };
+
+  var contactSettings = Model.Where(s => contactKeys .Contains(s.Key, StringComparer.OrdinalIgnoreCase)).ToList();
+  var financeSettings = Model.Where(s => financeKeys .Contains(s.Key, StringComparer.OrdinalIgnoreCase)).ToList();
+  var otherSettings   = Model.Where(s => !contactKeys.Contains(s.Key, StringComparer.OrdinalIgnoreCase)
+                                      && !financeKeys.Contains(s.Key, StringComparer.OrdinalIgnoreCase)).ToList();
+}
+
+@* ── Platform & Contact ───────────────────────────────────────────────── *@
+@if (contactSettings.Any())
+{
+  <div class="settings-block">
+    <div class="settings-section-header">
+      <div class="settings-section-icon" style="background:rgba(88,166,255,.12);color:#58a6ff;">
+        <i class="bi bi-globe2"></i>
+      </div>
+      <div>
+        <div class="settings-section-title">Platform &amp; Contact</div>
+        <div class="settings-section-sub">Name, email and phone shown to end users</div>
       </div>
     </div>
-  }
-</div>
+    <div class="settings-section-body">
+      @foreach (var s in contactSettings)
+      {
+        var (lbl, desc, ico, bg, clr, sfx) = M(s.Key);
+        <div class="setting-row">
+          <div class="setting-row-meta">
+            <div class="setting-row-icon" style="background:@bg;color:@clr;"><i class="bi @ico"></i></div>
+            <div>
+              <div class="setting-label">@lbl</div>
+              <div class="setting-desc">@desc</div>
+            </div>
+          </div>
+          <div class="setting-row-control">
+            <form asp-action="UpdateSetting" method="post" class="d-flex align-items-center gap-2 flex-grow-1" onsubmit="flashSave(this)">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@s.Id" />
+              <div class="input-affix-wrap flex-grow-1">
+                <input type="text" name="value" value="@s.Value"
+                       class="form-control-jaa w-100 @(string.IsNullOrEmpty(sfx) ? "no-suffix" : "")" />
+                @if (!string.IsNullOrEmpty(sfx)) { <span class="affix-suffix">@sfx</span> }
+              </div>
+              <button type="submit" class="btn-setting-save"><i class="bi bi-check2"></i> @L["Adm.Save"]</button>
+            </form>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
 
-<div class="card-jaa mt-4" style="background:rgba(255,255,255,.02);">
-  <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:.6rem;">@L["ASet.KeyReferences"]</div>
-  <div style="font-size:.78rem;color:var(--muted);display:grid;gap:.3rem;">
-    <div><strong style="color:var(--text2);">InspectionFee</strong> — @L["ASet.InspectionFeeDesc"]</div>
-    <div><strong style="color:var(--text2);">ShopInspectionShare</strong> — @L["ASet.ShopShareDesc"]</div>
-    <div><strong style="color:var(--text2);">PlatformInspectionShare</strong> — @L["ASet.PlatformShareDesc"]</div>
-    <div><strong style="color:var(--text2);">RepairCommissionRate</strong> — @L["ASet.CommissionRateDesc"]</div>
-    <div><strong style="color:var(--text2);">VatRate</strong> — @L["ASet.VatRateDesc"]</div>
+@* ── Fees & Rates ─────────────────────────────────────────────────────── *@
+@if (financeSettings.Any())
+{
+  <div class="settings-block">
+    <div class="settings-section-header">
+      <div class="settings-section-icon" style="background:rgba(63,185,80,.12);color:#3fb950;">
+        <i class="bi bi-cash-stack"></i>
+      </div>
+      <div>
+        <div class="settings-section-title">Fees &amp; Rates</div>
+        <div class="settings-section-sub">Financial parameters applied to all transactions</div>
+      </div>
+    </div>
+    <div class="settings-section-body">
+      @foreach (var s in financeSettings)
+      {
+        var (lbl, desc, ico, bg, clr, sfx) = M(s.Key);
+        <div class="setting-row">
+          <div class="setting-row-meta">
+            <div class="setting-row-icon" style="background:@bg;color:@clr;"><i class="bi @ico"></i></div>
+            <div>
+              <div class="setting-label">@lbl</div>
+              <div class="setting-desc">@desc</div>
+            </div>
+          </div>
+          <div class="setting-row-control">
+            <form asp-action="UpdateSetting" method="post" class="d-flex align-items-center gap-2 flex-grow-1" onsubmit="flashSave(this)">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@s.Id" />
+              <div class="input-affix-wrap flex-grow-1">
+                <input type="text" name="value" value="@s.Value"
+                       class="form-control-jaa w-100 @(string.IsNullOrEmpty(sfx) ? "no-suffix" : "")" />
+                @if (!string.IsNullOrEmpty(sfx)) { <span class="affix-suffix">@sfx</span> }
+              </div>
+              <button type="submit" class="btn-setting-save"><i class="bi bi-check2"></i> @L["Adm.Save"]</button>
+            </form>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@* ── Other settings ───────────────────────────────────────────────────── *@
+@if (otherSettings.Any())
+{
+  <div class="settings-block">
+    <div class="settings-section-header">
+      <div class="settings-section-icon" style="background:rgba(255,255,255,.08);color:var(--muted);">
+        <i class="bi bi-sliders"></i>
+      </div>
+      <div>
+        <div class="settings-section-title">Other Settings</div>
+        <div class="settings-section-sub">Remaining platform configuration</div>
+      </div>
+    </div>
+    <div class="settings-section-body">
+      @foreach (var s in otherSettings)
+      {
+        var (lbl, desc, ico, bg, clr, sfx) = M(s.Key);
+        <div class="setting-row">
+          <div class="setting-row-meta">
+            <div class="setting-row-icon" style="background:@bg;color:@clr;"><i class="bi @ico"></i></div>
+            <div>
+              <div class="setting-label">@lbl</div>
+              <div class="setting-desc">@desc</div>
+            </div>
+          </div>
+          <div class="setting-row-control">
+            <form asp-action="UpdateSetting" method="post" class="d-flex align-items-center gap-2 flex-grow-1" onsubmit="flashSave(this)">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@s.Id" />
+              <div class="input-affix-wrap flex-grow-1">
+                <input type="text" name="value" value="@s.Value"
+                       class="form-control-jaa w-100 @(string.IsNullOrEmpty(sfx) ? "no-suffix" : "")" />
+                @if (!string.IsNullOrEmpty(sfx)) { <span class="affix-suffix">@sfx</span> }
+              </div>
+              <button type="submit" class="btn-setting-save"><i class="bi bi-check2"></i> @L["Adm.Save"]</button>
+            </form>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@* ── Key References ───────────────────────────────────────────────────── *@
+<div class="ref-card">
+  <div class="ref-card-header">
+    <i class="bi bi-info-circle-fill"></i> @L["ASet.KeyReferences"]
+  </div>
+  <div class="ref-grid">
+    <div class="ref-item">
+      <div class="ref-dot" style="background:#f59e0b;"></div>
+      <div><div class="ref-key">InspectionFee</div><div class="ref-desc">@L["ASet.InspectionFeeDesc"]</div></div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-dot" style="background:#3fb950;"></div>
+      <div><div class="ref-key">ShopInspectionShare</div><div class="ref-desc">@L["ASet.ShopShareDesc"]</div></div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-dot" style="background:#e63946;"></div>
+      <div><div class="ref-key">PlatformInspectionShare</div><div class="ref-desc">@L["ASet.PlatformShareDesc"]</div></div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-dot" style="background:#a78bfa;"></div>
+      <div><div class="ref-key">RepairCommissionRate</div><div class="ref-desc">@L["ASet.CommissionRateDesc"]</div></div>
+    </div>
+    <div class="ref-item">
+      <div class="ref-dot" style="background:#f59e0b;"></div>
+      <div><div class="ref-key">VatRate</div><div class="ref-desc">@L["ASet.VatRateDesc"]</div></div>
+    </div>
   </div>
 </div>
+
+@section Scripts {
+<script>
+function flashSave(form) {
+  const btn = form.querySelector('.btn-setting-save');
+  btn.classList.add('saved');
+  btn.innerHTML = '<i class="bi bi-check2-all"></i> Saved';
+  setTimeout(() => {
+    btn.classList.remove('saved');
+    btn.innerHTML = '<i class="bi bi-check2"></i> Save';
+  }, 2000);
+}
+</script>
+}

@@ -78,8 +78,8 @@ namespace JAA.Services
 
             var commissionAmount = Math.Round(quotedAmount * commissionRate, 2);
             var shopAmount       = Math.Round(quotedAmount - commissionAmount, 2);
-            var vatAmount        = Math.Round(quotedAmount * vatRate, 2);
-            var totalAmount      = Math.Round(quotedAmount + vatAmount, 2);
+            // TotalAmount = what the customer pays = exactly what the mechanic quoted.
+            // Commission is deducted from the shop's share internally — it is never added to the customer's bill.
 
             var payment = new RepairPayment
             {
@@ -89,9 +89,9 @@ namespace JAA.Services
                 CommissionRate       = commissionRate,
                 CommissionAmount     = commissionAmount,
                 ShopAmount           = shopAmount,
-                VatRate              = vatRate,
-                VatAmount            = vatAmount,
-                TotalAmount          = totalAmount,
+                VatRate              = 0m,
+                VatAmount            = 0m,
+                TotalAmount          = quotedAmount,
                 Method               = method,
                 Status               = method == PaymentMethod.Cash ? PaymentStatus.Paid : PaymentStatus.Pending,
                 TransactionReference = transactionRef,

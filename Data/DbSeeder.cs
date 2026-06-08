@@ -247,9 +247,9 @@ namespace JAA.Data
                         CommissionRate   = 0.15m,
                         CommissionAmount = 5.25m,
                         ShopAmount       = 29.75m,
-                        VatRate          = 0.16m,
-                        VatAmount        = 5.60m,
-                        TotalAmount      = 40.60m,
+                        VatRate          = 0m,
+                        VatAmount        = 0m,
+                        TotalAmount      = 35.00m,   // customer pays exactly what mechanic quoted
                         Method           = PaymentMethod.Cash,
                         Status           = PaymentStatus.Paid,
                         PaidAt           = DateTime.UtcNow.AddDays(-10)
@@ -262,9 +262,9 @@ namespace JAA.Data
                         CommissionRate   = 0.15m,
                         CommissionAmount = 3.00m,
                         ShopAmount       = 17.00m,
-                        VatRate          = 0.16m,
-                        VatAmount        = 3.20m,
-                        TotalAmount      = 23.20m,
+                        VatRate          = 0m,
+                        VatAmount        = 0m,
+                        TotalAmount      = 20.00m,   // customer pays exactly what mechanic quoted
                         Method           = PaymentMethod.Cash,
                         Status           = PaymentStatus.Paid,
                         PaidAt           = DateTime.UtcNow.AddDays(-5)
@@ -327,6 +327,54 @@ namespace JAA.Data
                         Comment          = "Good and honest mechanic. Hassan diagnosed the problem quickly. Price was fair.",
                         CreatedAt        = DateTime.UtcNow.AddDays(-4)
                     }
+                );
+
+                await db.SaveChangesAsync();
+
+                // ── Extra customers for testimonial seeding ─────────────────
+                string[] extraEmails = { "customer2@jaa.jo", "customer3@jaa.jo", "customer4@jaa.jo", "customer5@jaa.jo" };
+                string[] extraNames  = { "Rami Al-Khalidi", "Nour Hassan", "Fatima Zahra", "Tariq Mansour" };
+                var extraCustomers   = new List<ApplicationUser>();
+
+                for (int i = 0; i < extraEmails.Length; i++)
+                {
+                    var ec = await userManager.FindByEmailAsync(extraEmails[i]);
+                    if (ec == null)
+                    {
+                        ec = new ApplicationUser
+                        {
+                            UserName = extraEmails[i], Email = extraEmails[i],
+                            FullName = extraNames[i], City = "Amman",
+                            Role = UserRole.Customer, EmailConfirmed = true, IsActive = true
+                        };
+                        var r = await userManager.CreateAsync(ec, "Customer@123");
+                        if (r.Succeeded) await userManager.AddToRoleAsync(ec, "Customer");
+                    }
+                    extraCustomers.Add(ec);
+                }
+
+                // ── Extra completed requests ────────────────────────────────
+                var extraReqs = new[]
+                {
+                    new ServiceRequest { CustomerId = extraCustomers[0].Id, ShopId = shop1.Id, MechanicId = mech2.Id, SituationDescription = "Flat tyre on the highway", Status = RequestStatus.Completed, CustomerLatitude = 31.98, CustomerLongitude = 35.88, CreatedAt = DateTime.UtcNow.AddDays(-20), UpdatedAt = DateTime.UtcNow.AddDays(-20) },
+                    new ServiceRequest { CustomerId = extraCustomers[1].Id, ShopId = shop2.Id, MechanicId = mech3.Id, SituationDescription = "Engine overheating, smoke from bonnet", Status = RequestStatus.Completed, CustomerLatitude = 31.97, CustomerLongitude = 35.87, CreatedAt = DateTime.UtcNow.AddDays(-15), UpdatedAt = DateTime.UtcNow.AddDays(-15) },
+                    new ServiceRequest { CustomerId = extraCustomers[2].Id, ShopId = shop1.Id, MechanicId = mech1.Id, SituationDescription = "Brakes making loud grinding noise", Status = RequestStatus.Completed, CustomerLatitude = 31.96, CustomerLongitude = 35.86, CreatedAt = DateTime.UtcNow.AddDays(-12), UpdatedAt = DateTime.UtcNow.AddDays(-12) },
+                    new ServiceRequest { CustomerId = extraCustomers[3].Id, ShopId = shop2.Id, MechanicId = mech3.Id, SituationDescription = "Car stalled in the middle of the road", Status = RequestStatus.Completed, CustomerLatitude = 31.95, CustomerLongitude = 35.85, CreatedAt = DateTime.UtcNow.AddDays(-7), UpdatedAt = DateTime.UtcNow.AddDays(-7) },
+                };
+                db.ServiceRequests.AddRange(extraReqs);
+                await db.SaveChangesAsync();
+
+                // ── Testimonials ────────────────────────────────────────────
+                var adminUser = await userManager.FindByEmailAsync("admin@jaa.jo");
+                var now       = DateTime.UtcNow;
+
+                db.Testimonials.AddRange(
+                    new Testimonial { CustomerId = customer.Id,              ServiceRequestId = req1.Id,          ShopId = shop1.Id, MechanicId = mech1.Id, Title = "Exceptional Service!", Message = "Ahmad arrived within 15 minutes and replaced my battery on the spot. Incredibly professional and honest about the pricing. I will definitely use JAA again whenever I need help.", Rating = 5, Status = TestimonialStatus.Approved, IsFeatured = true,  CreatedAt = now.AddDays(-9),  ApprovedAt = now.AddDays(-8),  ApprovedById = adminUser?.Id },
+                    new Testimonial { CustomerId = customer.Id,              ServiceRequestId = req2.Id,          ShopId = shop2.Id, MechanicId = mech3.Id, Title = "Fast and Reliable",     Message = "Hassan diagnosed my overheating issue in minutes. He was upfront about the cost and didn't try to upsell me on unnecessary repairs. Highly recommend Golden Wrench Garage.", Rating = 4, Status = TestimonialStatus.Approved, IsFeatured = false, CreatedAt = now.AddDays(-4),  ApprovedAt = now.AddDays(-3),  ApprovedById = adminUser?.Id },
+                    new Testimonial { CustomerId = extraCustomers[0].Id,     ServiceRequestId = extraReqs[0].Id,  ShopId = shop1.Id, MechanicId = mech2.Id, Title = "Lifesaver on the Highway", Message = "I got a flat tyre on the highway late at night. Omar was there in under 20 minutes. He changed the tyre quickly and even checked my spare. JAA is a must-have app for any driver in Jordan.", Rating = 5, Status = TestimonialStatus.Approved, IsFeatured = true,  CreatedAt = now.AddDays(-20), ApprovedAt = now.AddDays(-19), ApprovedById = adminUser?.Id },
+                    new Testimonial { CustomerId = extraCustomers[1].Id,     ServiceRequestId = extraReqs[1].Id,  ShopId = shop2.Id, MechanicId = mech3.Id, Title = "Transparent and Professional", Message = "My car started smoking on the way to work. Golden Wrench sent Hassan who handled everything calmly and professionally. Fixed the coolant issue and got me back on the road. Great service.", Rating = 5, Status = TestimonialStatus.Approved, IsFeatured = false, CreatedAt = now.AddDays(-15), ApprovedAt = now.AddDays(-14), ApprovedById = adminUser?.Id },
+                    new Testimonial { CustomerId = extraCustomers[2].Id,     ServiceRequestId = extraReqs[2].Id,  ShopId = shop1.Id, MechanicId = mech1.Id, Title = "Honest Pricing, Great Work", Message = "The grinding noise from my brakes turned out to be worn pads. Ahmad explained everything clearly, showed me the parts, and fixed it at a fair price. No surprises. Excellent experience.", Rating = 5, Status = TestimonialStatus.Approved, IsFeatured = true,  CreatedAt = now.AddDays(-12), ApprovedAt = now.AddDays(-11), ApprovedById = adminUser?.Id },
+                    new Testimonial { CustomerId = extraCustomers[3].Id,     ServiceRequestId = extraReqs[3].Id,  ShopId = shop2.Id, MechanicId = mech3.Id, Title = "Quick Response Time",     Message = "My car stalled on a busy road and I panicked. JAA connected me with a mechanic within minutes. Hassan sorted out the fuel pump issue efficiently. Very reassuring service.", Rating = 4, Status = TestimonialStatus.Approved, IsFeatured = false, CreatedAt = now.AddDays(-7),  ApprovedAt = now.AddDays(-6),  ApprovedById = adminUser?.Id }
                 );
 
                 await db.SaveChangesAsync();

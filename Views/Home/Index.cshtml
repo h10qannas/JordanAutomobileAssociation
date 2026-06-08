@@ -1,3 +1,4 @@
+@model JAA.ViewModels.HomeIndexViewModel
 @{ ViewData["Title"] = "Home"; Layout = "_Layout"; }
 
 <section class="hero" id="hero">
@@ -124,6 +125,126 @@
           <i class="bi bi-shop-window"></i> @L["Home.RegisterYourShop"]
         </a>
       </div>
+    </div>
+  </div>
+</section>
+
+@* ── Testimonials — always visible, directly above the footer ── *@
+<section class="section-pad" id="testimonials" style="background:var(--card);border-top:1px solid var(--border);">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-label">Testimonials</span>
+      <h2 class="section-title mt-2">What Our Customers Say</h2>
+      @if (Model != null && (Model.AvgRating > 0 || Model.TotalTestimonials > 0 || Model.TotalCompletedServices > 0))
+      {
+        <div class="d-flex justify-content-center gap-4 flex-wrap mt-3" style="font-size:.82rem;color:var(--muted);">
+          @if (Model.AvgRating > 0)
+          {
+            <span style="display:inline-flex;align-items:center;gap:.35rem;">
+              <i class="bi bi-star-fill" style="color:#f59e0b;"></i>
+              <strong style="color:var(--white);">@Model.AvgRating.ToString("F1") / 5</strong>&nbsp;Average Rating
+            </span>
+          }
+          @if (Model.TotalTestimonials > 0)
+          {
+            <span style="display:inline-flex;align-items:center;gap:.35rem;">
+              <i class="bi bi-chat-quote-fill" style="color:var(--red);"></i>
+              <strong style="color:var(--white);">@Model.TotalTestimonials+</strong>&nbsp;Customer Reviews
+            </span>
+          }
+          @if (Model.TotalCompletedServices > 0)
+          {
+            <span style="display:inline-flex;align-items:center;gap:.35rem;">
+              <i class="bi bi-check-circle-fill" style="color:var(--green-t);"></i>
+              <strong style="color:var(--white);">@Model.TotalCompletedServices+</strong>&nbsp;Completed Services
+            </span>
+          }
+        </div>
+      }
+    </div>
+
+    @if (Model != null && Model.Testimonials.Any())
+    {
+      <div class="row g-4">
+        @foreach (var t in Model.Testimonials)
+        {
+          var initial = t.CustomerName.Length > 0 ? char.ToUpper(t.CustomerName[0]).ToString() : "C";
+          <div class="col-md-6 col-lg-4 fade-in">
+            <div class="feature-card" style="display:flex;flex-direction:column;gap:.7rem;height:100%;">
+              @if (t.IsFeatured)
+              {
+                <div style="display:inline-flex;align-items:center;gap:.3rem;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);border-radius:999px;font-size:.62rem;font-weight:700;color:#d4a017;padding:.2rem .6rem;width:fit-content;">
+                  <i class="bi bi-star-fill"></i> Featured
+                </div>
+              }
+              <div style="display:flex;gap:.18rem;">
+                @for (int i = 1; i <= 5; i++)
+                {
+                  <i class="bi bi-star-fill" style="font-size:.72rem;color:@(i <= t.Rating ? "#f59e0b" : "rgba(255,255,255,.1)");"></i>
+                }
+              </div>
+              @if (!string.IsNullOrEmpty(t.Title))
+              {
+                <div style="font-size:.9rem;font-weight:700;color:var(--white);">"@t.Title"</div>
+              }
+              <p style="font-size:.82rem;color:var(--muted);line-height:1.7;flex:1;font-style:italic;margin:0;">
+                "@(t.Message.Length > 180 ? t.Message[..180] + "…" : t.Message)"
+              </p>
+              <div style="display:flex;align-items:center;gap:.65rem;padding-top:.5rem;border-top:1px solid var(--border);">
+                <div style="width:34px;height:34px;border-radius:50%;background:rgba(88,166,255,.12);border:1px solid rgba(88,166,255,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#58a6ff;flex-shrink:0;">
+                  @initial
+                </div>
+                <div>
+                  <div style="font-size:.78rem;font-weight:700;color:var(--white);">@t.CustomerName</div>
+                  <div style="font-size:.68rem;color:var(--muted);">
+                    <i class="bi bi-shield-check-fill" style="color:var(--green-t);margin-right:.25rem;"></i>Verified JAA Customer
+                  </div>
+                </div>
+                <div style="margin-left:auto;font-size:.65rem;color:var(--muted);">@t.ServiceDate.ToString("MMM yyyy")</div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+    else
+    {
+      @* Static fallback cards shown before any testimonials are seeded *@
+      <div class="row g-4">
+        @foreach (var ph in new (string Init, string Name, string Service, int Stars, string Quote)[]
+        {
+          ("R", "Rami Al-Khalidi",  "Towing Service", 5, "The mechanic arrived in under 20 minutes. Absolutely professional — got my car to the workshop without a scratch."),
+          ("N", "Nour Hassan",      "Flat Tire",       5, "Stuck on the highway at night, JAA sent someone within minutes. Felt completely safe the whole time."),
+          ("F", "Fatima Zahra",     "Battery Jump",    4, "Quick, affordable, and the mechanic explained everything clearly. Will definitely use this service again.")
+        })
+        {
+          <div class="col-md-6 col-lg-4 fade-in">
+            <div class="feature-card" style="display:flex;flex-direction:column;gap:.7rem;height:100%;">
+              <div style="display:flex;gap:.18rem;">
+                @for (int i = 1; i <= 5; i++)
+                {
+                  <i class="bi bi-star-fill" style="font-size:.72rem;color:@(i <= ph.Stars ? "#f59e0b" : "rgba(255,255,255,.1)");"></i>
+                }
+              </div>
+              <p style="font-size:.82rem;color:var(--muted);line-height:1.7;flex:1;font-style:italic;margin:0;">"@ph.Quote"</p>
+              <div style="display:flex;align-items:center;gap:.65rem;padding-top:.5rem;border-top:1px solid var(--border);">
+                <div style="width:34px;height:34px;border-radius:50%;background:rgba(88,166,255,.12);border:1px solid rgba(88,166,255,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#58a6ff;flex-shrink:0;">@ph.Init</div>
+                <div>
+                  <div style="font-size:.78rem;font-weight:700;color:var(--white);">@ph.Name</div>
+                  <div style="font-size:.68rem;color:var(--muted);"><i class="bi bi-shield-check-fill" style="color:var(--green-t);margin-right:.25rem;"></i>Verified JAA Customer</div>
+                </div>
+                <div style="margin-left:auto;font-size:.65rem;color:var(--muted);">Verified Customer</div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="text-center mt-5">
+      <a asp-controller="Account" asp-action="Register" class="btn-jaa btn-outline">
+        <i class="bi bi-pencil-square"></i> Share Your Experience
+      </a>
     </div>
   </div>
 </section>

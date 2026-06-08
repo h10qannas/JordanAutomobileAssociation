@@ -1,319 +1,556 @@
 @model JAA.ViewModels.TrackRequestViewModel
 @using JAA.Models
+@using System.Globalization
 @{
     Layout = "_Layout";
     ViewData["Title"] = $"{L["Track.Request"].Value} #{Model.Request.Id}";
-    var status    = Model.Request.Status;
-    var isActive  = status != RequestStatus.Completed && status != RequestStatus.Cancelled && status != RequestStatus.Rejected;
-    var hasShop   = Model.Request.Shop != null;
-    var helpOnWay = status == RequestStatus.Accepted || status == RequestStatus.MechanicArrived || status == RequestStatus.InProgress;
-    var minutesAgo = (int)(DateTime.UtcNow - Model.Request.UpdatedAt).TotalMinutes;
-    var avgRating  = hasShop && Model.Request.Shop!.Feedbacks.Any() ? Model.Request.Shop.Feedbacks.Average(f => f.Rating) : 0.0;
+    var status      = Model.Request.Status;
+    var isActive    = status != RequestStatus.Completed
+                   && status != RequestStatus.Cancelled
+                   && status != RequestStatus.Rejected
+                   && status != RequestStatus.QuotationRejected
+                   && status != RequestStatus.UnderReview;
+    var hasShop     = Model.Request.Shop != null;
+    var helpOnWay   = status is RequestStatus.Accepted or RequestStatus.MechanicArrived or RequestStatus.InProgress;
+    var isDone      = status == RequestStatus.Completed;
+    var isCancelled = status is RequestStatus.Cancelled or RequestStatus.Rejected or RequestStatus.QuotationRejected;
+    var minutesAgo  = (int)(DateTime.UtcNow - Model.Request.UpdatedAt).TotalMinutes;
+    var avgRating   = hasShop && Model.Request.Shop!.Feedbacks.Any()
+                      ? Model.Request.Shop.Feedbacks.Average(f => f.Rating) : 0.0;
+    var hasLocation = Model.Request.CustomerLatitude != 0 || Model.Request.CustomerLongitude != 0;
+    var lat = Model.Request.CustomerLatitude.ToString(CultureInfo.InvariantCulture);
+    var lng = Model.Request.CustomerLongitude.ToString(CultureInfo.InvariantCulture);
+    var sbClass = status.ToString().ToLower();
+
+    string heroState = status switch {
+        RequestStatus.Pending             => "state-pending",
+        RequestStatus.InspectionPaid      => "state-waiting",
+        RequestStatus.Accepted            => "state-ontheway",
+        RequestStatus.MechanicArrived     => "state-arrived",
+        RequestStatus.Diagnosed           => "state-diagnosing",
+        RequestStatus.QuotationApproved   => "state-repair",
+        RequestStatus.AwaitingConfirmation => "state-confirm",
+        RequestStatus.UnderReview         => "state-review",
+        RequestStatus.Completed           => "state-done",
+        _                                 => "state-ended"
+    };
+    string heroIcon = status switch {
+        RequestStatus.Pending             => "bi-search",
+        RequestStatus.InspectionPaid      => "bi-hourglass-split",
+        RequestStatus.Accepted            => "bi-truck",
+        RequestStatus.MechanicArrived     => "bi-person-badge-fill",
+        RequestStatus.InProgress or RequestStatus.Diagnosed => "bi-tools",
+        RequestStatus.QuotationApproved   => "bi-wrench-adjustable",
+        RequestStatus.AwaitingConfirmation => "bi-shield-check",
+        RequestStatus.UnderReview         => "bi-exclamation-triangle-fill",
+        RequestStatus.Completed           => "bi-check-circle-fill",
+        _                                 => "bi-x-circle"
+    };
+    string heroTitle = status switch {
+        RequestStatus.Pending             => L["Track.LookingForShop"].Value,
+        RequestStatus.InspectionPaid      => "Payment confirmed — waiting for a shop to accept",
+        RequestStatus.Accepted            => L["Track.HelpIsOnTheWay"].Value,
+        RequestStatus.MechanicArrived     => L["Track.MechanicArrived"].Value,
+        RequestStatus.InProgress or RequestStatus.Diagnosed => L["Track.WorkInProgress"].Value,
+        RequestStatus.QuotationApproved   => "Repair approved — work in progress",
+        RequestStatus.AwaitingConfirmation => L["Track.AwaitingConfirmationTitle"].Value,
+        RequestStatus.UnderReview         => L["Track.UnderReviewTitle"].Value,
+        RequestStatus.Completed           => L["Track.YourCarIsFixed"].Value,
+        RequestStatus.Cancelled           => "Request cancelled",
+        RequestStatus.Rejected            => "Request rejected by shop",
+        RequestStatus.QuotationRejected   => "Quotation declined",
+        _                                 => L["Track.WasRequest"].Value
+    };
+    string statusLabel = status switch {
+        RequestStatus.QuotationRejected => "Quotation Rejected",
+        RequestStatus.InProgress        => L["Track.WorkInProgress"].Value,
+        _                               => L["Status." + status.ToString()].Value
+    };
 }
 
 @section Styles {
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 <style>
-.tr-page { padding: 80px 0 80px; background: var(--dark); min-height: 100vh; }
-.tr-banner {
-    border-radius: 18px; padding: 1.6rem 1.75rem;
-    margin-bottom: 1.25rem; position: relative; overflow: hidden;
+/* ── Page ─────────────────────────────────────────────── */
+.trk-page { padding: 90px 0 90px; min-height: 100vh; }
+
+/* ── Breadcrumb back link ─────────────────────────────── */
+.trk-back {
+    display: inline-flex; align-items: center; gap: .4rem;
+    color: var(--muted); font-size: .78rem; text-decoration: none;
+    transition: color .2s;
 }
-.tr-banner.pending  { background: linear-gradient(135deg, rgba(210,153,34,.1) 0%, rgba(210,153,34,.04) 100%); border: 1px solid rgba(210,153,34,.25); }
-.tr-banner.ontheway { background: linear-gradient(135deg, rgba(88,166,255,.08) 0%, rgba(88,166,255,.03) 100%); border: 1px solid rgba(88,166,255,.2); }
-.tr-banner.completed{ background: linear-gradient(135deg, rgba(35,134,54,.1) 0%, rgba(35,134,54,.04) 100%); border: 1px solid rgba(35,134,54,.25); }
-.tr-banner.cancelled{ background: rgba(139,148,158,.06); border: 1px solid var(--border); }
-.tr-banner::before  {
-    content: ''; position: absolute; top: -60px; right: -60px;
-    width: 200px; height: 200px; border-radius: 50%;
-    pointer-events: none;
+.trk-back:hover { color: var(--light); }
+
+/* ── Status badge ─────────────────────────────────────── */
+.trk-badge {
+    display: inline-flex; align-items: center; gap: .3rem;
+    border-radius: 999px; font-size: .66rem; font-weight: 700;
+    padding: .26rem .8rem; text-transform: uppercase; letter-spacing: .5px;
 }
-.tr-banner.ontheway::before  { background: radial-gradient(circle, rgba(88,166,255,.12) 0%, transparent 70%); }
-.tr-banner.pending::before   { background: radial-gradient(circle, rgba(210,153,34,.12) 0%, transparent 70%); }
-.tr-banner.completed::before { background: radial-gradient(circle, rgba(63,185,80,.12)  0%, transparent 70%); }
-.tr-live-pill {
-    display: inline-flex; align-items: center; gap: .45rem;
-    border-radius: 999px; font-size: .68rem; font-weight: 700;
-    padding: .28rem .85rem; letter-spacing: .4px; text-transform: uppercase;
-    margin-bottom: 1rem;
+.sb-pending,.sb-inspectionpaid { background:rgba(210,153,34,.12); color:var(--yellow-t); border:1px solid rgba(210,153,34,.25); }
+.sb-accepted { background:rgba(88,166,255,.1); color:var(--blue); border:1px solid rgba(88,166,255,.2); }
+.sb-mechanicarrived { background:rgba(167,139,250,.1); color:var(--purple,#a78bfa); border:1px solid rgba(167,139,250,.2); }
+.sb-inprogress,.sb-diagnosed { background:rgba(230,130,0,.1); color:#e68200; border:1px solid rgba(230,130,0,.2); }
+.sb-quotationapproved { background:rgba(63,185,80,.08); color:var(--green-t); border:1px solid rgba(63,185,80,.2); }
+.sb-completed { background:rgba(35,134,54,.12); color:var(--green-t); border:1px solid rgba(35,134,54,.25); }
+.sb-cancelled,.sb-rejected,.sb-quotationrejected { background:rgba(139,148,158,.08); color:var(--muted); border:1px solid var(--border); }
+.sb-awaitingconfirmation { background:rgba(167,139,250,.1); color:var(--purple,#a78bfa); border:1px solid rgba(167,139,250,.2); }
+.sb-underreview { background:rgba(230,57,70,.08); color:var(--red); border:1px solid rgba(230,57,70,.2); }
+
+/* ── Hero Banner ──────────────────────────────────────── */
+.trk-hero {
+    border-radius: 20px; padding: 1.75rem 2rem;
+    margin-bottom: 1.5rem; position: relative; overflow: hidden;
 }
-.tr-live-pill.blue   { background: rgba(88,166,255,.12);  border: 1px solid rgba(88,166,255,.25);  color: var(--blue); }
-.tr-live-pill.yellow { background: rgba(210,153,34,.12);  border: 1px solid rgba(210,153,34,.25);  color: var(--yellow-t); }
-.tr-live-pill.green  { background: rgba(63,185,80,.1);    border: 1px solid rgba(63,185,80,.25);   color: var(--green-t); }
-.tr-live-dot { width: 7px; height: 7px; border-radius: 50%; animation: tr-blink 1.3s infinite; }
-.blue   .tr-live-dot { background: var(--blue); }
-.yellow .tr-live-dot { background: var(--yellow-t); }
-.green  .tr-live-dot { background: var(--green-t); }
-@@keyframes tr-blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.65)} }
-.tr-shop-row { display: flex; align-items: center; gap: 1rem; }
-.tr-shop-avatar {
-    width: 56px; height: 56px; border-radius: 14px; flex-shrink: 0;
-    background: rgba(230,57,70,.15); border: 1px solid rgba(230,57,70,.25);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem; font-weight: 900; color: var(--red); overflow: hidden;
+.trk-hero.state-pending   { background:linear-gradient(135deg,rgba(210,153,34,.12),rgba(210,153,34,.03)); border:1px solid rgba(210,153,34,.2); }
+.trk-hero.state-waiting   { background:linear-gradient(135deg,rgba(88,166,255,.1),rgba(88,166,255,.03)); border:1px solid rgba(88,166,255,.18); }
+.trk-hero.state-ontheway  { background:linear-gradient(135deg,rgba(88,166,255,.1),rgba(88,166,255,.03)); border:1px solid rgba(88,166,255,.18); }
+.trk-hero.state-arrived   { background:linear-gradient(135deg,rgba(167,139,250,.1),rgba(167,139,250,.03)); border:1px solid rgba(167,139,250,.2); }
+.trk-hero.state-diagnosing{ background:linear-gradient(135deg,rgba(230,130,0,.1),rgba(230,130,0,.03)); border:1px solid rgba(230,130,0,.2); }
+.trk-hero.state-repair    { background:linear-gradient(135deg,rgba(63,185,80,.1),rgba(63,185,80,.03)); border:1px solid rgba(63,185,80,.2); }
+.trk-hero.state-done      { background:linear-gradient(135deg,rgba(35,134,54,.13),rgba(35,134,54,.04)); border:1px solid rgba(35,134,54,.25); }
+.trk-hero.state-confirm   { background:linear-gradient(135deg,rgba(167,139,250,.1),rgba(167,139,250,.03)); border:1px solid rgba(167,139,250,.2); }
+.trk-hero.state-review    { background:linear-gradient(135deg,rgba(230,57,70,.1),rgba(230,57,70,.03)); border:1px solid rgba(230,57,70,.2); }
+.trk-hero.state-ended     { background:rgba(139,148,158,.05); border:1px solid var(--border); }
+
+/* glow orb in hero */
+.trk-hero-glow {
+    position: absolute; top: -80px; right: -80px;
+    width: 260px; height: 260px; border-radius: 50%; pointer-events: none;
 }
-.tr-shop-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.tr-shop-name { font-size: 1.1rem; font-weight: 800; color: var(--white); letter-spacing: -.3px; margin-bottom: .2rem; }
-.tr-shop-sub  { font-size: .78rem; color: var(--muted); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
-.tr-shop-sub i { font-size: .72rem; }
-.tr-eta {
-    display: flex; align-items: center; gap: .8rem;
-    background: rgba(255,255,255,.04); border: 1px solid var(--border);
-    border-radius: 12px; padding: .75rem 1rem; margin-top: 1rem;
+.state-pending   .trk-hero-glow { background:radial-gradient(circle,rgba(210,153,34,.18) 0%,transparent 70%); }
+.state-waiting   .trk-hero-glow { background:radial-gradient(circle,rgba(88,166,255,.18) 0%,transparent 70%); }
+.state-ontheway  .trk-hero-glow { background:radial-gradient(circle,rgba(88,166,255,.18) 0%,transparent 70%); }
+.state-arrived   .trk-hero-glow { background:radial-gradient(circle,rgba(167,139,250,.18) 0%,transparent 70%); }
+.state-diagnosing .trk-hero-glow { background:radial-gradient(circle,rgba(230,130,0,.18) 0%,transparent 70%); }
+.state-repair    .trk-hero-glow { background:radial-gradient(circle,rgba(63,185,80,.18) 0%,transparent 70%); }
+.state-done      .trk-hero-glow { background:radial-gradient(circle,rgba(35,134,54,.18) 0%,transparent 70%); }
+.state-confirm   .trk-hero-glow { background:radial-gradient(circle,rgba(167,139,250,.18) 0%,transparent 70%); }
+.state-review    .trk-hero-glow { background:radial-gradient(circle,rgba(230,57,70,.18) 0%,transparent 70%); }
+
+.trk-hero-inner  { display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; position:relative; z-index:1; }
+.trk-hero-icon   {
+    width: 60px; height: 60px; border-radius: 16px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 1.55rem;
 }
-.tr-eta-icon { width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; background: rgba(88,166,255,.1); border: 1px solid rgba(88,166,255,.2); display: flex; align-items: center; justify-content: center; color: var(--blue); font-size: .9rem; }
-.tr-eta-title { font-size: .82rem; font-weight: 700; color: var(--white); }
-.tr-eta-sub   { font-size: .72rem; color: var(--muted); }
-.btn-tr-call {
-    display: flex; align-items: center; justify-content: center; gap: .5rem;
-    width: 100%; background: var(--red); color: #fff; border: none;
-    border-radius: 12px; font-size: .95rem; font-weight: 800;
-    padding: .85rem; text-decoration: none; margin-top: 1rem;
+.state-pending   .trk-hero-icon { background:rgba(210,153,34,.15); border:1px solid rgba(210,153,34,.25); color:var(--yellow-t); }
+.state-waiting   .trk-hero-icon { background:rgba(88,166,255,.12);  border:1px solid rgba(88,166,255,.22);  color:var(--blue); }
+.state-ontheway  .trk-hero-icon { background:rgba(88,166,255,.12);  border:1px solid rgba(88,166,255,.22);  color:var(--blue); }
+.state-arrived   .trk-hero-icon { background:rgba(167,139,250,.12); border:1px solid rgba(167,139,250,.22); color:var(--purple,#a78bfa); }
+.state-diagnosing .trk-hero-icon { background:rgba(230,130,0,.12);  border:1px solid rgba(230,130,0,.22);   color:#e68200; }
+.state-repair    .trk-hero-icon { background:rgba(63,185,80,.1);    border:1px solid rgba(63,185,80,.22);   color:var(--green-t); }
+.state-done      .trk-hero-icon { background:rgba(35,134,54,.12);   border:1px solid rgba(35,134,54,.22);   color:var(--green-t); }
+.state-ended     .trk-hero-icon { background:rgba(230,57,70,.08);   border:1px solid rgba(230,57,70,.18);   color:var(--red); }
+.state-confirm   .trk-hero-icon { background:rgba(167,139,250,.12); border:1px solid rgba(167,139,250,.22); color:var(--purple,#a78bfa); }
+.state-review    .trk-hero-icon { background:rgba(230,57,70,.1);    border:1px solid rgba(230,57,70,.2);    color:var(--red); }
+
+.trk-hero-body   { flex:1; min-width:0; }
+.trk-hero-title  { font-size:1.15rem; font-weight:800; color:var(--white); letter-spacing:-.3px; margin-bottom:.3rem; line-height:1.3; }
+.trk-hero-sub    { font-size:.82rem; color:var(--muted); line-height:1.55; }
+.trk-hero-actions { display:flex; align-items:center; gap:.75rem; margin-top:1rem; flex-wrap:wrap; }
+
+/* Live blink dot */
+@@keyframes trk-blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.25;transform:scale(.55)} }
+.trk-dot { width:7px; height:7px; border-radius:50%; display:inline-block; animation:trk-blink 1.3s infinite; flex-shrink:0; }
+.trk-dot.yellow { background:var(--yellow-t); }
+.trk-dot.blue   { background:var(--blue); }
+.trk-dot.green  { background:var(--green-t,#3fb950); }
+.trk-dot.purple { background:var(--purple,#a78bfa); }
+.trk-dot.orange { background:#e68200; }
+
+/* Shop info inside hero */
+.trk-shop-row   { display:flex; align-items:center; gap:.9rem; margin-bottom:.85rem; }
+.trk-shop-av    {
+    width:52px; height:52px; border-radius:14px; flex-shrink:0;
+    background:rgba(230,57,70,.12); border:1px solid rgba(230,57,70,.22);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.15rem; font-weight:900; color:var(--red); overflow:hidden;
+}
+.trk-shop-av img { width:100%; height:100%; object-fit:cover; }
+.trk-shop-name  { font-size:.98rem; font-weight:800; color:var(--white); letter-spacing:-.2px; }
+.trk-shop-meta  { font-size:.73rem; color:var(--muted); display:flex; align-items:center; gap:.3rem; flex-wrap:wrap; margin-top:.2rem; }
+
+/* Call button */
+.btn-trk-call {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: var(--red); color: #fff; border: none;
+    border-radius: 10px; font-size: .88rem; font-weight: 700;
+    padding: .65rem 1.3rem; cursor: pointer; text-decoration: none;
     transition: background .2s, transform .15s, box-shadow .2s;
-    font-family: var(--font);
+    font-family: var(--font); white-space: nowrap;
 }
-.btn-tr-call:hover { background: var(--red-d); transform: translateY(-1px); box-shadow: 0 8px 22px rgba(230,57,70,.3); color: #fff; }
-.tr-reassure { font-size: .75rem; color: var(--muted); text-align: center; margin-top: .85rem; line-height: 1.6; }
-.tr-reassure i { color: var(--green-t); }
-.tr-card {
+.btn-trk-call:hover { background:var(--red-d); transform:translateY(-1px); box-shadow:0 6px 20px rgba(230,57,70,.3); color:#fff; }
+.btn-trk-cancel {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--border); border-radius: 10px;
+    font-size: .82rem; font-weight: 600;
+    padding: .55rem 1.2rem; cursor: pointer; text-decoration: none;
+    transition: all .2s; font-family: var(--font); white-space: nowrap;
+}
+.btn-trk-cancel:hover { background:rgba(230,57,70,.08); border-color:rgba(230,57,70,.4); color:#f87171; }
+.trk-cancel-modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,.65); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+}
+.trk-cancel-modal-overlay.open { display: flex; }
+.trk-cancel-modal {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 28px 28px 24px;
+    max-width: 380px; width: 90%; text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,.5);
+}
+.trk-cm-icon {
+    width: 52px; height: 52px; border-radius: 14px; margin: 0 auto 16px;
+    background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; color: #f87171;
+}
+.trk-cm-title { font-size: 1rem; font-weight: 800; color: var(--white); margin-bottom: 8px; }
+.trk-cm-body  { font-size: .83rem; color: var(--muted); line-height: 1.55; margin-bottom: 22px; }
+.trk-cm-actions { display: flex; gap: 10px; }
+.trk-cm-actions .btn-trk-cancel { flex: 1; justify-content: center; }
+.trk-cm-confirm {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: .4rem;
+    background: linear-gradient(135deg,#e63946,#c1121f); color:#fff;
+    border: none; border-radius: 10px; padding: .6rem 1rem;
+    font-size: .84rem; font-weight: 700; cursor: pointer;
+    font-family: var(--font); transition: all .2s;
+}
+.trk-cm-confirm:hover { background: linear-gradient(135deg,#ff4d5a,#e63946); }
+
+/* ── Cards ────────────────────────────────────────────── */
+.trk-card {
     background: var(--card); border: 1px solid var(--border);
     border-radius: 16px; overflow: hidden; margin-bottom: 1.25rem;
 }
-.tr-card-head {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: .9rem 1.3rem; border-bottom: 1px solid var(--border);
-    font-size: .85rem; font-weight: 700; color: var(--white);
+.trk-card-head {
+    display: flex; align-items: center; gap: .6rem;
+    padding: .85rem 1.25rem; border-bottom: 1px solid var(--border);
+    font-size: .84rem; font-weight: 700; color: var(--white);
 }
-.tr-card-head i { color: var(--red); margin-right: .45rem; }
-.tr-card-body { padding: 1.3rem; }
-.tr-steps { display: flex; align-items: flex-start; gap: 0; position: relative; padding: .5rem 0; }
-.tr-step  { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .45rem; position: relative; z-index: 1; }
-.tr-dot   {
-    width: 34px; height: 34px; border-radius: 50%;
-    border: 2px solid var(--border);
-    background: rgba(255,255,255,.04);
+.trk-ch-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .78rem; background: rgba(230,57,70,.1);
+    color: var(--red); flex-shrink: 0;
+}
+.trk-card-body { padding: 1.25rem; }
+
+/* ── Vertical Timeline ────────────────────────────────── */
+.vt-step {
+    display: flex; gap: .9rem; position: relative; padding-bottom: 1.35rem;
+}
+.vt-step:last-child { padding-bottom: 0; }
+
+.vt-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 36px; }
+
+.vt-dot {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid var(--border); background: rgba(255,255,255,.03);
     display: flex; align-items: center; justify-content: center;
     font-size: .72rem; font-weight: 700; color: var(--muted);
-    transition: all .3s;
+    position: relative; z-index: 1; flex-shrink: 0; transition: all .3s;
 }
-.tr-step.done   .tr-dot { background: var(--green); border-color: var(--green); color: #fff; }
-.tr-step.active .tr-dot {
+.vt-step.vs-done   .vt-dot { background:var(--green,#238836); border-color:var(--green,#238836); color:#fff; }
+.vt-step.vs-active .vt-dot {
     background: var(--red); border-color: var(--red); color: #fff;
     box-shadow: 0 0 0 4px rgba(230,57,70,.2);
-    animation: tr-step-pulse 1.6s ease-in-out infinite;
+    animation: vt-pulse 1.6s ease-in-out infinite;
 }
-@@keyframes tr-step-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(230,57,70,.35)} 50%{box-shadow:0 0 0 8px rgba(230,57,70,0)} }
-.tr-lbl  { font-size: .65rem; color: var(--muted); text-align: center; line-height: 1.35; max-width: 58px; }
-.tr-step.done   .tr-lbl, .tr-step.active .tr-lbl { color: var(--light); font-weight: 600; }
-.tr-line { position: absolute; top: 16px; left: 50%; right: -50%; height: 2px; background: var(--border); z-index: 0; }
-.tr-step.done .tr-line { background: var(--green); }
-.tr-field-label { font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .3rem; }
-.tr-field-value { font-size: .9rem; color: var(--white); line-height: 1.55; margin-bottom: 1rem; }
-.tr-quote { font-style: italic; color: var(--light); }
-.tr-diagnosis {
-    background: rgba(88,166,255,.06); border-left: 3px solid var(--blue);
-    border-radius: 0 10px 10px 0; padding: .75rem 1rem;
-    font-size: .85rem; color: var(--light); line-height: 1.6; margin-bottom: 1rem;
+@@keyframes vt-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(230,57,70,.35)} 50%{box-shadow:0 0 0 8px rgba(230,57,70,0)} }
+
+.vt-line {
+    flex: 1; width: 2px; background: var(--border);
+    margin-top: 4px; min-height: 18px; transition: background .3s;
 }
-.tr-resolution {
-    background: rgba(63,185,80,.06); border-left: 3px solid var(--green-t);
-    border-radius: 0 10px 10px 0; padding: .75rem 1rem;
-    font-size: .85rem; color: var(--light); line-height: 1.6; margin-bottom: 1rem;
+.vt-step.vs-done .vt-line { background: var(--green,#238836); }
+.vt-step:last-child .vt-line { display: none; }
+
+.vt-content { flex: 1; padding-top: .35rem; padding-bottom: .15rem; }
+.vt-label   { font-size: .87rem; font-weight: 700; color: var(--muted); line-height: 1.3; }
+.vt-step.vs-done   .vt-label { color: var(--white); }
+.vt-step.vs-active .vt-label { color: var(--white); }
+.vt-desc    { font-size: .72rem; color: var(--muted); margin-top: .18rem; line-height: 1.5; }
+.vt-step.vs-active .vt-desc  { color: var(--light); }
+
+/* ── Request detail fields ────────────────────────────── */
+.trk-fl { font-size:.67rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.55px; margin-bottom:.28rem; }
+.trk-fv { font-size:.9rem; color:var(--white); line-height:1.55; margin-bottom:.9rem; }
+.trk-fv:last-child { margin-bottom:0; }
+.trk-quote { font-style:italic; color:var(--light); }
+.trk-diagnosis {
+    background:rgba(88,166,255,.06); border-left:3px solid var(--blue);
+    border-radius:0 10px 10px 0; padding:.7rem .95rem;
+    font-size:.84rem; color:var(--light); line-height:1.6; margin-bottom:.9rem;
 }
-.tr-payment {
+.trk-resolution {
+    background:rgba(63,185,80,.06); border-left:3px solid var(--green-t,#3fb950);
+    border-radius:0 10px 10px 0; padding:.7rem .95rem;
+    font-size:.84rem; color:var(--light); line-height:1.6; margin-bottom:.9rem;
+}
+
+/* ── Amount box ───────────────────────────────────────── */
+.trk-amount-box {
     background: rgba(230,57,70,.07); border: 1px solid rgba(230,57,70,.18);
-    border-radius: 14px; padding: 1.1rem; text-align: center; margin-bottom: 1rem;
+    border-radius: 14px; padding: 1rem 1.25rem;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; margin-bottom: .9rem;
 }
-.tr-payment-label { font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .2rem; }
-.tr-payment-amount { font-size: 2rem; font-weight: 900; color: var(--white); letter-spacing: -1px; line-height: 1; }
-.tr-payment-amount span { font-size: 1rem; color: var(--muted); font-weight: 600; }
-.tr-feedback-card {
-    background: var(--card); border: 1px solid rgba(230,57,70,.18);
-    border-radius: 16px; padding: 1.4rem; text-align: center; margin-bottom: 1.25rem;
+.trk-amount-lbl   { font-size:.66rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:.2rem; }
+.trk-amount-val   { font-size:1.85rem; font-weight:900; color:var(--white); letter-spacing:-1px; line-height:1; }
+.trk-amount-val span { font-size:.9rem; color:var(--muted); font-weight:600; }
+.trk-amount-ico   { width:46px; height:46px; border-radius:13px; background:rgba(230,57,70,.1); border:1px solid rgba(230,57,70,.18); display:flex; align-items:center; justify-content:center; font-size:1.15rem; color:var(--red); flex-shrink:0; }
+
+/* ── Quotation action buttons ─────────────────────────── */
+.btn-trk-approve {
+    width:100%; display:flex; align-items:center; justify-content:center; gap:.5rem;
+    background:var(--green,#238836); color:#fff; border:none; border-radius:10px;
+    font-size:.9rem; font-weight:700; padding:.78rem; cursor:pointer;
+    font-family:var(--font); transition:background .2s, transform .15s; text-decoration:none;
 }
-.tr-stars-display { display: flex; justify-content: center; gap: .3rem; margin-bottom: .8rem; }
-.tr-stars-display i { font-size: 1.3rem; color: rgba(255,255,255,.1); transition: color .15s; }
-.tr-stars-display:hover i { color: #fbbf24; }
-.btn-tr-feedback {
-    display: block; background: var(--red); color: #fff;
-    border-radius: 12px; font-size: .9rem; font-weight: 800;
-    padding: .8rem; text-decoration: none; font-family: var(--font);
-    transition: background .2s, transform .15s, box-shadow .2s;
+.btn-trk-approve:hover { background:#2ea043; transform:translateY(-1px); color:#fff; }
+.btn-trk-reject {
+    width:100%; display:flex; align-items:center; justify-content:center; gap:.5rem;
+    background:transparent; color:var(--red); border:1px solid rgba(230,57,70,.3);
+    border-radius:10px; font-size:.88rem; font-weight:700; padding:.72rem;
+    cursor:pointer; font-family:var(--font); transition:all .2s; text-decoration:none;
+    margin-top:.6rem;
 }
-.btn-tr-feedback:hover { background: var(--red-d); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(230,57,70,.3); color: #fff; }
-.tr-status-badge {
-    display: inline-flex; align-items: center; gap: .3rem;
-    border-radius: 999px; font-size: .68rem; font-weight: 700;
-    padding: .25rem .75rem; text-transform: uppercase; letter-spacing: .4px;
+.btn-trk-reject:hover { background:rgba(230,57,70,.08); border-color:rgba(230,57,70,.5); color:var(--red); }
+
+/* ── Feedback ─────────────────────────────────────────── */
+.trk-stars { display:flex; justify-content:center; gap:.3rem; margin-bottom:.8rem; }
+.trk-stars i { font-size:1.4rem; color:rgba(255,255,255,.08); transition:color .15s; }
+.trk-stars:hover i { color:#fbbf24; }
+.btn-trk-rate {
+    width:100%; display:flex; align-items:center; justify-content:center; gap:.5rem;
+    background:var(--red); color:#fff; border:none; border-radius:10px;
+    font-size:.9rem; font-weight:800; padding:.8rem; text-decoration:none;
+    font-family:var(--font); transition:background .2s, transform .15s, box-shadow .2s;
 }
-.sb-pending         { background: rgba(210,153,34,.12);  color: var(--yellow-t); border: 1px solid rgba(210,153,34,.25); }
-.sb-accepted        { background: rgba(88,166,255,.1);   color: var(--blue);     border: 1px solid rgba(88,166,255,.2); }
-.sb-mechanicarrived { background: rgba(167,139,250,.1);  color: var(--purple);   border: 1px solid rgba(167,139,250,.2); }
-.sb-inprogress      { background: rgba(230,57,70,.1);    color: var(--red);      border: 1px solid rgba(230,57,70,.2); }
-.sb-completed       { background: rgba(35,134,54,.1);    color: var(--green-t);  border: 1px solid rgba(35,134,54,.25); }
-.sb-cancelled,
-.sb-rejected        { background: rgba(139,148,158,.08); color: var(--muted);    border: 1px solid var(--border); }
-.btn-tr-back {
-    display: inline-flex; align-items: center; gap: .4rem;
-    color: var(--muted); font-size: .8rem; text-decoration: none;
-    transition: color .2s;
+.btn-trk-rate:hover { background:var(--red-d); transform:translateY(-1px); box-shadow:0 6px 18px rgba(230,57,70,.3); color:#fff; }
+
+/* ── Map frame ────────────────────────────────────────── */
+.trk-map { width:100%; height:190px; border:none; display:block; border-radius:0 0 15px 15px; }
+
+/* ── Refresh bar ──────────────────────────────────────── */
+.trk-refresh-bar {
+    display:flex; align-items:center; gap:.5rem;
+    font-size:.71rem; color:var(--muted);
+    padding-top:.85rem; margin-top:.6rem;
+    border-top:1px solid var(--border);
 }
-.btn-tr-back:hover { color: var(--light); }
 </style>
 }
 
-<div class="tr-page">
-<div class="container" style="max-width: 900px;">
+<div class="trk-page">
+<div class="container" style="max-width:940px;">
 
-    <!-- ── Back + title row ── -->
-    <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
-        <a asp-action="Dashboard" class="btn-tr-back"><i class="fas fa-arrow-left"></i> @L["Track.Dashboard"]</a>
-        <div style="font-size:.75rem;color:var(--border);">·</div>
-        <div style="font-size:.8rem;color:var(--muted);">@L["Track.Request"] <strong style="color:var(--white);">#@Model.Request.Id</strong></div>
+    <!-- ── Breadcrumb ── -->
+    <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+        <a asp-action="Dashboard" class="trk-back">
+            <i class="bi bi-arrow-left"></i> @L["Track.Dashboard"]
+        </a>
+        <span style="color:var(--border);font-size:.8rem;">·</span>
+        <span style="font-size:.79rem;color:var(--muted);">
+            @L["Track.Request"] <strong style="color:var(--white);">#@Model.Request.Id</strong>
+        </span>
         <div class="ms-auto">
-            @{ var sbClass = status.ToString().ToLower(); }
-            <span class="tr-status-badge sb-@sbClass">@L["Status." + status.ToString()]</span>
+            <span class="trk-badge sb-@sbClass">@statusLabel</span>
         </div>
     </div>
 
-    <!-- ══ STATUS BANNERS ══ -->
-    @if (helpOnWay && hasShop)
-    {
-        <div class="tr-banner ontheway">
-            <span class="tr-live-pill blue"><span class="tr-live-dot"></span> @L["Track.HelpIsOnTheWay"]</span>
+    <!-- ══ HERO BANNER ══ -->
+    <div class="trk-hero @heroState">
+        <div class="trk-hero-glow"></div>
+        <div class="trk-hero-inner">
 
-            <div class="tr-shop-row">
-                <div class="tr-shop-avatar">
-                    @if (!string.IsNullOrEmpty(Model.Request.Shop!.LogoUrl))
-                    { <img src="@Model.Request.Shop.LogoUrl" alt="@Model.Request.Shop.ShopName" /> }
-                    else
-                    { @char.ToUpper(Model.Request.Shop.ShopName[0]) }
-                </div>
-                <div>
-                    <div class="tr-shop-name">@Model.Request.Shop.ShopName</div>
-                    <div class="tr-shop-sub">
-                        @if (avgRating > 0)
-                        {
-                            @for (int i = 1; i <= 5; i++)
-                            { <i class="fas fa-star" style="color:@(i <= avgRating ? "#fbbf24" : "rgba(255,255,255,.12)");" ></i> }
-                            <span>@avgRating.ToString("F1")</span>
-                            <span style="color:var(--border);">·</span>
-                        }
-                        <i class="fas fa-shield-check"></i>
-                        <span>@L["Track.VerifiedMechanicShop"]</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tr-eta">
-                <div class="tr-eta-icon"><i class="fas fa-clock"></i></div>
-                <div>
-                    <div class="tr-eta-title">
-                        @(status == RequestStatus.Accepted ? L["Track.Accepted"].Value :
-                          status == RequestStatus.MechanicArrived ? L["Track.MechanicArrived"].Value : L["Track.WorkInProgress"].Value)
-                        — @(minutesAgo < 2 ? L["Track.JustNow"].Value : $"{minutesAgo} {L["Track.MinAgo"].Value}")
-                    </div>
-                    <div class="tr-eta-sub">
-                        @if (status == RequestStatus.Accepted)
-                        { <text>@L["Track.MechanicHeading"]</text> }
-                        else if (status == RequestStatus.MechanicArrived)
-                        { <text>@L["Track.MechanicAtLocation"]</text> }
-                        else
-                        { <text>@L["Track.WorkOnVehicle"]</text> }
-                    </div>
-                </div>
-            </div>
-
-            @if (!string.IsNullOrEmpty(Model.Request.Shop.PhoneNumber))
+            @* Icon *@
+            @if (status == RequestStatus.Pending)
             {
-                <button type="button" class="btn-tr-call"
-                        onclick="showCallModal('@Model.Request.Shop.ShopName', '@Model.Request.Shop.PhoneNumber')">
-                    <i class="fas fa-phone"></i> @L["Track.CallMechanicNow"]
-                </button>
+                <div class="trk-hero-icon">
+                    <div class="spinner-border" style="width:26px;height:26px;border-width:2.5px;" role="status"></div>
+                </div>
+            }
+            else if (isDone)
+            {
+                <div class="trk-hero-icon" style="font-size:1.9rem;">✅</div>
+            }
+            else
+            {
+                <div class="trk-hero-icon"><i class="bi @heroIcon"></i></div>
             }
 
-            <p class="tr-reassure">
-                <i class="fas fa-shield-alt me-1"></i>
-                @L["Track.StayCalm"]
-            </p>
-        </div>
-    }
-    else if (status == RequestStatus.Pending)
-    {
-        <div class="tr-banner pending" style="text-align:center;">
-            <span class="tr-live-pill yellow" style="margin:0 auto 1rem;"><span class="tr-live-dot"></span> @L["Track.SearchingNearbyShops"]</span>
-            <div class="d-flex justify-content-center mb-3">
-                <div class="spinner-border" style="color:var(--yellow-t);width:38px;height:38px;" role="status"></div>
-            </div>
-            <div style="font-size:1rem;font-weight:800;color:var(--white);margin-bottom:.35rem;">@L["Track.LookingForShop"]</div>
-            <p style="font-size:.82rem;color:var(--muted);margin:0;">@L["Track.NotifyingShops"]</p>
-        </div>
-    }
-    else if (status == RequestStatus.Completed)
-    {
-        <div class="tr-banner completed" style="text-align:center;">
-            <div style="font-size:2.5rem;margin-bottom:.6rem;">✅</div>
-            <span class="tr-live-pill green" style="margin:0 auto .8rem;"><i class="fas fa-check me-1"></i> @L["Track.Completed"]</span>
-            <div style="font-size:1.05rem;font-weight:800;color:var(--white);margin-bottom:.3rem;">@L["Track.YourCarIsFixed"]</div>
-            <p style="font-size:.82rem;color:var(--muted);margin:0;">@L["Track.JobCompletedBy"] <strong style="color:var(--white);">@(Model.Request.Shop?.ShopName ?? "")</strong></p>
-        </div>
-    }
-    else if (status == RequestStatus.Cancelled || status == RequestStatus.Rejected)
-    {
-        <div class="tr-banner cancelled">
-            <div style="display:flex;align-items:center;gap:.8rem;">
-                <div style="width:40px;height:40px;background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--red);flex-shrink:0;">
-                    <i class="fas fa-times"></i>
+            @* Body — shop info shown when mechanic dispatched *@
+            @if (helpOnWay && hasShop)
+            {
+                <div class="trk-hero-body">
+                    <div class="trk-shop-row">
+                        <div class="trk-shop-av">
+                            @if (!string.IsNullOrEmpty(Model.Request.Shop!.LogoUrl))
+                            { <img src="@Model.Request.Shop.LogoUrl" alt="@Model.Request.Shop.ShopName" /> }
+                            else { @char.ToUpper(Model.Request.Shop.ShopName[0]) }
+                        </div>
+                        <div>
+                            <div class="trk-shop-name">@Model.Request.Shop.ShopName</div>
+                            <div class="trk-shop-meta">
+                                @if (avgRating > 0)
+                                {
+                                    @for (int i = 1; i <= 5; i++)
+                                    { <i class="bi bi-star-fill" style="font-size:.6rem;color:@(i <= avgRating ? "#fbbf24" : "rgba(255,255,255,.12)");"></i> }
+                                    <span>@avgRating.ToString("F1")</span>
+                                    <span style="color:var(--border);">·</span>
+                                }
+                                <i class="bi bi-shield-check" style="font-size:.68rem;"></i>
+                                <span>@L["Track.VerifiedMechanicShop"]</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trk-hero-title">
+                        <span class="trk-dot blue me-1"></span>@heroTitle
+                    </div>
+                    <div class="trk-hero-sub">
+                        @(minutesAgo < 2 ? L["Track.JustNow"].Value : $"{minutesAgo} {L["Track.MinAgo"].Value}")
+                        —
+                        @(status == RequestStatus.Accepted ? L["Track.MechanicHeading"].Value :
+                          status == RequestStatus.MechanicArrived ? L["Track.MechanicAtLocation"].Value :
+                          L["Track.WorkOnVehicle"].Value)
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Request.Shop?.PhoneNumber))
+                    {
+                        <div class="trk-hero-actions">
+                            <button type="button" class="btn-trk-call"
+                                    onclick="showCallModal('@Model.Request.Shop.ShopName', '@Model.Request.Shop.PhoneNumber')">
+                                <i class="bi bi-telephone-fill"></i> @L["Track.CallMechanicNow"]
+                            </button>
+                            <div style="font-size:.73rem;color:var(--muted);flex:1;">
+                                <i class="bi bi-shield-lock me-1" style="color:var(--green-t,#3fb950);"></i>
+                                @L["Track.StayCalm"]
+                            </div>
+                        </div>
+                    }
                 </div>
-                <div>
-                    <div style="font-size:.9rem;font-weight:700;color:var(--white);">@L["Track.WasRequest"] @L["Status." + status.ToString()]</div>
-                    <div style="font-size:.78rem;color:var(--muted);">@L["Track.RequestNoLongerActive"]</div>
-                </div>
-            </div>
-        </div>
-    }
+            }
+            else
+            {
+                <div class="trk-hero-body">
+                    <div class="trk-hero-title">
+                        @if (status is RequestStatus.Pending or RequestStatus.InspectionPaid)
+                        {
+                            <span class="trk-dot @(status == RequestStatus.Pending ? "yellow" : "blue") me-1"></span>
+                        }
+                        @heroTitle
+                    </div>
+                    <div class="trk-hero-sub">
+                        @if (status == RequestStatus.Pending)
+                        { <text>@L["Track.NotifyingShops"]</text> }
+                        else if (status == RequestStatus.InspectionPaid)
+                        { <text>Verified shops in your area are reviewing your request.</text> }
+                        else if (isDone && hasShop)
+                        { <text>@L["Track.JobCompletedBy"] <strong style="color:var(--white);">@Model.Request.Shop!.ShopName</strong></text> }
+                        else if (isDone)
+                        { <text>@L["Track.YourCarIsFixed"]</text> }
+                        else if (isCancelled)
+                        { <text>@L["Track.RequestNoLongerActive"]</text> }
+                        else if (status == RequestStatus.Diagnosed)
+                        { <text>Your mechanic has assessed your vehicle and sent a repair quotation for your review.</text> }
+                        else if (status == RequestStatus.QuotationApproved)
+                        { <text>Your approval has been received — the repair is underway.</text> }
+                        else if (status == RequestStatus.AwaitingConfirmation)
+                        { <text>@L["Track.AwaitingConfirmationSub"]</text> }
+                        else if (status == RequestStatus.UnderReview)
+                        { <text>@L["Track.UnderReviewSub"]</text> }
+                    </div>
 
-    <!-- ══ MAIN CONTENT ══ -->
+                    @if (status == RequestStatus.AwaitingConfirmation && Model.Request.PaymentVerification != null)
+                    {
+                        <div class="trk-hero-actions">
+                            <a asp-action="ConfirmPayment" asp-controller="Customer"
+                               asp-route-requestId="@Model.Request.Id"
+                               class="btn-trk-approve" style="max-width:260px;">
+                                <i class="bi bi-shield-check"></i> @L["Track.ConfirmPaymentBtn"]
+                            </a>
+                        </div>
+                    }
+                    else if (status == RequestStatus.UnderReview)
+                    {
+                        <div style="margin-top:.75rem;font-size:.75rem;color:var(--red);display:flex;align-items:center;gap:.4rem;">
+                            <i class="bi bi-shield-exclamation"></i> @L["Track.UnderReviewAdminNote"]
+                        </div>
+                    }
+                </div>
+
+                @if (helpOnWay && !string.IsNullOrEmpty(Model.Request.Shop?.PhoneNumber))
+                {
+                    <button type="button" class="btn-trk-call"
+                            onclick="showCallModal('@Model.Request.Shop!.ShopName', '@Model.Request.Shop.PhoneNumber')">
+                        <i class="bi bi-telephone-fill"></i> @L["Track.CallMechanicNow"]
+                    </button>
+                }
+
+                @if (status == RequestStatus.Pending || status == RequestStatus.InspectionPaid)
+                {
+                    <button type="button" class="btn-trk-cancel" onclick="document.getElementById('cancelModal').classList.add('open')">
+                        <i class="bi bi-x-circle"></i> @L["Action.Cancel"]
+                    </button>
+                }
+            }
+
+        </div>
+    </div><!-- /.trk-hero -->
+
+    <!-- ══ TWO-COLUMN GRID ══ -->
     <div class="row g-4">
 
-        <!-- Left: Status stepper -->
-        <div class="col-lg-6">
-            <div class="tr-card">
-                <div class="tr-card-head">
-                    <span><i class="fas fa-route"></i> @L["Track.Progress"]</span>
-                    <span class="tr-status-badge sb-@sbClass">@L["Status." + status.ToString()]</span>
+        <!-- ────── Left: vertical progress timeline ────── -->
+        <div class="col-lg-5">
+            <div class="trk-card">
+                <div class="trk-card-head">
+                    <div class="trk-ch-icon"><i class="bi bi-signpost-split"></i></div>
+                    @L["Track.Progress"]
+                    <div class="ms-auto">
+                        <span class="trk-badge sb-@sbClass" style="font-size:.6rem;">@statusLabel</span>
+                    </div>
                 </div>
-                <div class="tr-card-body">
-                    @if (status == RequestStatus.Cancelled || status == RequestStatus.Rejected)
+                <div class="trk-card-body">
+                    @if (isCancelled)
                     {
-                        <div style="background:rgba(230,57,70,.08);border:1px solid rgba(230,57,70,.18);border-radius:10px;padding:.85rem 1rem;font-size:.85rem;color:#ff6b74;">
-                            <i class="fas fa-times-circle me-2"></i>@L["Track.WasRequest"] @L["Status." + status.ToString()].
+                        <div style="background:rgba(230,57,70,.07);border:1px solid rgba(230,57,70,.14);border-radius:10px;padding:.9rem 1rem;font-size:.84rem;color:#ff7b7b;display:flex;align-items:center;gap:.6rem;">
+                            <i class="bi bi-x-circle-fill" style="flex-shrink:0;font-size:1rem;"></i>
+                            <div>@L["Track.WasRequest"] <strong>@statusLabel</strong>.<br>
+                            <span style="font-size:.75rem;color:var(--muted);margin-top:.2rem;display:block;">@L["Track.RequestNoLongerActive"]</span></div>
                         </div>
                     }
                     else
                     {
-                        <div class="tr-steps">
-                            @for (int i = 0; i < Model.Steps.Count; i++)
-                            {
-                                var step   = Model.Steps[i];
-                                bool done   = Model.CurrentStepIndex > i;
-                                bool active = Model.CurrentStepIndex == i;
-                                <div class="tr-step @(done ? "done" : active ? "active" : "")">
-                                    <div class="tr-dot">
-                                        @if (done)       { <i class="fas fa-check" style="font-size:.7rem;"></i> }
-                                        else if (active) { <i class="fas @step.Icon" style="font-size:.7rem;"></i> }
-                                        else             { <span>@(i + 1)</span> }
+                        @for (int i = 0; i < Model.Steps.Count; i++)
+                        {
+                            var step   = Model.Steps[i];
+                            bool done   = Model.CurrentStepIndex > i;
+                            bool active = Model.CurrentStepIndex == i;
+                            string cls  = done ? "vs-done" : active ? "vs-active" : "";
+                            <div class="vt-step @cls">
+                                <div class="vt-left">
+                                    <div class="vt-dot">
+                                        @if (done)       { <i class="bi bi-check-lg" style="font-size:.85rem;"></i> }
+                                        else if (active) { <i class="bi @step.Icon" style="font-size:.8rem;"></i> }
+                                        else             { <span>@((i + 1).ToString(CultureInfo.InvariantCulture))</span> }
                                     </div>
-                                    <div class="tr-lbl">@step.Label</div>
-                                    @if (i < Model.Steps.Count - 1) { <div class="tr-line"></div> }
+                                    <div class="vt-line"></div>
                                 </div>
-                            }
-                        </div>
+                                <div class="vt-content">
+                                    <div class="vt-label">@step.Label</div>
+                                    <div class="vt-desc">@step.Description</div>
+                                </div>
+                            </div>
+                        }
 
                         @if (isActive)
                         {
-                            <div style="display:flex;align-items:center;gap:.5rem;margin-top:1.1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.72rem;color:var(--muted);">
-                                <div style="width:6px;height:6px;background:var(--green-t);border-radius:50%;animation:tr-blink 1.3s infinite;flex-shrink:0;"></div>
+                            <div class="trk-refresh-bar">
+                                <span class="trk-dot green"></span>
                                 @L["Track.PageAutoRefreshes"]
                             </div>
                         }
@@ -321,97 +558,267 @@
                 </div>
             </div>
 
-            @if (hasShop && !helpOnWay && status != RequestStatus.Pending)
+            @* Shop mini card (for non-helpOnWay states where a shop is assigned) *@
+            @if (hasShop && !helpOnWay && !isCancelled && status != RequestStatus.Pending && status != RequestStatus.InspectionPaid)
             {
-                <div class="tr-card">
-                    <div class="tr-card-head"><span><i class="fas fa-store"></i> @L["Track.Shop"]</span></div>
-                    <div class="tr-card-body">
-                        <div class="tr-shop-row">
-                            <div class="tr-shop-avatar" style="width:46px;height:46px;border-radius:12px;font-size:1rem;">
+                <div class="trk-card">
+                    <div class="trk-card-head">
+                        <div class="trk-ch-icon"><i class="bi bi-shop-window"></i></div>
+                        @L["Track.Shop"]
+                    </div>
+                    <div class="trk-card-body">
+                        <div style="display:flex;align-items:center;gap:.8rem;">
+                            <div class="trk-shop-av" style="width:44px;height:44px;border-radius:12px;font-size:.95rem;">
                                 @if (!string.IsNullOrEmpty(Model.Request.Shop!.LogoUrl))
                                 { <img src="@Model.Request.Shop.LogoUrl" alt="@Model.Request.Shop.ShopName" /> }
-                                else
-                                { @char.ToUpper(Model.Request.Shop.ShopName[0]) }
+                                else { @char.ToUpper(Model.Request.Shop.ShopName[0]) }
                             </div>
                             <div>
                                 <div style="font-size:.9rem;font-weight:700;color:var(--white);">@Model.Request.Shop.ShopName</div>
-                                <div style="font-size:.75rem;color:var(--muted);">@Model.Request.Shop.City</div>
+                                <div style="font-size:.73rem;color:var(--muted);margin-top:.1rem;">
+                                    <i class="bi bi-geo-alt" style="font-size:.68rem;"></i> @Model.Request.Shop.City
+                                    @if (avgRating > 0)
+                                    {
+                                        <span style="margin-left:.5rem;">
+                                            <i class="bi bi-star-fill" style="font-size:.65rem;color:#fbbf24;"></i> @avgRating.ToString("F1")
+                                        </span>
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             }
-        </div>
+        </div><!-- /col-lg-5 -->
 
-        <!-- Right: Request details -->
-        <div class="col-lg-6">
-            <div class="tr-card">
-                <div class="tr-card-head"><span><i class="fas fa-car"></i> @L["Track.YourRequest"]</span></div>
-                <div class="tr-card-body">
+        <!-- ────── Right: detail cards ────── -->
+        <div class="col-lg-7">
 
-                    <div class="tr-field-label">@L["Track.SituationDescribed"]</div>
-                    <div class="tr-field-value tr-quote">"@Model.Request.SituationDescription"</div>
+            <!-- Request Info Card -->
+            <div class="trk-card">
+                <div class="trk-card-head">
+                    <div class="trk-ch-icon"><i class="bi bi-car-front-fill"></i></div>
+                    @L["Track.YourRequest"]
+                </div>
+                <div class="trk-card-body">
+                    <div class="trk-fl">@L["Track.SituationDescribed"]</div>
+                    <div class="trk-fv trk-quote">"@Model.Request.SituationDescription"</div>
 
                     @if (!string.IsNullOrEmpty(Model.Request.DiagnosisNotes))
                     {
-                        <div class="tr-field-label">@L["Track.MechanicDiagnosis"]</div>
-                        <div class="tr-diagnosis">@Model.Request.DiagnosisNotes</div>
+                        <div class="trk-fl">@L["Track.MechanicDiagnosis"]</div>
+                        <div class="trk-diagnosis">@Model.Request.DiagnosisNotes</div>
                     }
-
                     @if (!string.IsNullOrEmpty(Model.Request.Resolution))
                     {
-                        <div class="tr-field-label">@L["Track.Resolution"]</div>
-                        <div class="tr-resolution">@Model.Request.Resolution</div>
+                        <div class="trk-fl">@L["Track.Resolution"]</div>
+                        <div class="trk-resolution" style="margin-bottom:0;">@Model.Request.Resolution</div>
                     }
 
-                    @if (Model.Request.Payment != null)
-                    {
-                        <div class="tr-payment">
-                            <div class="tr-payment-label">@L["Track.AmountDue"]</div>
-                            <div class="tr-payment-amount">@Model.Request.Payment.Amount.ToString("F2") <span>JOD</span></div>
+                    <div style="display:flex;align-items:center;gap:1.1rem;margin-top:.9rem;padding-top:.85rem;border-top:1px solid var(--border);flex-wrap:wrap;">
+                        <div style="font-size:.72rem;color:var(--muted);">
+                            <i class="bi bi-clock me-1"></i>@L["Track.Submitted"] @Model.Request.CreatedAt.ToLocalTime().ToString("f")
                         </div>
-                    }
-
-                    <div style="font-size:.72rem;color:var(--muted);">
-                        <i class="fas fa-clock me-1"></i>@L["Track.Submitted"] @Model.Request.CreatedAt.ToLocalTime().ToString("f")
+                        @if (hasLocation)
+                        {
+                            <a href="https://www.google.com/maps?q=@lat,@lng" target="_blank" rel="noopener"
+                               style="font-size:.72rem;color:var(--blue);text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;">
+                                <i class="bi bi-geo-alt-fill"></i> View on Map
+                            </a>
+                        }
                     </div>
                 </div>
             </div>
 
-            @if (status == RequestStatus.Completed && Model.Request.Feedback == null)
+            <!-- Repair Quotation Card (status = Diagnosed) -->
+            @if (status == RequestStatus.Diagnosed && Model.Request.RepairQuotation != null)
             {
-                <div class="tr-feedback-card">
-                    <div class="tr-stars-display">
-                        @for (int i = 1; i <= 5; i++) { <i class="fas fa-star"></i> }
+                var q = Model.Request.RepairQuotation;
+                <div class="trk-card" style="border-color:rgba(230,130,0,.3);">
+                    <div class="trk-card-head" style="border-bottom-color:rgba(230,130,0,.15);">
+                        <div class="trk-ch-icon" style="background:rgba(230,130,0,.1);color:#e68200;"><i class="bi bi-file-earmark-text-fill"></i></div>
+                        Repair Quotation
+                        <span class="trk-badge ms-auto" style="background:rgba(230,130,0,.12);color:#e68200;border:1px solid rgba(230,130,0,.25);">Awaiting your approval</span>
                     </div>
-                    <div style="font-size:.95rem;font-weight:800;color:var(--white);margin-bottom:.35rem;">@L["Track.HowWasService"] @(Model.Request.Shop?.ShopName ?? "")?</div>
-                    <p style="font-size:.78rem;color:var(--muted);margin-bottom:1rem;">@L["Track.FeedbackHelps"]</p>
-                    <a asp-action="Feedback" asp-route-requestId="@Model.Request.Id" class="btn-tr-feedback">
-                        <i class="fas fa-star me-2"></i>@L["Track.RateThisService"]
-                    </a>
+                    <div class="trk-card-body">
+                        @if (!string.IsNullOrEmpty(q.DiagnosisNotes))
+                        {
+                            <div class="trk-fl">Diagnosis</div>
+                            <div class="trk-diagnosis">@q.DiagnosisNotes</div>
+                        }
+                        <div class="trk-amount-box" style="background:rgba(230,130,0,.07);border-color:rgba(230,130,0,.2);">
+                            <div>
+                                <div class="trk-amount-lbl">Quoted Amount</div>
+                                <div class="trk-amount-val">@q.QuotedAmount.ToString("F2") <span>JOD</span></div>
+                            </div>
+                            <div class="trk-amount-ico" style="background:rgba(230,130,0,.1);border-color:rgba(230,130,0,.2);color:#e68200;">
+                                <i class="bi bi-receipt"></i>
+                            </div>
+                        </div>
+                        <form method="post" asp-action="ApproveQuotationCash"
+                              asp-route-requestId="@Model.Request.Id"
+                              asp-route-quotationId="@q.Id">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-trk-approve">
+                                <i class="bi bi-check-lg"></i> Approve &amp; Pay Cash
+                            </button>
+                        </form>
+                        <form method="post" asp-action="ApproveQuotationOnline"
+                              asp-route-requestId="@Model.Request.Id"
+                              asp-route-quotationId="@q.Id" style="margin-top:.6rem;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-trk-approve" style="background:var(--blue);">
+                                <i class="bi bi-credit-card-fill"></i> Approve &amp; Pay Online
+                            </button>
+                        </form>
+                        <form method="post" asp-action="RejectQuotation"
+                              asp-route-requestId="@Model.Request.Id"
+                              asp-route-quotationId="@q.Id">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-trk-reject"
+                                    onclick="return confirm('Are you sure you want to decline this quotation?')">
+                                <i class="bi bi-x-lg"></i> Decline Quotation
+                            </button>
+                        </form>
+                    </div>
                 </div>
             }
 
-            @if (status == RequestStatus.Completed && Model.Request.Feedback != null)
+            <!-- Inspection Payment Card -->
+            @if (Model.Request.InspectionPayment != null)
             {
-                <div class="tr-card" style="border-color:rgba(63,185,80,.2);">
-                    <div class="tr-card-body" style="text-align:center;">
-                        <div style="font-size:.75rem;font-weight:700;color:var(--green-t);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem;"><i class="fas fa-check-circle me-1"></i>@L["Track.FeedbackSubmitted"]</div>
-                        <div style="display:flex;justify-content:center;gap:.2rem;margin-bottom:.35rem;">
-                            @for (int i = 1; i <= 5; i++) { <i class="fas fa-star" style="font-size:.85rem;color:@(i <= Model.Request.Feedback.Rating ? "#fbbf24" : "rgba(255,255,255,.1)");"></i> }
+                <div class="trk-card">
+                    <div class="trk-card-head">
+                        <div class="trk-ch-icon"><i class="bi bi-credit-card-fill"></i></div>
+                        Inspection Fee
+                        <div class="ms-auto" style="font-size:.72rem;color:var(--green-t,#3fb950);display:flex;align-items:center;gap:.3rem;">
+                            <i class="bi bi-check-circle-fill"></i> Paid
+                        </div>
+                    </div>
+                    <div class="trk-card-body">
+                        <div class="trk-amount-box">
+                            <div>
+                                <div class="trk-amount-lbl">Amount Paid</div>
+                                <div class="trk-amount-val">@Model.Request.InspectionPayment.Amount.ToString("F2") <span>JOD</span></div>
+                            </div>
+                            <div class="trk-amount-ico"><i class="bi bi-shield-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Legacy Payment Card -->
+            @if (Model.Request.Payment != null && Model.Request.InspectionPayment == null)
+            {
+                <div class="trk-card">
+                    <div class="trk-card-head">
+                        <div class="trk-ch-icon"><i class="bi bi-credit-card-fill"></i></div>
+                        @L["Track.AmountDue"]
+                    </div>
+                    <div class="trk-card-body">
+                        <div class="trk-amount-box">
+                            <div>
+                                <div class="trk-amount-lbl">Total</div>
+                                <div class="trk-amount-val">@Model.Request.Payment.Amount.ToString("F2") <span>JOD</span></div>
+                            </div>
+                            <div class="trk-amount-ico"><i class="bi bi-wallet2"></i></div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Location Map Card -->
+            @if (hasLocation)
+            {
+                var mapLon1 = (Model.Request.CustomerLongitude - 0.009).ToString(CultureInfo.InvariantCulture);
+                var mapLat1 = (Model.Request.CustomerLatitude  - 0.006).ToString(CultureInfo.InvariantCulture);
+                var mapLon2 = (Model.Request.CustomerLongitude + 0.009).ToString(CultureInfo.InvariantCulture);
+                var mapLat2 = (Model.Request.CustomerLatitude  + 0.006).ToString(CultureInfo.InvariantCulture);
+                <div class="trk-card">
+                    <div class="trk-card-head">
+                        <div class="trk-ch-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                        Your Location
+                    </div>
+                    <iframe class="trk-map"
+                            src="https://www.openstreetmap.org/export/embed.html?bbox=@mapLon1,@mapLat1,@mapLon2,@mapLat2&layer=mapnik&marker=@lat,@lng"
+                            loading="lazy" allowfullscreen>
+                    </iframe>
+                </div>
+            }
+
+            <!-- Feedback prompt (completed, no feedback yet) -->
+            @if (isDone && Model.Request.Feedback == null)
+            {
+                <div class="trk-card" style="border-color:rgba(230,57,70,.18);">
+                    <div class="trk-card-body" style="text-align:center;padding:1.5rem 1.25rem;">
+                        <div class="trk-stars">
+                            @for (int i = 1; i <= 5; i++) { <i class="bi bi-star-fill"></i> }
+                        </div>
+                        <div style="font-size:.95rem;font-weight:800;color:var(--white);margin-bottom:.3rem;">
+                            @L["Track.HowWasService"] @(Model.Request.Shop?.ShopName ?? "the service")?
+                        </div>
+                        <p style="font-size:.78rem;color:var(--muted);margin-bottom:1.1rem;">@L["Track.FeedbackHelps"]</p>
+                        <a asp-action="Feedback" asp-route-requestId="@Model.Request.Id" class="btn-trk-rate">
+                            <i class="bi bi-star-fill me-1"></i>@L["Track.RateThisService"]
+                        </a>
+                    </div>
+                </div>
+            }
+
+            <!-- Feedback already submitted -->
+            @if (isDone && Model.Request.Feedback != null)
+            {
+                <div class="trk-card" style="border-color:rgba(63,185,80,.2);">
+                    <div class="trk-card-body" style="text-align:center;padding:1.2rem 1.25rem;">
+                        <div style="font-size:.7rem;font-weight:700;color:var(--green-t,#3fb950);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.45rem;">
+                            <i class="bi bi-check-circle-fill me-1"></i>@L["Track.FeedbackSubmitted"]
+                        </div>
+                        <div style="display:flex;justify-content:center;gap:.25rem;margin-bottom:.4rem;">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="bi bi-star-fill" style="font-size:.9rem;color:@(i <= Model.Request.Feedback.Rating ? "#fbbf24" : "rgba(255,255,255,.1)");"></i>
+                            }
                         </div>
                         @if (!string.IsNullOrEmpty(Model.Request.Feedback.Comment))
                         { <p style="font-size:.78rem;color:var(--muted);font-style:italic;margin:0;">"@Model.Request.Feedback.Comment"</p> }
                     </div>
                 </div>
             }
+
+        </div><!-- /col-lg-7 -->
+    </div><!-- /.row -->
+
+</div><!-- /.container -->
+</div><!-- /.trk-page -->
+
+@if (status == RequestStatus.Pending || status == RequestStatus.InspectionPaid)
+{
+    <!-- Cancel confirmation modal -->
+    <div class="trk-cancel-modal-overlay" id="cancelModal" onclick="if(event.target===this)this.classList.remove('open')">
+        <div class="trk-cancel-modal">
+            <div class="trk-cm-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div class="trk-cm-title">@L["Track.CancelTitle"]</div>
+            <div class="trk-cm-body">@L["Track.CancelConfirmMsg"]</div>
+            <div class="trk-cm-actions">
+                <button type="button" class="btn-trk-cancel" onclick="document.getElementById('cancelModal').classList.remove('open')">
+                    @L["Modal.Cancel"]
+                </button>
+                <form asp-action="CancelRequest" asp-controller="Customer" asp-route-id="@Model.Request.Id" method="post" style="flex:1;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="trk-cm-confirm" style="width:100%;">
+                        <i class="bi bi-x-circle-fill"></i> @L["Track.YesCancelIt"]
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
+}
 
-</div>
-</div>
-
-@if (isActive)
-{
-    @section Scripts { <script>setTimeout(() => location.reload(), 15000);</script> }
+@section Scripts {
+    <script>
+    @if (isActive)
+    {
+        <text>setTimeout(() => location.reload(), 15000);</text>
+    }
+    </script>
 }

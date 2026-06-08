@@ -90,20 +90,10 @@
       @if (Model.HasRepairPayment)
       {
         <tr>
-          <td>@L["Inv.RepairSubtotal"]</td>
+          <td>@L["Inv.RepairAmount"]</td>
           <td>@Model.RepairMethod</td>
           <td>@Model.RepairStatus</td>
-          <td>@Model.RepairQuotedAmount.ToString("F2")</td>
-        </tr>
-        <tr>
-          <td style="padding-left:24px;color:#6b7280;">@L["Inv.PlatformCommission"] (@((Model.CommissionRate*100).ToString("F0"))%)</td>
-          <td colspan="2"></td>
-          <td style="color:#6b7280;">@Model.CommissionAmount.ToString("F2")</td>
-        </tr>
-        <tr>
-          <td style="padding-left:24px;color:#6b7280;">@L["Inv.VAT"] (@((Model.VatRate*100).ToString("F0"))%)</td>
-          <td colspan="2"></td>
-          <td style="color:#6b7280;">@Model.VatAmount.ToString("F2")</td>
+          <td>@Model.RepairTotalAmount.ToString("F2")</td>
         </tr>
       }
     </tbody>

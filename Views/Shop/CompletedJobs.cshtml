@@ -5,7 +5,10 @@
     ViewData["PageTitle"] = L["ShopCJ.CompletedJobs"].Value;
     ViewData["PageSub"]   = $"{Model.Count} {L["ShopCJ.CompletedJobs"].Value}";
 
-    var totalEarned  = Model.Where(j => j.Payment != null).Sum(j => j.Payment!.Amount);
+    decimal GetJobAmount(JAA.Models.ServiceRequest j) =>
+        j.RepairPayment != null ? j.RepairPayment.ShopAmount :
+        j.Payment       != null ? j.Payment.Amount : 0m;
+    var totalEarned  = Model.Sum(j => GetJobAmount(j));
     var avgAmount    = Model.Count > 0 ? totalEarned / Model.Count : 0m;
 }
 
@@ -196,11 +199,12 @@ else
                 </div>
 
                 <div class="cj-amount">
-                    @if (job.Payment != null)
+                    @{ var jobAmt = GetJobAmount(job); }
+                    @if (jobAmt > 0)
                     {
                         <span class="cj-amount-val">
                             <i class="fas fa-check-circle" style="font-size:.7rem;"></i>
-                            @job.Payment.Amount.ToString("F2") JOD
+                            @jobAmt.ToString("F2") JOD
                         </span>
                     }
                     else

@@ -1,0 +1,190 @@
+@model JAA.Models.ServiceRequest
+@using JAA.Models
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = L["RC.Title"].Value;
+    ViewData["PageTitle"] = L["RC.Title"].Value;
+    ViewData["PageSub"] = $"Request #{Model.Id}";
+    var quotedAmount = Model.RepairQuotation?.QuotedAmount ?? 0;
+}
+
+@section Styles {
+<style>
+.rc-wrap { max-width: 620px; margin: 0 auto; }
+
+.rc-header {
+    background: linear-gradient(135deg, var(--card) 0%, rgba(63,185,80,.04) 100%);
+    border: 1px solid var(--border); border-radius: 18px;
+    padding: 1.5rem 1.75rem; display: flex; align-items: center; gap: 1.2rem;
+    margin-bottom: 1.5rem; position: relative; overflow: hidden;
+}
+.rc-header::before {
+    content: ''; position: absolute; top: -50px; right: -50px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(63,185,80,.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.rc-header-icon {
+    width: 54px; height: 54px; border-radius: 15px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--green-t,#3fb950), #2ea043);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.35rem; color: #fff;
+    box-shadow: 0 6px 20px rgba(63,185,80,.35);
+}
+.rc-header-title { font-size: 1.05rem; font-weight: 800; color: var(--white); margin-bottom: .2rem; }
+.rc-header-sub   { font-size: .8rem; color: var(--muted); }
+
+.rc-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 1.75rem 1.75rem;
+}
+.rc-section-label {
+    font-size: .65rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--muted);
+    display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem;
+}
+.rc-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* Customer info row */
+.rc-info-row {
+    display: flex; align-items: center; gap: .9rem;
+    background: rgba(255,255,255,.03); border: 1px solid var(--border);
+    border-radius: 12px; padding: .9rem 1.1rem; margin-bottom: 1.5rem;
+}
+.rc-av {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(88,166,255,.12); border: 1px solid rgba(88,166,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .88rem; font-weight: 700; color: var(--blue);
+}
+.rc-cust-name  { font-size: .9rem; font-weight: 700; color: var(--white); }
+.rc-cust-meta  { font-size: .74rem; color: var(--muted); margin-top: .1rem; }
+
+/* Quoted amount reference */
+.rc-ref-box {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(88,166,255,.06); border: 1px solid rgba(88,166,255,.15);
+    border-radius: 12px; padding: .9rem 1.1rem; margin-bottom: 1.5rem;
+}
+.rc-ref-label { font-size: .7rem; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: .5px; }
+.rc-ref-val   { font-size: 1.25rem; font-weight: 900; color: var(--white); letter-spacing: -1px; }
+.rc-ref-val span { font-size: .8rem; color: var(--muted); font-weight: 600; }
+
+/* Fields */
+.rc-field { margin-bottom: 1.1rem; }
+.rc-label { display: block; font-size: .7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .4rem; }
+.rc-input-wrap { position: relative; }
+.rc-input-wrap .rc-ico { position: absolute; left: .9rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .88rem; pointer-events: none; transition: color .2s; }
+.rc-input-wrap:focus-within .rc-ico { color: var(--green-t,#3fb950); }
+.rc-in {
+    width: 100%; background: rgba(13,17,23,.65); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--white); font-size: .9rem; font-family: var(--font);
+    padding: .72rem 1rem .72rem 2.5rem; outline: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+.rc-in:focus { border-color: var(--green-t,#3fb950); box-shadow: 0 0 0 3px rgba(63,185,80,.12); background: var(--dark); }
+.rc-in::placeholder { color: #3d444e; }
+.rc-textarea { padding-left: .85rem; resize: vertical; line-height: 1.55; }
+
+/* Warning notice */
+.rc-notice {
+    background: rgba(251,191,36,.06); border: 1px solid rgba(251,191,36,.2);
+    border-radius: 12px; padding: .85rem 1.1rem;
+    display: flex; align-items: flex-start; gap: .7rem; margin-bottom: 1.5rem;
+}
+.rc-notice-icon { font-size: 1rem; color: #f59e0b; flex-shrink: 0; margin-top: .05rem; }
+.rc-notice-text { font-size: .78rem; color: #d4a017; line-height: 1.6; }
+
+/* Actions */
+.rc-actions { display: flex; gap: .85rem; }
+.btn-rc-submit {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: .5rem;
+    background: var(--green-t,#3fb950); color: #fff; border: none; border-radius: 10px;
+    font-size: .9rem; font-weight: 700; font-family: var(--font);
+    padding: .78rem 1.5rem; cursor: pointer;
+    transition: background .2s, transform .15s, box-shadow .2s;
+}
+.btn-rc-submit:hover { background: #2ea043; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(63,185,80,.3); }
+.btn-rc-cancel {
+    display: flex; align-items: center; justify-content: center; gap: .4rem;
+    background: rgba(255,255,255,.04); border: 1px solid var(--border);
+    color: var(--muted); border-radius: 10px; font-size: .88rem; font-weight: 600;
+    padding: .78rem 1.25rem; text-decoration: none; transition: background .2s, color .2s;
+}
+.btn-rc-cancel:hover { background: rgba(255,255,255,.08); color: var(--light); }
+</style>
+}
+
+<div class="rc-wrap">
+
+  <div class="rc-header">
+    <div class="rc-header-icon"><i class="bi bi-check-circle-fill"></i></div>
+    <div>
+      <div class="rc-header-title">@L["RC.Title"]</div>
+      <div class="rc-header-sub">@L["RC.SubTitle"]</div>
+    </div>
+  </div>
+
+  <div class="rc-card">
+
+    <div class="rc-section-label"><i class="bi bi-person-fill"></i> @L["RC.CustomerInfo"]</div>
+
+    <div class="rc-info-row">
+      <div class="rc-av">@(Model.Customer?.FullName?.Length > 0 ? char.ToUpper(Model.Customer.FullName[0]) : 'C')</div>
+      <div>
+        <div class="rc-cust-name">@Model.Customer?.FullName</div>
+        <div class="rc-cust-meta">Request #@Model.Id · @Model.SituationDescription</div>
+      </div>
+    </div>
+
+    <div class="rc-section-label"><i class="bi bi-receipt"></i> @L["RC.OriginalQuote"]</div>
+
+    <div class="rc-ref-box">
+      <div>
+        <div class="rc-ref-label">@L["RC.QuotedAmount"]</div>
+        <div style="font-size:.73rem;color:var(--muted);margin-top:.15rem;">@L["RC.QuoteReference"]</div>
+      </div>
+      <div class="rc-ref-val">@quotedAmount.ToString("F2") <span>JOD</span></div>
+    </div>
+
+    <div class="rc-section-label"><i class="bi bi-currency-exchange"></i> @L["RC.FinalAmountSection"]</div>
+
+    <div class="rc-notice">
+      <i class="bi bi-exclamation-triangle-fill rc-notice-icon"></i>
+      <div class="rc-notice-text"><strong>@L["RC.NoticeTitle"]</strong> @L["RC.NoticeBody"]</div>
+    </div>
+
+    <form asp-action="ReportCompletion" method="post" novalidate>
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="requestId" value="@Model.Id" />
+
+      <div class="rc-field">
+        <label class="rc-label">@L["RC.FinalAmountLabel"]</label>
+        <div class="rc-input-wrap">
+          <i class="bi bi-currency-dollar rc-ico"></i>
+          <input type="number" name="finalAmount" step="0.01" min="0.01"
+                 class="rc-in" placeholder="0.00" required
+                 value="@quotedAmount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)" />
+        </div>
+      </div>
+
+      <div class="rc-field">
+        <label class="rc-label">@L["RC.NotesLabel"]</label>
+        <div class="rc-input-wrap">
+          <textarea name="mechanicNotes" class="rc-in rc-textarea" rows="3"
+                    dir="auto" placeholder="@L["RC.NotesPlaceholder"]"
+                    style="padding-top:.65rem;padding-bottom:.65rem;"></textarea>
+        </div>
+      </div>
+
+      <div class="rc-actions">
+        <button type="submit" class="btn-rc-submit">
+          <i class="bi bi-send-check-fill"></i> @L["RC.SubmitButton"]
+        </button>
+        <a asp-action="ActiveJobs" class="btn-rc-cancel">
+          <i class="bi bi-arrow-left"></i> @L["ShopAM.Cancel"]
+        </a>
+      </div>
+    </form>
+  </div>
+</div>

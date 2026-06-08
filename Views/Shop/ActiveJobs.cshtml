@@ -264,10 +264,12 @@ else
 
                                     <label class="aj-form-label">@L["ShopAJ.DiagnosisNotes"]</label>
                                     <textarea name="diagnosisNotes" class="aj-form-textarea" rows="2"
+                                              dir="auto"
                                               placeholder="@L["ShopAJ.DiagnosisPlaceholder"]" required></textarea>
 
                                     <label class="aj-form-label">@L["ShopAJ.Resolution"]</label>
                                     <input name="resolution" class="aj-form-input"
+                                           dir="auto"
                                            placeholder="@L["ShopAJ.ResolutionPlaceholder"]" required />
 
                                     <label class="aj-form-label">@L["ShopAJ.Amount"]</label>
@@ -294,6 +296,27 @@ else
                                     <i class="fas fa-check-circle"></i> @L["ShopAJ.MarkCompleted"]
                                 </button>
                             </form>
+                        }
+                        else if (job.Status == RequestStatus.QuotationApproved)
+                        {
+                            <div style="font-size:.75rem;color:var(--green-t);background:rgba(63,185,80,.07);border:1px solid rgba(63,185,80,.2);border-radius:8px;padding:.55rem .85rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem;">
+                                <i class="fas fa-check-circle"></i> @L["ShopAJ.QuotationApprovedNote"]
+                            </div>
+                            <a asp-action="ReportCompletion" asp-route-requestId="@job.Id" class="btn-aj btn-aj-green">
+                                <i class="fas fa-flag-checkered"></i> @L["ShopAJ.ReportCompletion"]
+                            </a>
+                        }
+                        else if (job.Status == RequestStatus.AwaitingConfirmation)
+                        {
+                            <div style="font-size:.75rem;color:#fbbf24;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:.55rem .85rem;display:flex;align-items:center;gap:.5rem;">
+                                <i class="fas fa-hourglass-half"></i> @L["ShopAJ.AwaitingCustomerConfirmation"]
+                            </div>
+                        }
+                        else if (job.Status == RequestStatus.Diagnosed)
+                        {
+                            <div style="font-size:.75rem;color:#fbbf24;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:.55rem .85rem;display:flex;align-items:center;gap:.5rem;">
+                                <i class="fas fa-hourglass-half"></i> @L["ShopAJ.AwaitingCustomerApproval"]
+                            </div>
                         }
 
                     </div>

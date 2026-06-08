@@ -1,0 +1,126 @@
+@model JAA.ViewModels.SubmitTestimonialViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"]    = "Write Testimonial";
+    ViewData["PageTitle"] = "Write a Testimonial";
+    ViewData["PageSub"]  = "Your experience helps other motorists choose the right service.";
+}
+
+@section Styles {
+<style>
+.star-picker { display: flex; gap: .4rem; flex-direction: row-reverse; justify-content: flex-end; }
+.star-picker input[type="radio"] { display: none; }
+.star-picker label {
+  font-size: 1.6rem; cursor: pointer; color: rgba(255,255,255,.12);
+  transition: color .15s;
+}
+.star-picker input[type="radio"]:checked ~ label,
+.star-picker label:hover,
+.star-picker label:hover ~ label { color: #f59e0b; }
+
+.service-ref-box {
+  background: rgba(255,255,255,.02); border: 1px solid var(--border);
+  border-radius: 12px; padding: .9rem 1.1rem;
+  display: flex; align-items: center; gap: .85rem; flex-wrap: wrap;
+}
+.service-ref-icon {
+  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+  background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.2);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--red); font-size: .95rem;
+}
+.service-ref-label { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+.service-ref-val   { font-size: .84rem; font-weight: 600; color: var(--white); margin-top: 1px; }
+</style>
+}
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <!-- Service reference info -->
+    <div class="service-ref-box mb-4">
+      <div class="service-ref-icon"><i class="bi bi-shop-window"></i></div>
+      <div>
+        <div class="service-ref-label">Service at</div>
+        <div class="service-ref-val">@Model.ShopName</div>
+      </div>
+      @if (!string.IsNullOrEmpty(Model.MechanicName))
+      {
+        <div style="border-left:1px solid var(--border);padding-left:.85rem;">
+          <div class="service-ref-label">Mechanic</div>
+          <div class="service-ref-val">@Model.MechanicName</div>
+        </div>
+      }
+      <div style="border-left:1px solid var(--border);padding-left:.85rem;">
+        <div class="service-ref-label">Service Date</div>
+        <div class="service-ref-val">@Model.ServiceDate.ToString("d MMM yyyy")</div>
+      </div>
+    </div>
+
+    <div class="card-jaa">
+      <form asp-action="Submit" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="ServiceRequestId" />
+        <input type="hidden" asp-for="ShopId" />
+        <input type="hidden" asp-for="MechanicId" />
+
+        <!-- Rating -->
+        <div class="form-group mb-4">
+          <label class="form-label" style="margin-bottom:.6rem;">Your Rating <span style="color:var(--red);">*</span></label>
+          <div class="star-picker">
+            @for (int i = 5; i >= 1; i--)
+            {
+              var sid = $"star{i}";
+              <input type="radio" name="Rating" id="@sid" value="@i" @(Model.Rating == i ? "checked" : "") />
+              <label for="@sid" title="@i star@(i > 1 ? "s" : "")"><i class="bi bi-star-fill"></i></label>
+            }
+          </div>
+          <span asp-validation-for="Rating" class="text-danger" style="font-size:.73rem;"></span>
+        </div>
+
+        <!-- Title (optional) -->
+        <div class="form-group mb-3">
+          <label asp-for="Title" class="form-label">Title <span style="color:var(--muted);font-weight:400;font-size:.75rem;">(optional)</span></label>
+          <input asp-for="Title" class="form-control-jaa" placeholder='e.g. "Fast and professional service"' maxlength="200" />
+          <span asp-validation-for="Title" class="text-danger" style="font-size:.73rem;"></span>
+        </div>
+
+        <!-- Message -->
+        <div class="form-group mb-4">
+          <label asp-for="Message" class="form-label">Your Experience <span style="color:var(--red);">*</span></label>
+          <textarea asp-for="Message" class="form-control-jaa" rows="5" maxlength="2000"
+                    placeholder="Describe what happened, how the mechanic helped you, and why you'd recommend this service…"></textarea>
+          <div style="display:flex;justify-content:space-between;margin-top:.3rem;">
+            <span asp-validation-for="Message" class="text-danger" style="font-size:.73rem;"></span>
+            <span id="charCount" style="font-size:.68rem;color:var(--muted);">0 / 2000</span>
+          </div>
+        </div>
+
+        <!-- Privacy note -->
+        <div style="background:rgba(88,166,255,.05);border:1px solid rgba(88,166,255,.15);border-radius:9px;padding:.6rem .9rem;font-size:.72rem;color:var(--muted);display:flex;align-items:flex-start;gap:.5rem;margin-bottom:1.2rem;">
+          <i class="bi bi-shield-check" style="color:#58a6ff;flex-shrink:0;margin-top:1px;"></i>
+          Your testimonial will be reviewed before being published. Only your first name will appear publicly.
+        </div>
+
+        <div class="d-flex gap-2 justify-content-end flex-wrap">
+          <a asp-controller="Testimonial" asp-action="My" class="btn-jaa btn-outline">Cancel</a>
+          <button type="submit" class="btn-jaa btn-primary">
+            <i class="bi bi-send-fill"></i> Submit Testimonial
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+<script>
+const msg = document.querySelector('textarea[name="Message"]');
+const counter = document.getElementById('charCount');
+function updateCount() { counter.textContent = msg.value.length + ' / 2000'; }
+msg.addEventListener('input', updateCount);
+updateCount();
+</script>
+}

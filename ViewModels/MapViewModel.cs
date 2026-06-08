@@ -13,6 +13,8 @@ namespace JAA.ViewModels
         public string City { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string? LogoUrl { get; set; }
+        public double? DistanceKm { get; set; }
+        public int? EstimatedArrivalMin { get; set; }
     }
 
     public class CustomerMapViewModel

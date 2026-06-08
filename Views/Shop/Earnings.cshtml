@@ -1,12 +1,12 @@
-@model List<JAA.Models.Payment>
+@model List<JAA.Models.RepairPayment>
 @{
     Layout = "_DashboardLayout";
     ViewData["Title"]    = L["Shop.Earnings"].Value;
     ViewData["PageTitle"] = L["Shop.Earnings"].Value;
     ViewData["PageSub"]  = L["ShopEarn.PaymentHistory"].Value;
 
-    decimal total    = ViewBag.TotalEarnings;
-    int     jobs     = ViewBag.TotalJobs;
+    decimal total    = (decimal)(ViewBag.TotalEarnings ?? 0m);
+    int     jobs     = (int)(ViewBag.TotalJobs ?? 0);
     decimal avgPerJob = jobs > 0 ? total / jobs : 0m;
 }
 
@@ -172,17 +172,18 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="et-trunc" title="@p.Notes">@(p.Notes ?? "—")</div>
+                                <div class="et-trunc" title="@p.ServiceRequest?.DiagnosisNotes">@(p.ServiceRequest?.DiagnosisNotes ?? "—")</div>
                             </td>
                             <td>
-                                <span class="earn-amount-pill">
+                                <span class="earn-amount-pill" title="Customer paid @p.TotalAmount.ToString("F2") JOD — commission @p.CommissionAmount.ToString("F2") JOD">
                                     <i class="fas fa-check-circle" style="font-size:.7rem;"></i>
-                                    @p.Amount.ToString("F2") JOD
+                                    @p.ShopAmount.ToString("F2") JOD
                                 </span>
                             </td>
                             <td class="et-date">
-                                <div>@p.PaidAt.ToLocalTime().ToString("d MMM yyyy")</div>
-                                <div style="font-size:.7rem;color:#3d444e;">@p.PaidAt.ToLocalTime().ToString("h:mm tt")</div>
+                                @{ var paidAt = (p.PaidAt ?? DateTime.UtcNow).ToLocalTime(); }
+                                <div>@paidAt.ToString("d MMM yyyy")</div>
+                                <div style="font-size:.7rem;color:#3d444e;">@paidAt.ToString("h:mm tt")</div>
                             </td>
                         </tr>
                     }

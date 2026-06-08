@@ -236,6 +236,9 @@
   <data name="Track.YourCarIsFixed"><value>تم إصلاح سيارتك!</value></data>
   <data name="Track.JobCompletedBy"><value>أنجز العمل بواسطة</value></data>
   <data name="Track.RequestNoLongerActive"><value>هذا الطلب لم يعد نشطاً.</value></data>
+  <data name="Track.CancelTitle"><value>إلغاء الطلب؟</value></data>
+  <data name="Track.CancelConfirmMsg"><value>هل أنت متأكد أنك تريد إلغاء هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.</value></data>
+  <data name="Track.YesCancelIt"><value>نعم، إلغاء الطلب</value></data>
   <data name="Track.WasRequest"><value>هذا الطلب</value></data>
   <data name="Track.Progress"><value>التقدم</value></data>
   <data name="Track.PageAutoRefreshes"><value>تتجدد الصفحة تلقائياً كل ١٥ ثانية</value></data>
@@ -250,6 +253,12 @@
   <data name="Track.FeedbackHelps"><value>تقييمك يساعد السائقين الآخرين على اختيار الورشة المناسبة.</value></data>
   <data name="Track.RateThisService"><value>قيّم هذه الخدمة</value></data>
   <data name="Track.FeedbackSubmitted"><value>تم إرسال التقييم</value></data>
+  <data name="Track.AwaitingConfirmationTitle"><value>في انتظار تأكيد الدفع</value></data>
+  <data name="Track.AwaitingConfirmationSub"><value>أبلغ الميكانيكي عن المبلغ النهائي. يرجى تأكيد ما دفعته فعلياً لإتمام هذه المهمة.</value></data>
+  <data name="Track.UnderReviewTitle"><value>النزاع قيد مراجعة المسؤول</value></data>
+  <data name="Track.UnderReviewSub"><value>يوجد تباين بين المبلغ المُبلَّغ والمبلغ المُؤكَّد. فريق المسؤولين لدينا يراجع الأمر وسيحله قريباً.</value></data>
+  <data name="Track.ConfirmPaymentBtn"><value>تأكيد مبلغ الدفع</value></data>
+  <data name="Track.UnderReviewAdminNote"><value>تم إخطار المسؤول وسيحل هذا النزاع.</value></data>
 
   <!-- Home page -->
   <data name="Home.HeroTag"><value>منصة المساعدة على الطريق في الأردن</value></data>
@@ -592,6 +601,11 @@
   <data name="ShopIR.RequestsAppearHere"><value>طلبات مساعدة العملاء تظهر هنا في الوقت الفعلي.</value></data>
   <data name="ShopIR.ViewLocationOnMap"><value>عرض الموقع على الخريطة</value></data>
   <data name="ShopIR.AcceptRequest"><value>قبول الطلب</value></data>
+  <data name="ShopIR.AutoRefresh"><value>تحديث تلقائي خلال</value></data>
+  <data name="ShopIR.AssignMechanic"><value>تعيين ميكانيكي</value></data>
+  <data name="ShopIR.SelectMechanic"><value>— اختر ميكانيكياً —</value></data>
+  <data name="ShopIR.NoMechanicsAvailable"><value>لا يوجد ميكانيكيون متاحون.</value></data>
+  <data name="ShopIR.AddOne"><value>أضف واحداً ←</value></data>
 
   <!-- Shop ActiveJobs -->
   <data name="ShopAJ.NoActiveJobs"><value>لا توجد وظائف نشطة</value></data>
@@ -611,6 +625,10 @@
   <data name="ShopAJ.MarkAsCompleted"><value>تحديد كمكتمل؟</value></data>
   <data name="ShopAJ.CannotBeUndone"><value>لا يمكن التراجع عن هذا الإجراء.</value></data>
   <data name="ShopAJ.Cancel"><value>إلغاء</value></data>
+  <data name="ShopAJ.QuotationApprovedNote"><value>وافق العميل على عرض السعر — الإصلاح جارٍ.</value></data>
+  <data name="ShopAJ.AwaitingCustomerApproval"><value>في انتظار موافقة العميل على عرض الإصلاح.</value></data>
+  <data name="ShopAJ.ReportCompletion"><value>الإبلاغ عن الإنجاز</value></data>
+  <data name="ShopAJ.AwaitingCustomerConfirmation"><value>في انتظار تأكيد العميل لمبلغ الدفع.</value></data>
 
   <!-- Shop CompletedJobs -->
   <data name="ShopCJ.NoJobsYet"><value>لا توجد وظائف مكتملة بعد</value></data>
@@ -644,6 +662,8 @@
   <data name="ShopRev.TotalReviews"><value>إجمالي التقييمات</value></data>
   <data name="ShopRev.NoReviewsYet"><value>لا توجد تقييمات بعد</value></data>
   <data name="ShopRev.NoReviewsDesc"><value>آراء العملاء تظهر هنا بعد إتمام الوظائف.</value></data>
+  <data name="ShopRev.CustomerFeedback"><value>آراء العملاء</value></data>
+  <data name="ShopRev.NoComment"><value>لا يوجد تعليق مكتوب.</value></data>
 
   <!-- Shop Mechanics -->
   <data name="ShopMech.Title"><value>ميكانيكيّو ورشتي</value></data>
@@ -731,10 +751,45 @@
 
   <!-- Shop AddMechanic -->
   <data name="ShopAM.PageSub"><value>الميكانيكيون الجدد يحتاجون موافقة المسؤول قبل استقبال الوظائف</value></data>
+  <data name="ShopAM.PersonalInfo"><value>المعلومات الشخصية</value></data>
+  <data name="ShopAM.Experience"><value>الخبرة</value></data>
+  <data name="ShopAM.FullName"><value>الاسم الكامل</value></data>
+  <data name="ShopAM.FullNamePlaceholder"><value>أدخل اسم الميكانيكي الكامل</value></data>
+  <data name="ShopAM.NationalId"><value>رقم الهوية الوطنية</value></data>
+  <data name="ShopAM.NationalIdPlaceholder"><value>مثال: 1234567890</value></data>
+  <data name="ShopAM.YearsOfExperience"><value>سنوات الخبرة</value></data>
   <data name="ShopAM.ProfilePhoto"><value>صورة الملف الشخصي (اختياري)</value></data>
+  <data name="ShopAM.ClickToUpload"><value>انقر للرفع أو اسحب وأفلت</value></data>
+  <data name="ShopAM.PhotoFormats"><value>PNG أو JPG أو WEBP — الحد الأقصى 5 ميغابايت</value></data>
+  <data name="ShopAM.PendingNoteTitle"><value>في انتظار موافقة المسؤول.</value></data>
   <data name="ShopAM.PendingNote"><value>سيكون هذا الميكانيكي قيد المراجعة حتى يوافق عليه المسؤول.</value></data>
   <data name="ShopAM.SubmitForApproval"><value>تقديم للموافقة</value></data>
   <data name="ShopAM.Cancel"><value>إلغاء</value></data>
+
+  <!-- Shop ReportCompletion -->
+  <data name="RC.Title"><value>الإبلاغ عن إتمام المهمة</value></data>
+  <data name="RC.SubTitle"><value>أدخل المبلغ النهائي المُحصَّل من العميل</value></data>
+  <data name="RC.CustomerInfo"><value>معلومات العميل</value></data>
+  <data name="RC.OriginalQuote"><value>عرض السعر الأصلي</value></data>
+  <data name="RC.QuotedAmount"><value>المبلغ المُقتبَس</value></data>
+  <data name="RC.QuoteReference"><value>هذا هو المبلغ الذي وافق عليه العميل</value></data>
+  <data name="RC.FinalAmountSection"><value>المبلغ النهائي المُحصَّل</value></data>
+  <data name="RC.NoticeTitle"><value>ملاحظة مهمة:</value></data>
+  <data name="RC.NoticeBody"><value>يجب أن يتطابق المبلغ الذي تُدخله مع ما دفعه العميل فعلياً. سيُطلب من العميل تأكيد هذا المبلغ. أي تناقض سيُحال إلى المسؤول للمراجعة.</value></data>
+  <data name="RC.FinalAmountLabel"><value>المبلغ النهائي (د.أ.)</value></data>
+  <data name="RC.NotesLabel"><value>ملاحظات الميكانيكي (اختياري)</value></data>
+  <data name="RC.NotesPlaceholder"><value>أي ملاحظات إضافية حول الإصلاح...</value></data>
+  <data name="RC.SubmitButton"><value>إرسال تقرير الإنجاز</value></data>
+
+  <!-- Customer ConfirmPayment -->
+  <data name="CP.Title"><value>تأكيد الدفع</value></data>
+  <data name="CP.SubTitle"><value>تحقق من المبلغ الذي دفعته فعلياً لهذا الإصلاح</value></data>
+  <data name="CP.MechanicReported"><value>المبلغ المُبلَّغ من الميكانيكي</value></data>
+  <data name="CP.HowMuchDidYouPay"><value>كم دفعت فعلياً؟</value></data>
+  <data name="CP.HowMuchHint"><value>أدخل المبلغ الذي دفعته للميكانيكي بالضبط. إذا تطابق مع المُبلَّغ، ستكتمل المهمة. إذا اختلف، سيراجع فريق المسؤولين الأمر.</value></data>
+  <data name="CP.DisputeHint"><value>إدخال مبلغ مختلف سيؤدي إلى مراجعة المسؤول لحل التناقض.</value></data>
+  <data name="CP.ConfirmButton"><value>تأكيد وإتمام المهمة</value></data>
+  <data name="CP.ProtectionNote"><value>تحمي JAA العملاء من الرسوم الزائدة. تأكيدك مشفر ومُخزَّن بأمان. في حال وجود تناقض، سيراجعه فريقنا ويحله خلال 24 ساعة.</value></data>
 
   <!-- Shop EditMechanic -->
   <data name="ShopEM.PendingApproval"><value>قيد موافقة المسؤول</value></data>
@@ -912,12 +967,23 @@
   <data name="APM.ShopLabel"><value>الورشة</value></data>
 
   <!-- Admin Reports -->
-  <data name="ARep.TotalRevenue"><value>إجمالي الإيرادات (دينار أردني)</value></data>
+  <data name="ARep.TotalRevenue"><value>إيرادات منصة JAA</value></data>
   <data name="ARep.CompletedJobs"><value>الوظائف المكتملة</value></data>
   <data name="ARep.AvgRating"><value>متوسط التقييم</value></data>
   <data name="ARep.RecentFeedback"><value>آخر التقييمات</value></data>
   <data name="ARep.NoCompleted"><value>لا توجد وظائف مكتملة بعد.</value></data>
   <data name="ARep.NoFeedback"><value>لا توجد تقييمات بعد.</value></data>
+  <data name="ARep.CommissionBreakdown"><value>تفصيل العمولة</value></data>
+  <data name="ARep.RepairJobsOnly"><value>وظائف الإصلاح فقط</value></data>
+  <data name="ARep.TotalRepairRevenue"><value>إجمالي إيرادات الإصلاح</value></data>
+  <data name="ARep.CustomersPaid"><value>ما دفعه العملاء</value></data>
+  <data name="ARep.JAACommission"><value>عمولة JAA</value></data>
+  <data name="ARep.PlatformEarnings"><value>أرباح المنصة</value></data>
+  <data name="ARep.ShopRevenue"><value>إيرادات الورشة</value></data>
+  <data name="ARep.ShopsNetEarned"><value>صافي أرباح الورش</value></data>
+  <data name="ARep.RevenueDistribution"><value>توزيع الإيرادات</value></data>
+  <data name="ARep.Shops"><value>الورش</value></data>
+  <data name="Inv.RepairAmount"><value>مبلغ الإصلاح</value></data>
 
   <!-- Admin Refunds -->
   <data name="ARef.PendingRefunds"><value>الاستردادات قيد المعالجة</value></data>
@@ -967,6 +1033,7 @@
   <data name="Sidebar.PendingShops"><value>الورشات المعلقة</value></data>
   <data name="Sidebar.PendingMechanics"><value>الميكانيكيون المعلقون</value></data>
   <data name="Sidebar.Refunds"><value>استرداد المدفوعات</value></data>
+  <data name="Sidebar.PaymentVerifications"><value>نزاعات الدفع</value></data>
   <data name="Sidebar.AllRequests"><value>جميع الطلبات</value></data>
   <data name="Sidebar.AllShops"><value>جميع الورشات</value></data>
   <data name="Sidebar.IncomingRequests"><value>الطلبات الواردة</value></data>
@@ -1003,6 +1070,7 @@
   <data name="StepDesc.QuotationSent"><value>راجع عرض سعر الإصلاح</value></data>
   <data name="StepDesc.RepairApproved"><value>الإصلاح جارٍ</value></data>
   <data name="StepDesc.Completed"><value>تم إصلاح سيارتك</value></data>
+  <data name="StepDesc.AwaitingConfirmation"><value>أكّد المبلغ الذي دفعته لإتمام هذه المهمة</value></data>
 
   <!-- Controller messages -->
   <data name="Msg.AccountDeactivated"><value>تم تعطيل حسابك. يرجى التواصل مع الدعم على support@jaa.jo</value></data>
@@ -1040,6 +1108,12 @@
   <data name="Msg.MechanicAdded"><value>تمت إضافة الميكانيكي وهو قيد مراجعة المسؤول.</value></data>
   <data name="Msg.MechanicUpdated"><value>تم تحديث بيانات الميكانيكي.</value></data>
   <data name="Msg.NationalIdExists"><value>يوجد ميكانيكي بهذا الرقم الوطني مسبقاً.</value></data>
+  <data name="Msg.RepairReported"><value>تم الإبلاغ عن الإنجاز. في انتظار تأكيد العميل.</value></data>
+  <data name="Msg.PaymentVerified"><value>تم تأكيد الدفع — اكتملت المهمة وتم إنشاء الفاتورة.</value></data>
+  <data name="Msg.AmountMismatchFlagged"><value>تم رصد تناقض في المبلغ. تم وضع علامة على هذه المهمة لمراجعة المسؤول.</value></data>
+  <data name="Msg.InvalidAmount"><value>يرجى إدخال مبلغ موجب صالح.</value></data>
+  <data name="Msg.VerificationResolved"><value>تم حل النزاع. تم إنشاء الفاتورة.</value></data>
+  <data name="Msg.VerificationNotFound"><value>سجل التحقق غير موجود.</value></data>
 
   <!-- AdminController messages -->
   <data name="Msg.UserActivated"><value>تم تفعيل المستخدم {0}.</value></data>
@@ -1054,4 +1128,21 @@
   <data name="Msg.RefundApproved"><value>تمت الموافقة على الاسترداد.</value></data>
   <data name="Msg.RefundRejected"><value>تم رفض الاسترداد.</value></data>
   <data name="Msg.SettingUpdated"><value>تم تحديث الإعداد &apos;{0}&apos;.</value></data>
+  <data name="Status.InProgress"><value>قيد التنفيذ</value></data>
+  <data name="Status.QuotationRejected"><value>تم رفض العرض</value></data>
+  <data name="Status.AwaitingConfirmation"><value>في انتظار التأكيد</value></data>
+  <data name="Status.UnderReview"><value>قيد المراجعة</value></data>
+  <data name="Login.Password"><value>كلمة المرور</value></data>
+  <data name="Login.PhoneNumber"><value>رقم الهاتف</value></data>
+  <data name="Login.SignInButton"><value>تسجيل الدخول</value></data>
+  <data name="Login.SignInSub"><value>أهلاً بعودتك — سجّل دخولك إلى حسابك</value></data>
+  <data name="Login.ForgotPassword"><value>نسيت كلمة المرور؟</value></data>
+  <data name="Register.FullName"><value>الاسم الكامل</value></data>
+  <data name="Register.FullNamePlaceholder"><value>اسمك الكامل</value></data>
+  <data name="Register.PasswordPlaceholder"><value>أنشئ كلمة مرور</value></data>
+  <data name="Register.ConfirmPassword"><value>تأكيد كلمة المرور</value></data>
+  <data name="Register.ConfirmPasswordPlaceholder"><value>كرر كلمة المرور</value></data>
+  <data name="Register.JoinJAA"><value>انضم إلى JAA — احصل على المساعدة متى احتجت</value></data>
+  <data name="Shop.ManageShop"><value>إدارة المحل</value></data>
+  <data name="Shop.PendingApproval"><value>في انتظار الموافقة</value></data>
 </root>

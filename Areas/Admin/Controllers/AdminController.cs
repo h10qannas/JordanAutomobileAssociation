@@ -20,6 +20,7 @@ namespace JAA.Areas.Admin.Controllers
         private readonly ShopService _shopService;
         private readonly MechanicService _mechanicService;
         private readonly PaymentService _paymentService;
+        private readonly TestimonialService _testimonialService;
         private readonly IStringLocalizer<SharedResources> _l;
 
         public AdminController(
@@ -28,14 +29,16 @@ namespace JAA.Areas.Admin.Controllers
             ShopService shopService,
             MechanicService mechanicService,
             PaymentService paymentService,
+            TestimonialService testimonialService,
             IStringLocalizer<SharedResources> localizer)
         {
-            _db              = db;
-            _userManager     = userManager;
-            _shopService     = shopService;
-            _mechanicService = mechanicService;
-            _paymentService  = paymentService;
-            _l               = localizer;
+            _db                 = db;
+            _userManager        = userManager;
+            _shopService        = shopService;
+            _mechanicService    = mechanicService;
+            _paymentService     = paymentService;
+            _testimonialService = testimonialService;
+            _l                  = localizer;
         }
 
         public async Task<IActionResult> Dashboard()
@@ -323,24 +326,115 @@ namespace JAA.Areas.Admin.Controllers
                 .Take(20)
                 .ToListAsync();
 
-            var legacyRevenue     = completedRequests.Where(r => r.Payment != null).Sum(r => r.Payment!.Amount);
-            var inspectionRevenue = await _db.InspectionPayments
+            var legacyRevenue          = completedRequests.Where(r => r.Payment != null).Sum(r => r.Payment!.Amount);
+            var inspectionPlatformShare = await _db.InspectionPayments
                 .Where(p => p.Status == PaymentStatus.Paid)
                 .SumAsync(p => (decimal?)p.PlatformShare) ?? 0;
-            var repairRevenue = await _db.RepairPayments
+            var totalRepairRevenue = await _db.RepairPayments
+                .Where(p => p.Status == PaymentStatus.Paid)
+                .SumAsync(p => (decimal?)p.QuotedAmount) ?? 0;
+            var totalJAACommission = await _db.RepairPayments
                 .Where(p => p.Status == PaymentStatus.Paid)
                 .SumAsync(p => (decimal?)p.CommissionAmount) ?? 0;
+            var totalShopRevenue = await _db.RepairPayments
+                .Where(p => p.Status == PaymentStatus.Paid)
+                .SumAsync(p => (decimal?)p.ShopAmount) ?? 0;
 
             var vm = new AdminReportsViewModel
             {
-                CompletedRequests      = completedRequests,
-                RecentFeedbacks        = feedbacks,
-                TotalRevenue           = legacyRevenue + inspectionRevenue + repairRevenue,
-                TotalCompletedRequests = completedRequests.Count,
-                AverageRating          = feedbacks.Count > 0
+                CompletedRequests             = completedRequests,
+                RecentFeedbacks               = feedbacks,
+                TotalRevenue                  = legacyRevenue + inspectionPlatformShare + totalJAACommission,
+                TotalRepairRevenue            = totalRepairRevenue,
+                TotalJAACommission            = totalJAACommission,
+                TotalShopRevenue              = totalShopRevenue,
+                TotalInspectionPlatformRevenue = inspectionPlatformShare,
+                TotalCompletedRequests        = completedRequests.Count,
+                AverageRating                 = feedbacks.Count > 0
                     ? Math.Round(feedbacks.Average(f => (double)f.Rating), 1) : 0
             };
             return View(vm);
+        }
+
+        // ── Payment Verifications ─────────────────────────────────────────
+
+        public async Task<IActionResult> PaymentVerifications()
+        {
+            var verifications = await _db.PaymentVerifications
+                .Include(v => v.ServiceRequest)
+                    .ThenInclude(r => r.Customer)
+                .Include(v => v.ServiceRequest)
+                    .ThenInclude(r => r.Shop)
+                .Include(v => v.ServiceRequest)
+                    .ThenInclude(r => r.Mechanic)
+                .Include(v => v.VerifiedBy)
+                .OrderByDescending(v => v.CreatedAt)
+                .ToListAsync();
+
+            return View(verifications);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResolveVerification(
+            int verificationId, string resolution, decimal? finalAmount, string? adminNotes)
+        {
+            var adminId      = _userManager.GetUserId(User)!;
+            var verification = await _db.PaymentVerifications
+                .Include(v => v.ServiceRequest)
+                    .ThenInclude(r => r.RepairPayment)
+                .Include(v => v.ServiceRequest)
+                    .ThenInclude(r => r.Mechanic)
+                .FirstOrDefaultAsync(v => v.Id == verificationId);
+
+            if (verification == null)
+            {
+                TempData["Error"] = "Verification record not found.";
+                return RedirectToAction("PaymentVerifications");
+            }
+
+            decimal approvedAmount = resolution switch
+            {
+                "mechanic" => verification.MechanicReportedAmount,
+                "customer" => verification.CustomerConfirmedAmount ?? verification.MechanicReportedAmount,
+                "manual"   => finalAmount ?? verification.MechanicReportedAmount,
+                _          => verification.MechanicReportedAmount
+            };
+
+            verification.FinalApprovedAmount = approvedAmount;
+            verification.Status              = VerificationStatus.Resolved;
+            verification.VerifiedById        = adminId;
+            verification.AdminNotes          = adminNotes;
+            verification.VerificationDate    = DateTime.UtcNow;
+            verification.UpdatedAt           = DateTime.UtcNow;
+
+            var request = verification.ServiceRequest;
+            if (request.RepairPayment != null)
+            {
+                var commRate = request.RepairPayment.CommissionRate;
+                request.RepairPayment.QuotedAmount     = approvedAmount;
+                request.RepairPayment.TotalAmount      = approvedAmount;
+                request.RepairPayment.CommissionAmount = Math.Round(approvedAmount * commRate, 2);
+                request.RepairPayment.ShopAmount       = Math.Round(approvedAmount - request.RepairPayment.CommissionAmount, 2);
+                request.RepairPayment.Status           = PaymentStatus.Paid;
+                request.RepairPayment.PaidAt           = DateTime.UtcNow;
+            }
+
+            if (request.MechanicId.HasValue)
+            {
+                var mechanic = await _db.Mechanics.FindAsync(request.MechanicId);
+                if (mechanic != null) mechanic.IsAvailable = true;
+            }
+
+            request.Status    = RequestStatus.Completed;
+            request.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+
+            var invoiceService = HttpContext.RequestServices.GetRequiredService<InvoiceService>();
+            await invoiceService.GetOrCreateInvoiceAsync(request.Id);
+
+            TempData["Success"] = $"Request #{request.Id} resolved — {approvedAmount:F2} JOD approved.";
+            return RedirectToAction("PaymentVerifications");
         }
 
         // ── Mechanic Details (admin view) ──────────────────────────────────
@@ -366,6 +460,60 @@ namespace JAA.Areas.Admin.Controllers
                 CompletedJobs = mechanic.ServiceRequests.Count(r => r.Status == RequestStatus.Completed)
             };
             return View(vm);
+        }
+
+        // ── Testimonials ───────────────────────────────────────────────────
+
+        public async Task<IActionResult> Testimonials(TestimonialStatus? status)
+        {
+            var vm = await _testimonialService.GetAdminViewAsync(status);
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveTestimonial(int id)
+        {
+            var adminId = _userManager.GetUserId(User)!;
+            await _testimonialService.ApproveAsync(id, adminId);
+            TempData["Success"] = "Testimonial approved and is now publicly visible.";
+            return RedirectToAction(nameof(Testimonials));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectTestimonial(int id, string? reason)
+        {
+            var adminId = _userManager.GetUserId(User)!;
+            await _testimonialService.RejectAsync(id, adminId, reason);
+            TempData["Success"] = "Testimonial rejected.";
+            return RedirectToAction(nameof(Testimonials));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> HideTestimonial(int id)
+        {
+            await _testimonialService.HideAsync(id);
+            TempData["Success"] = "Testimonial hidden from public view.";
+            return RedirectToAction(nameof(Testimonials));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleFeaturedTestimonial(int id)
+        {
+            await _testimonialService.ToggleFeaturedAsync(id);
+            return RedirectToAction(nameof(Testimonials));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteTestimonial(int id)
+        {
+            await _testimonialService.DeleteAsync(id);
+            TempData["Success"] = "Testimonial deleted.";
+            return RedirectToAction(nameof(Testimonials));
         }
     }
 }

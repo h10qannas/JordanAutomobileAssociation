@@ -39,14 +39,10 @@
             <span style="font-size:.85rem;color:var(--text2);">@L["Quot.RepairCost"]</span>
             <span style="font-size:.9rem;font-weight:700;color:var(--white);">@Model.QuotedAmount.ToString("F2") JOD</span>
           </div>
-          <div class="d-flex justify-content-between mb-2">
-            <span style="font-size:.82rem;color:var(--muted);">@L["Quot.VAT"] (@((Model.VatRate * 100).ToString("F0"))%)</span>
-            <span style="font-size:.82rem;color:var(--muted);">@Model.VatAmount.ToString("F2") JOD</span>
-          </div>
           <div style="border-top:1px solid var(--border);margin:.75rem 0;"></div>
           <div class="d-flex justify-content-between">
             <span style="font-size:.92rem;font-weight:700;color:var(--white);">@L["Quot.TotalToPayNow"]</span>
-            <span style="font-size:1.1rem;font-weight:800;color:var(--red);">@Model.TotalWithVat.ToString("F2") JOD</span>
+            <span style="font-size:1.1rem;font-weight:800;color:var(--red);">@Model.QuotedAmount.ToString("F2") JOD</span>
           </div>
         </div>
       </div>

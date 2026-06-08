@@ -9,13 +9,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 90px 1rem 3rem;
+  padding: 90px 1.25rem 3rem;
   position: relative;
   overflow: hidden;
   background: var(--dark);
 }
-
-/* decorative blobs */
 .auth-page::before {
   content: '';
   position: fixed; top: -160px; right: -160px;
@@ -31,10 +29,10 @@
   border-radius: 50%; pointer-events: none; z-index: 0;
 }
 
-/* ── Card ── */
+/* ── Outer container ── */
 .auth-wrap {
   width: 100%;
-  max-width: 420px;
+  max-width: 900px;
   position: relative;
   z-index: 1;
 }
@@ -46,69 +44,143 @@
 }
 .auth-back:hover { color: var(--light); }
 
-.auth-card {
-  background: var(--card);
+/* ── Split panel ── */
+.auth-panel {
+  display: flex;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(230,57,70,.08), 0 32px 80px rgba(0,0,0,.6);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 2.5rem 2.25rem 2rem;
-  box-shadow: 0 0 0 1px rgba(230,57,70,.06), 0 24px 64px rgba(0,0,0,.55);
+  min-height: 560px;
+}
+
+/* ── Left: image card ── */
+.auth-img-side {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 280px;
+  background: #0d1117;
+}
+.auth-img-side img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform .5s ease;
+}
+.auth-img-side:hover img { transform: scale(1.03); }
+
+/* gradient overlay on image */
+.auth-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(13,17,23,.55) 0%,
+    rgba(13,17,23,.15) 50%,
+    rgba(230,57,70,.18) 100%
+  );
+  pointer-events: none;
+}
+
+/* text badge on image */
+.auth-img-badge {
+  position: absolute;
+  bottom: 28px; left: 28px; right: 28px;
+  background: rgba(13,17,23,.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 14px 18px;
+}
+.auth-img-badge-title {
+  font-size: 1.05rem; font-weight: 800; color: #fff;
+  letter-spacing: -.2px; margin-bottom: 4px;
+}
+.auth-img-badge-sub {
+  font-size: .78rem; color: rgba(255,255,255,.55); line-height: 1.45;
+}
+.auth-img-badge-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #e63946;
+  display: inline-block; margin-right: 6px;
+  animation: dot-pulse 1.8s ease-in-out infinite;
+}
+@@keyframes dot-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(230,57,70,.5); }
+  50%      { box-shadow: 0 0 0 5px rgba(230,57,70,0); }
+}
+
+/* ── Right: form card ── */
+.auth-form-side {
+  width: 400px;
+  flex-shrink: 0;
+  background: var(--card);
+  padding: 2.75rem 2.25rem 2.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-left: 1px solid var(--border);
 }
 
 /* brand inside card */
 .ac-brand {
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: .75rem;
+  margin-bottom: 1.6rem;
 }
 .ac-brand-logo {
-  width: 48px; height: 48px;
+  width: 44px; height: 44px;
   background: var(--red);
-  border-radius: 14px;
+  border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.15rem; font-weight: 900; color: #fff;
+  font-size: 1rem; font-weight: 900; color: #fff;
   letter-spacing: -1px;
-  box-shadow: 0 6px 20px rgba(230,57,70,.35);
+  box-shadow: 0 4px 16px rgba(230,57,70,.35);
+  flex-shrink: 0;
+}
+.ac-brand-name {
+  font-size: .95rem; font-weight: 800; color: var(--white); letter-spacing: -.2px;
+  line-height: 1.1;
+}
+.ac-brand-tag {
+  font-size: .7rem; color: var(--muted); font-weight: 500;
 }
 
 .ac-title {
-  font-size: 1.45rem; font-weight: 800;
-  color: var(--white); text-align: center;
-  margin-bottom: .3rem; letter-spacing: -.4px;
+  font-size: 1.4rem; font-weight: 800;
+  color: var(--white);
+  margin-bottom: .3rem; letter-spacing: -.35px;
 }
 .ac-sub {
-  font-size: .83rem; color: var(--muted);
-  text-align: center; margin-bottom: 1.9rem;
+  font-size: .82rem; color: var(--muted);
+  margin-bottom: 1.75rem; line-height: 1.5;
 }
-
-/* divider */
 .ac-divider {
   height: 1px; background: var(--border);
-  margin: 0 -2.25rem 1.9rem;
+  margin: 0 0 1.75rem;
 }
 
 /* ── Fields ── */
-.field-wrap { margin-bottom: 1.15rem; }
-
+.field-wrap { margin-bottom: 1.1rem; }
 .field-label {
-  display: block; font-size: .72rem; font-weight: 700;
+  display: block; font-size: .7rem; font-weight: 700;
   color: var(--muted); text-transform: uppercase;
-  letter-spacing: .6px; margin-bottom: .45rem;
+  letter-spacing: .6px; margin-bottom: .42rem;
 }
-
 .field-box { position: relative; }
-
 .field-box .fi {
-  position: absolute; left: .95rem; top: 50%; transform: translateY(-50%);
-  color: var(--muted); font-size: .9rem; pointer-events: none; transition: color .2s;
+  position: absolute; left: .9rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .88rem; pointer-events: none; transition: color .2s;
 }
 .field-box:focus-within .fi { color: var(--red); }
-
 .field-in {
   width: 100%;
   background: rgba(13,17,23,.7);
   border: 1px solid var(--border);
   border-radius: 10px;
-  color: var(--white); font-size: .9rem; font-family: var(--font);
-  padding: .75rem 2.8rem .75rem 2.65rem;
+  color: var(--white); font-size: .88rem; font-family: var(--font);
+  padding: .72rem 2.75rem .72rem 2.6rem;
   transition: border-color .2s, box-shadow .2s; outline: none;
 }
 .field-in:focus {
@@ -117,25 +189,22 @@
   background: var(--dark);
 }
 .field-in::placeholder { color: #3d444e; }
-
 .field-toggle {
   position: absolute; right: .75rem; top: 50%; transform: translateY(-50%);
   background: none; border: none; cursor: pointer;
-  color: var(--muted); font-size: .9rem; padding: .25rem;
+  color: var(--muted); font-size: .88rem; padding: .25rem;
   transition: color .2s; line-height: 1;
 }
 .field-toggle:hover { color: var(--light); }
-
-.field-err { font-size: .72rem; color: #ff6b74; margin-top: .3rem; display: block; }
+.field-err { font-size: .7rem; color: #ff6b74; margin-top: .28rem; display: block; }
 
 /* ── Submit ── */
 .btn-auth {
   width: 100%; display: flex; align-items: center; justify-content: center; gap: .5rem;
   background: var(--red); color: #fff; border: none; border-radius: 10px;
-  font-size: .95rem; font-weight: 700; font-family: var(--font);
-  padding: .82rem; cursor: pointer; margin-top: .9rem;
+  font-size: .92rem; font-weight: 700; font-family: var(--font);
+  padding: .8rem; cursor: pointer; margin-top: .85rem;
   transition: background .2s, transform .15s, box-shadow .2s;
-  letter-spacing: .1px;
 }
 .btn-auth:hover {
   background: var(--red-d);
@@ -146,8 +215,8 @@
 
 /* ── Footer link ── */
 .auth-foot {
-  text-align: center; font-size: .8rem;
-  color: var(--muted); margin-top: 1.4rem;
+  text-align: center; font-size: .78rem;
+  color: var(--muted); margin-top: 1.3rem;
 }
 .auth-foot a { color: var(--red); font-weight: 600; text-decoration: none; }
 .auth-foot a:hover { text-decoration: underline; }
@@ -156,10 +225,33 @@
 .auth-alert {
   background: rgba(230,57,70,.08);
   border: 1px solid rgba(230,57,70,.2);
-  border-radius: 10px; padding: .72rem .9rem;
-  font-size: .8rem; color: #ff6b74;
+  border-radius: 10px; padding: .68rem .88rem;
+  font-size: .78rem; color: #ff6b74;
   display: flex; align-items: flex-start; gap: .5rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.2rem;
+}
+
+/* ── Responsive ── */
+@@media (max-width: 767px) {
+  .auth-panel {
+    flex-direction: column;
+    min-height: auto;
+  }
+  .auth-img-side {
+    min-height: 220px;
+    flex: none;
+  }
+  .auth-form-side {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding: 2rem 1.5rem 1.75rem;
+  }
+  .auth-img-badge { bottom: 16px; left: 16px; right: 16px; }
+}
+@@media (min-width: 768px) and (max-width: 1023px) {
+  .auth-wrap { max-width: 760px; }
+  .auth-form-side { width: 360px; }
 }
 </style>
 }
@@ -171,82 +263,101 @@
       <i class="bi bi-arrow-left"></i> @L["Login.BackToHome"]
     </a>
 
-    <div class="auth-card">
+    <div class="auth-panel">
 
-      <!-- Brand mark -->
-      <div class="ac-brand">
-        <div class="ac-brand-logo">JAA</div>
+      <!-- ── Left: image side ── -->
+      <div class="auth-img-side">
+        <img src="~/img/login-hero.jpg" alt="JAA Mechanic" />
+        <div class="auth-img-overlay"></div>
+        <div class="auth-img-badge">
+          <div class="auth-img-badge-title">
+            <span class="auth-img-badge-dot"></span>Jordan Auto Assistance
+          </div>
+          <div class="auth-img-badge-sub">Roadside help — wherever you are in Jordan.</div>
+        </div>
       </div>
 
-      <div class="ac-title">@L["Login.WelcomeBack"]</div>
-      <div class="ac-sub">@L["Login.SignInSub"]</div>
+      <!-- ── Right: form side ── -->
+      <div class="auth-form-side">
 
-      <div class="ac-divider"></div>
-
-      @if (Context.Request.Query.ContainsKey("pendingRequest"))
-      {
-        <div style="background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.28);border-radius:10px;padding:.72rem .9rem;font-size:.82rem;color:#58a6ff;display:flex;align-items:flex-start;gap:.55rem;margin-bottom:1.25rem;">
-          <i class="bi bi-info-circle-fill" style="flex-shrink:0;margin-top:.1rem;"></i>
-          <div>@L["RH.PendingSignIn"]</div>
-        </div>
-      }
-
-      @if (TempData["ResetSuccess"] != null)
-      {
-        <div style="background:rgba(35,134,54,.1);border:1px solid rgba(35,134,54,.28);border-radius:10px;padding:.72rem .9rem;font-size:.8rem;color:var(--green-t);display:flex;align-items:flex-start;gap:.5rem;margin-bottom:1.25rem;">
-          <i class="bi bi-check-circle-fill" style="flex-shrink:0;margin-top:.05rem;"></i>
-          <div>@TempData["ResetSuccess"]</div>
-        </div>
-      }
-
-      @if (!ViewData.ModelState.IsValid)
-      {
-        <div class="auth-alert">
-          <i class="bi bi-exclamation-circle-fill" style="flex-shrink:0;margin-top:.05rem;"></i>
-          <div>@Html.ValidationSummary(true)</div>
-        </div>
-      }
-
-      <form asp-action="Login" method="post" novalidate>
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
-
-        <div class="field-wrap">
-          <label class="field-label">@L["Login.PhoneNumber"]</label>
-          <div class="field-box">
-            <i class="bi bi-telephone-fill fi"></i>
-            <input asp-for="Identifier" class="field-in" placeholder="+962 7x xxx xxxx" autocomplete="tel" inputmode="tel" />
+        <div class="ac-brand">
+          <div class="ac-brand-logo">JAA</div>
+          <div>
+            <div class="ac-brand-name">JAA</div>
+            <div class="ac-brand-tag">Jordan Auto Assistance</div>
           </div>
-          <span asp-validation-for="Identifier" class="field-err"></span>
         </div>
 
-        <div class="field-wrap">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.45rem;">
-            <label class="field-label" style="margin-bottom:0;">@L["Login.Password"]</label>
-            <a asp-action="ForgotPassword" style="font-size:.72rem;color:var(--red);text-decoration:none;font-weight:600;">@L["Login.ForgotPassword"]</a>
+        <div class="ac-title">@L["Login.WelcomeBack"]</div>
+        <div class="ac-sub">@L["Login.SignInSub"]</div>
+
+        <div class="ac-divider"></div>
+
+        @if (Context.Request.Query.ContainsKey("pendingRequest"))
+        {
+          <div style="background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.28);border-radius:10px;padding:.68rem .88rem;font-size:.8rem;color:#58a6ff;display:flex;align-items:flex-start;gap:.5rem;margin-bottom:1.2rem;">
+            <i class="bi bi-info-circle-fill" style="flex-shrink:0;margin-top:.1rem;"></i>
+            <div>@L["RH.PendingSignIn"]</div>
           </div>
-          <div class="field-box">
-            <i class="bi bi-lock-fill fi"></i>
-            <input asp-for="Password" class="field-in" placeholder="••••••••" autocomplete="current-password" id="pwdInput" />
-            <button type="button" class="field-toggle" onclick="togglePwd()" tabindex="-1" aria-label="Show/hide password">
-              <i class="bi bi-eye" id="pwdIcon"></i>
-            </button>
+        }
+
+        @if (TempData["ResetSuccess"] != null)
+        {
+          <div style="background:rgba(35,134,54,.1);border:1px solid rgba(35,134,54,.28);border-radius:10px;padding:.68rem .88rem;font-size:.78rem;color:var(--green-t);display:flex;align-items:flex-start;gap:.5rem;margin-bottom:1.2rem;">
+            <i class="bi bi-check-circle-fill" style="flex-shrink:0;margin-top:.05rem;"></i>
+            <div>@TempData["ResetSuccess"]</div>
           </div>
-          <span asp-validation-for="Password" class="field-err"></span>
+        }
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+          <div class="auth-alert">
+            <i class="bi bi-exclamation-circle-fill" style="flex-shrink:0;margin-top:.05rem;"></i>
+            <div>@Html.ValidationSummary(true)</div>
+          </div>
+        }
+
+        <form asp-action="Login" method="post" novalidate>
+          @Html.AntiForgeryToken()
+          <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+          <div class="field-wrap">
+            <label class="field-label">@L["Login.PhoneNumber"]</label>
+            <div class="field-box">
+              <i class="bi bi-telephone-fill fi"></i>
+              <input asp-for="Identifier" class="field-in" placeholder="+962 7x xxx xxxx" autocomplete="tel" inputmode="tel" />
+            </div>
+            <span asp-validation-for="Identifier" class="field-err"></span>
+          </div>
+
+          <div class="field-wrap">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.42rem;">
+              <label class="field-label" style="margin-bottom:0;">@L["Login.Password"]</label>
+              <a asp-action="ForgotPassword" style="font-size:.7rem;color:var(--red);text-decoration:none;font-weight:600;">@L["Login.ForgotPassword"]</a>
+            </div>
+            <div class="field-box">
+              <i class="bi bi-lock-fill fi"></i>
+              <input asp-for="Password" class="field-in" placeholder="••••••••" autocomplete="current-password" id="pwdInput" />
+              <button type="button" class="field-toggle" onclick="togglePwd()" tabindex="-1" aria-label="Show/hide password">
+                <i class="bi bi-eye" id="pwdIcon"></i>
+              </button>
+            </div>
+            <span asp-validation-for="Password" class="field-err"></span>
+          </div>
+
+          <button type="submit" class="btn-auth">
+            <i class="bi bi-box-arrow-in-right"></i> @L["Login.SignInButton"]
+          </button>
+        </form>
+
+        <div class="auth-foot">
+          @L["Login.NoAccount"] <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]?.ToString()">@L["Login.CreateOne"]</a>
         </div>
 
-        <button type="submit" class="btn-auth">
-          <i class="bi bi-box-arrow-in-right"></i> @L["Login.SignInButton"]
-        </button>
-      </form>
-
-      <div class="auth-foot">
-        @L["Login.NoAccount"] <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]?.ToString()">@L["Login.CreateOne"]</a>
-      </div>
-
-    </div>
-  </div>
-</div>
+      </div><!-- /.auth-form-side -->
+    </div><!-- /.auth-panel -->
+  </div><!-- /.auth-wrap -->
+</div><!-- /.auth-page -->
 
 @section Scripts {
 <script>

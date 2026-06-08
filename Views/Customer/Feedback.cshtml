@@ -203,6 +203,7 @@
             <div class="fb-section-title"><i class="fas fa-comment-alt"></i> @L["FB.Comment"] <span style="font-weight:400;color:#3d444e;text-transform:none;letter-spacing:0;">@L["FB.CommentOptional"]</span></div>
             <textarea asp-for="Comment" class="fb-textarea" rows="4"
                       maxlength="1000"
+                      dir="auto"
                       placeholder="@L["FB.CommentPlaceholder"]"
                       oninput="updateCount(this)"></textarea>
             <div class="fb-char-count"><span id="charCount">0</span> / 1000</div>

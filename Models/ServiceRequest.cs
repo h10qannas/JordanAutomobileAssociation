@@ -53,5 +53,9 @@ namespace JAA.Models
         public Invoice? Invoice { get; set; }
 
         public Feedback? Feedback { get; set; }
+
+        public Testimonial? Testimonial { get; set; }
+
+        public PaymentVerification? PaymentVerification { get; set; }
     }
 }

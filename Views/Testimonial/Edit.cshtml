@@ -1,0 +1,96 @@
+@model JAA.ViewModels.EditTestimonialViewModel
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"]    = "Edit Testimonial";
+    ViewData["PageTitle"] = "Edit Testimonial";
+    ViewData["PageSub"]  = "You can edit your testimonial until it has been reviewed.";
+}
+
+@section Styles {
+<style>
+.star-picker { display: flex; gap: .4rem; flex-direction: row-reverse; justify-content: flex-end; }
+.star-picker input[type="radio"] { display: none; }
+.star-picker label {
+  font-size: 1.6rem; cursor: pointer; color: rgba(255,255,255,.12);
+  transition: color .15s;
+}
+.star-picker input[type="radio"]:checked ~ label,
+.star-picker label:hover,
+.star-picker label:hover ~ label { color: #f59e0b; }
+</style>
+}
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:12px;padding:.75rem 1rem;font-size:.78rem;color:#d4a017;display:flex;align-items:center;gap:.5rem;margin-bottom:1.25rem;">
+      <i class="bi bi-hourglass-split"></i>
+      <span>This testimonial is pending review. You can edit it until it's approved.</span>
+    </div>
+
+    <div class="card-jaa">
+      <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <!-- Shop name (read-only) -->
+        <div class="form-group mb-3">
+          <label class="form-label">Shop</label>
+          <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:.55rem .9rem;font-size:.84rem;color:var(--muted);">
+            @Model.ShopName
+          </div>
+        </div>
+
+        <!-- Rating -->
+        <div class="form-group mb-4">
+          <label class="form-label" style="margin-bottom:.6rem;">Rating <span style="color:var(--red);">*</span></label>
+          <div class="star-picker">
+            @for (int i = 5; i >= 1; i--)
+            {
+              var sid = $"star{i}";
+              <input type="radio" name="Rating" id="@sid" value="@i" @(Model.Rating == i ? "checked" : "") />
+              <label for="@sid" title="@i star@(i > 1 ? "s" : "")"><i class="bi bi-star-fill"></i></label>
+            }
+          </div>
+          <span asp-validation-for="Rating" class="text-danger" style="font-size:.73rem;"></span>
+        </div>
+
+        <!-- Title -->
+        <div class="form-group mb-3">
+          <label asp-for="Title" class="form-label">Title <span style="color:var(--muted);font-weight:400;font-size:.75rem;">(optional)</span></label>
+          <input asp-for="Title" class="form-control-jaa" maxlength="200" />
+          <span asp-validation-for="Title" class="text-danger" style="font-size:.73rem;"></span>
+        </div>
+
+        <!-- Message -->
+        <div class="form-group mb-4">
+          <label asp-for="Message" class="form-label">Your Experience <span style="color:var(--red);">*</span></label>
+          <textarea asp-for="Message" class="form-control-jaa" rows="5" maxlength="2000"></textarea>
+          <div style="display:flex;justify-content:space-between;margin-top:.3rem;">
+            <span asp-validation-for="Message" class="text-danger" style="font-size:.73rem;"></span>
+            <span id="charCount" style="font-size:.68rem;color:var(--muted);">0 / 2000</span>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2 justify-content-end flex-wrap">
+          <a asp-controller="Testimonial" asp-action="My" class="btn-jaa btn-outline">Cancel</a>
+          <button type="submit" class="btn-jaa btn-primary">
+            <i class="bi bi-check2"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+<script>
+const msg = document.querySelector('textarea[name="Message"]');
+const counter = document.getElementById('charCount');
+function updateCount() { counter.textContent = msg.value.length + ' / 2000'; }
+msg.addEventListener('input', updateCount);
+updateCount();
+</script>
+}

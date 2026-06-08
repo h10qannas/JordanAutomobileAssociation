@@ -17,8 +17,10 @@ namespace JAA.Data
         public DbSet<RepairPayment>     RepairPayments     { get; set; }
         public DbSet<Refund>            Refunds            { get; set; }
         public DbSet<Invoice>           Invoices           { get; set; }
-        public DbSet<Feedback>          Feedbacks          { get; set; }
-        public DbSet<SystemSetting>     SystemSettings     { get; set; }
+        public DbSet<Feedback>              Feedbacks              { get; set; }
+        public DbSet<Testimonial>           Testimonials           { get; set; }
+        public DbSet<PaymentVerification>   PaymentVerifications   { get; set; }
+        public DbSet<SystemSetting>         SystemSettings         { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -122,6 +124,37 @@ namespace JAA.Data
                 .HasForeignKey<Feedback>(f => f.ServiceRequestId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // ── Testimonial ────────────────────────────────────────────────
+            builder.Entity<ServiceRequest>()
+                .HasOne(r => r.Testimonial)
+                .WithOne(t => t.ServiceRequest)
+                .HasForeignKey<Testimonial>(t => t.ServiceRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Testimonial>()
+                .HasOne(t => t.Customer)
+                .WithMany()
+                .HasForeignKey(t => t.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Testimonial>()
+                .HasOne(t => t.Shop)
+                .WithMany()
+                .HasForeignKey(t => t.ShopId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Testimonial>()
+                .HasOne(t => t.Mechanic)
+                .WithMany()
+                .HasForeignKey(t => t.MechanicId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Entity<Testimonial>()
+                .HasOne(t => t.ApprovedBy)
+                .WithMany()
+                .HasForeignKey(t => t.ApprovedById)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // ── RepairQuotation → RepairPayment ────────────────────────────
             builder.Entity<RepairQuotation>()
                 .HasOne(q => q.RepairPayment)
@@ -152,6 +185,19 @@ namespace JAA.Data
                 .HasOne(r => r.ProcessedByAdmin)
                 .WithMany()
                 .HasForeignKey(r => r.ProcessedByAdminId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // ── PaymentVerification ────────────────────────────────────────
+            builder.Entity<ServiceRequest>()
+                .HasOne(r => r.PaymentVerification)
+                .WithOne(v => v.ServiceRequest)
+                .HasForeignKey<PaymentVerification>(v => v.ServiceRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<PaymentVerification>()
+                .HasOne(v => v.VerifiedBy)
+                .WithMany()
+                .HasForeignKey(v => v.VerifiedById)
                 .OnDelete(DeleteBehavior.SetNull);
 
             // ── Invoice unique index ───────────────────────────────────────

@@ -38,12 +38,16 @@ builder.Services.ConfigureApplicationCookie(opts =>
 // ── Localization ──────────────────────────────────────────────────────────
 builder.Services.AddLocalization();
 
-var supportedCultures = new[] { new CultureInfo("ar"), new CultureInfo("en") };
+// SupportedCultures = en only → model binder always uses invariant decimal separator (.)
+// so Latitude/Longitude doubles from JS toFixed(6) parse correctly regardless of UI language.
+// SupportedUICultures = ar + en → Arabic resource files still load for the UI.
+var supportedUICultures = new[] { new CultureInfo("ar"), new CultureInfo("en") };
+var supportedCultures   = new[] { new CultureInfo("en") };
 builder.Services.Configure<RequestLocalizationOptions>(opts =>
 {
-    opts.DefaultRequestCulture = new RequestCulture("ar");
+    opts.DefaultRequestCulture = new RequestCulture(culture: "en", uiCulture: "ar");
     opts.SupportedCultures     = supportedCultures;
-    opts.SupportedUICultures   = supportedCultures;
+    opts.SupportedUICultures   = supportedUICultures;
     opts.RequestCultureProviders = new List<IRequestCultureProvider>
     {
         new CookieRequestCultureProvider(),
@@ -57,6 +61,7 @@ builder.Services.AddScoped<ShopService>();
 builder.Services.AddScoped<MechanicService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<InvoiceService>();
+builder.Services.AddScoped<TestimonialService>();
 
 builder.Services.AddControllersWithViews()
     .AddViewLocalization()

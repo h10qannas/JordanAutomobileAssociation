@@ -306,6 +306,59 @@ namespace JAA.Migrations
                     b.ToTable("Payments");
                 });
 
+            modelBuilder.Entity("JAA.Models.PaymentVerification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdminNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("CustomerConfirmedAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("FinalApprovedAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("MechanicNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("MechanicReportedAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ServiceRequestId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("VerificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VerifiedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceRequestId")
+                        .IsUnique();
+
+                    b.HasIndex("VerifiedById");
+
+                    b.ToTable("PaymentVerifications");
+                });
+
             modelBuilder.Entity("JAA.Models.Refund", b =>
                 {
                     b.Property<int>("Id")
@@ -500,7 +553,6 @@ namespace JAA.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
@@ -678,6 +730,74 @@ namespace JAA.Migrations
                             Key = "VatRate",
                             Value = "0.16"
                         });
+                });
+
+            modelBuilder.Entity("JAA.Models.Testimonial", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ApprovedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("MechanicId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("ServiceRequestId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovedById");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("MechanicId");
+
+                    b.HasIndex("ServiceRequestId")
+                        .IsUnique();
+
+                    b.HasIndex("ShopId");
+
+                    b.ToTable("Testimonials");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -895,6 +1015,24 @@ namespace JAA.Migrations
                     b.Navigation("ServiceRequest");
                 });
 
+            modelBuilder.Entity("JAA.Models.PaymentVerification", b =>
+                {
+                    b.HasOne("JAA.Models.ServiceRequest", "ServiceRequest")
+                        .WithOne("PaymentVerification")
+                        .HasForeignKey("JAA.Models.PaymentVerification", "ServiceRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("JAA.Models.ApplicationUser", "VerifiedBy")
+                        .WithMany()
+                        .HasForeignKey("VerifiedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("ServiceRequest");
+
+                    b.Navigation("VerifiedBy");
+                });
+
             modelBuilder.Entity("JAA.Models.Refund", b =>
                 {
                     b.HasOne("JAA.Models.InspectionPayment", "InspectionPayment")
@@ -997,6 +1135,47 @@ namespace JAA.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("Mechanic");
+
+                    b.Navigation("Shop");
+                });
+
+            modelBuilder.Entity("JAA.Models.Testimonial", b =>
+                {
+                    b.HasOne("JAA.Models.ApplicationUser", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("JAA.Models.ApplicationUser", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("JAA.Models.Mechanic", "Mechanic")
+                        .WithMany()
+                        .HasForeignKey("MechanicId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("JAA.Models.ServiceRequest", "ServiceRequest")
+                        .WithOne("Testimonial")
+                        .HasForeignKey("JAA.Models.Testimonial", "ServiceRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("JAA.Models.RepairShop", "Shop")
+                        .WithMany()
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("ApprovedBy");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Mechanic");
+
+                    b.Navigation("ServiceRequest");
 
                     b.Navigation("Shop");
                 });
@@ -1104,9 +1283,13 @@ namespace JAA.Migrations
 
                     b.Navigation("Payment");
 
+                    b.Navigation("PaymentVerification");
+
                     b.Navigation("RepairPayment");
 
                     b.Navigation("RepairQuotation");
+
+                    b.Navigation("Testimonial");
                 });
 #pragma warning restore 612, 618
         }

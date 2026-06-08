@@ -1,44 +1,398 @@
 @model List<JAA.Models.ServiceRequest>
-@{ Layout = "_DashboardLayout"; ViewData["Title"] = L["ShopIR.NoPendingRequests"].Value; ViewData["PageTitle"] = L["Shop.IncomingRequests"].Value; ViewData["PageSub"] = $"{Model.Count} {L["ShopDB.Incoming"].Value}"; }
+@using JAA.Models
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"]   = L["Shop.IncomingRequests"].Value;
+    ViewData["PageTitle"] = L["Shop.IncomingRequests"].Value;
+    ViewData["PageSub"]   = $"{Model.Count} {L["ShopDB.Incoming"].Value}";
+    var mechanics = (ViewBag.AvailableMechanics as List<Mechanic>) ?? new List<Mechanic>();
+    bool hasMechanics = mechanics.Any();
+}
+
+@section Styles {
+<style>
+/* ── Page header ────────────────────────────────────────────── */
+.ir-page-top {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 28px; flex-wrap: wrap;
+}
+.ir-live-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(230,57,70,.12);
+    border: 1px solid rgba(230,57,70,.25);
+    border-radius: 20px;
+    padding: 4px 11px 4px 8px;
+    font-size: 11.5px; font-weight: 700; color: #f87171;
+    letter-spacing: .04em;
+}
+.ir-live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #e63946;
+    animation: ir-pulse 1.6s ease-in-out infinite;
+    flex-shrink: 0;
+}
+@@keyframes ir-pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(230,57,70,.5); }
+    50%      { box-shadow: 0 0 0 5px rgba(230,57,70,0); }
+}
+.ir-refresh-chip {
+    margin-left: auto;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--muted);
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 12px;
+}
+.ir-refresh-chip i { font-size: 10px; animation: spin 2s linear infinite; }
+@@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Request card ───────────────────────────────────────────── */
+.ir-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    transition: transform .22s, box-shadow .22s, border-color .22s;
+    height: 100%;
+    position: relative;
+}
+.ir-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,.45);
+    border-color: rgba(230,57,70,.3);
+}
+.ir-card-top-bar {
+    height: 3px;
+    background: linear-gradient(90deg, #e63946 0%, #ff6b74 100%);
+    flex-shrink: 0;
+}
+
+/* ── Card header ────────────────────────────────────────────── */
+.ir-card-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.ir-req-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(230,57,70,.12);
+    border: 1px solid rgba(230,57,70,.2);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 12px; font-weight: 800; color: #f87171;
+    letter-spacing: .03em;
+}
+.ir-time-chip {
+    font-size: 11px; color: var(--muted);
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 8px;
+    margin-left: auto;
+    white-space: nowrap;
+}
+.ir-new-badge {
+    font-size: 9.5px; font-weight: 800; color: #fff;
+    background: #e63946;
+    border-radius: 5px;
+    padding: 2px 6px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    animation: ir-new-flash 1.5s ease-in-out infinite alternate;
+    flex-shrink: 0;
+}
+@@keyframes ir-new-flash {
+    from { opacity: 1; }
+    to   { opacity: .55; }
+}
+
+/* ── Customer section ───────────────────────────────────────── */
+.ir-customer {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px 0;
+    flex-shrink: 0;
+}
+.ir-avatar {
+    width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(230,57,70,.25), rgba(230,57,70,.1));
+    border: 1px solid rgba(230,57,70,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; color: #f87171;
+    text-transform: uppercase;
+}
+.ir-cust-name  { font-size: 13.5px; font-weight: 700; color: var(--white); line-height: 1.2; }
+.ir-cust-phone { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ── Location link ──────────────────────────────────────────── */
+.ir-loc-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin: 12px 16px 0;
+    padding: 7px 12px;
+    background: rgba(230,57,70,.07);
+    border: 1px solid rgba(230,57,70,.18);
+    border-radius: 8px;
+    font-size: 12px; font-weight: 600; color: #f87171;
+    text-decoration: none;
+    transition: background .18s, border-color .18s;
+    align-self: flex-start;
+}
+.ir-loc-link:hover {
+    background: rgba(230,57,70,.15);
+    border-color: rgba(230,57,70,.35);
+    color: #ff6b74;
+}
+
+/* ── Situation description ──────────────────────────────────── */
+.ir-situation {
+    margin: 12px 16px 0;
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--border);
+    border-left: 3px solid #3fb950;
+    border-radius: 10px;
+    padding: 11px 13px;
+    font-size: 13px; color: var(--text2);
+    font-style: italic; line-height: 1.55;
+    flex-grow: 1;
+    word-break: break-word;
+}
+.ir-situation::before {
+    content: '"';
+    font-size: 22px; color: #3fb950;
+    line-height: 0; vertical-align: -6px;
+    margin-right: 3px;
+    font-style: normal;
+}
+
+/* ── Mechanic selector ──────────────────────────────────────── */
+.ir-mech-section {
+    margin: 12px 16px 0;
+    flex-shrink: 0;
+}
+.ir-mech-label {
+    font-size: 10px; font-weight: 800; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .08em;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+}
+.ir-mech-label i { font-size: 9px; }
+.ir-mech-select {
+    width: 100%;
+    background: rgba(255,255,255,.04) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    color: var(--white) !important;
+    font-size: 13px !important;
+    padding: 9px 12px !important;
+    font-family: 'Inter', sans-serif !important;
+    cursor: pointer;
+    transition: border-color .18s, box-shadow .18s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    padding-right: 32px !important;
+}
+.ir-mech-select:focus {
+    outline: none;
+    border-color: rgba(230,57,70,.5) !important;
+    box-shadow: 0 0 0 3px rgba(230,57,70,.1) !important;
+}
+.ir-mech-select option { background: #1a1f26; color: var(--white); }
+.ir-no-mech {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px;
+    background: rgba(210,153,34,.07);
+    border: 1px solid rgba(210,153,34,.2);
+    border-radius: 10px;
+    font-size: 12px; color: #d4a017;
+}
+.ir-no-mech i { flex-shrink: 0; font-size: 13px; }
+.ir-no-mech a { color: #fbbf24; font-weight: 700; text-decoration: none; margin-left: auto; }
+.ir-no-mech a:hover { text-decoration: underline; }
+
+/* ── Accept button ──────────────────────────────────────────── */
+.ir-card-foot {
+    padding: 14px 16px 16px;
+    border-top: 1px solid var(--border);
+    margin-top: 14px;
+    flex-shrink: 0;
+}
+.btn-ir-accept {
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    width: 100%;
+    background: linear-gradient(135deg, #e63946, #c1121f);
+    color: #fff !important;
+    border: none; border-radius: 12px;
+    padding: 13px 16px;
+    font-size: 14px; font-weight: 800;
+    cursor: pointer; text-decoration: none !important;
+    transition: all .22s;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: .2px;
+    box-shadow: 0 4px 14px rgba(230,57,70,.3);
+}
+.btn-ir-accept:hover {
+    background: linear-gradient(135deg, #ff4d5a, #e63946);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(230,57,70,.45);
+}
+.btn-ir-accept:active { transform: translateY(0); }
+.btn-ir-accept:disabled {
+    background: rgba(255,255,255,.07) !important;
+    color: var(--muted) !important;
+    box-shadow: none; cursor: not-allowed; transform: none;
+}
+
+/* ── Empty state ────────────────────────────────────────────── */
+.ir-empty {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    text-align: center;
+}
+.ir-empty-icon {
+    width: 72px; height: 72px; border-radius: 20px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; color: var(--muted);
+    margin-bottom: 20px;
+}
+.ir-empty h5 { font-size: 17px; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+.ir-empty p  { font-size: 13px; color: var(--muted); max-width: 280px; line-height: 1.6; }
+
+/* ── Countdown ──────────────────────────────────────────────── */
+#irCountdown { font-variant-numeric: tabular-nums; }
+</style>
+}
+
+<!-- Page top bar -->
+<div class="ir-page-top">
+    <div class="ir-live-badge">
+        <div class="ir-live-dot"></div>
+        LIVE
+    </div>
+    @if (Model.Any())
+    {
+        <span style="font-size:13px;color:var(--muted);">
+            @Model.Count @L["ShopDB.Incoming"]
+        </span>
+    }
+    <div class="ir-refresh-chip">
+        <i class="fas fa-sync-alt"></i>
+        @L["ShopIR.AutoRefresh"] <span id="irCountdown">20</span>s
+    </div>
+</div>
 
 @if (!Model.Any())
 {
-    <div class="gc"><div class="es"><div class="es-icon"><i class="fas fa-inbox"></i></div><h5>@L["ShopIR.NoPendingRequests"]</h5><p>@L["ShopIR.RequestsAppearHere"]</p></div></div>
+    <div class="ir-empty">
+        <div class="ir-empty-icon"><i class="fas fa-inbox"></i></div>
+        <h5>@L["ShopIR.NoPendingRequests"]</h5>
+        <p>@L["ShopIR.RequestsAppearHere"]</p>
+    </div>
 }
 else
 {
     <div class="row g-4">
         @foreach (var r in Model)
         {
+            var minutesAgo = (int)(DateTime.UtcNow - r.CreatedAt).TotalMinutes;
+            bool isNew     = minutesAgo < 5;
+            string timeLabel = minutesAgo < 60
+                ? $"{minutesAgo}{L["Track.MinAgo"].Value}"
+                : r.CreatedAt.ToLocalTime().ToString("t");
+            string initials = string.IsNullOrWhiteSpace(r.Customer?.FullName) ? "?"
+                : string.Concat(r.Customer.FullName.Split(' ', System.StringSplitOptions.RemoveEmptyEntries)
+                    .Take(2).Select(w => w[0]));
+
             <div class="col-md-6 col-lg-4">
-                <div class="gc h-100 d-flex flex-column" style="cursor:default;">
-                    <div class="gc-head" style="flex-shrink:0;">
-                        <span class="gc-head-title"><i class="fas fa-car me-2" style="color:#f87171;"></i>Request #@r.Id</span>
-                        <span style="font-size:11px;color:var(--muted);">@((DateTime.UtcNow - r.CreatedAt).TotalMinutes < 60 ? $"{(int)(DateTime.UtcNow - r.CreatedAt).TotalMinutes}{L["Track.MinAgo"].Value}" : r.CreatedAt.ToLocalTime().ToString("t"))</span>
-                    </div>
-                    <div class="p-3 flex-grow-1">
-                        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">
-                            <i class="fas fa-user me-1" style="color:var(--accent);"></i>@r.Customer?.FullName
+                <div class="ir-card">
+                    <div class="ir-card-top-bar"></div>
+
+                    <!-- Header -->
+                    <div class="ir-card-head">
+                        <div class="ir-req-badge">
+                            <i class="fas fa-car" style="font-size:10px;"></i>
+                            #@r.Id
                         </div>
-                        @if (r.Customer?.PhoneNumber != null)
+                        @if (isNew)
                         {
-                            <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">
-                                <i class="fas fa-phone me-1"></i>@r.Customer.PhoneNumber
+                            <span class="ir-new-badge">NEW</span>
+                        }
+                        <span class="ir-time-chip">
+                            <i class="fas fa-clock me-1" style="font-size:9px;"></i>@timeLabel
+                        </span>
+                    </div>
+
+                    <!-- Customer -->
+                    <div class="ir-customer">
+                        <div class="ir-avatar">@initials</div>
+                        <div>
+                            <div class="ir-cust-name">@r.Customer?.FullName</div>
+                            @if (r.Customer?.PhoneNumber != null)
+                            {
+                                <div class="ir-cust-phone">
+                                    <i class="fas fa-phone me-1" style="font-size:10px;"></i>@r.Customer.PhoneNumber
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Location -->
+                    <a href="https://www.google.com/maps?q=@r.CustomerLatitude,@r.CustomerLongitude"
+                       target="_blank" class="ir-loc-link">
+                        <i class="fas fa-map-marker-alt"></i>
+                        @L["ShopIR.ViewLocationOnMap"]
+                        <i class="fas fa-external-link-alt" style="font-size:9px;opacity:.7;"></i>
+                    </a>
+
+                    <!-- Situation -->
+                    <div class="ir-situation">@r.SituationDescription</div>
+
+                    <!-- Mechanic selector -->
+                    <div class="ir-mech-section">
+                        <div class="ir-mech-label">
+                            <i class="fas fa-wrench"></i> @L["ShopIR.AssignMechanic"]
+                        </div>
+                        @if (hasMechanics)
+                        {
+                            <select class="ir-mech-select" name="SelectedMechanicId"
+                                    form="accept-form-@r.Id" required>
+                                <option value="" disabled selected>@L["ShopIR.SelectMechanic"]</option>
+                                @foreach (var m in mechanics)
+                                {
+                                    <option value="@m.Id">
+                                        @m.FullName
+                                        @if (m.YearsOfExperience.HasValue)
+                                        { <text>· @m.YearsOfExperience yr</text> }
+                                    </option>
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            <div class="ir-no-mech">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                @L["ShopIR.NoMechanicsAvailable"]
+                                <a asp-controller="Shop" asp-action="AddMechanic">@L["ShopIR.AddOne"]</a>
                             </div>
                         }
-                        <a href="https://www.google.com/maps?q=@r.CustomerLatitude,@r.CustomerLongitude" target="_blank"
-                           style="font-size:12px;color:#f87171;display:block;margin-bottom:10px;">
-                            <i class="fas fa-map-marker-alt me-1"></i>@L["ShopIR.ViewLocationOnMap"]
-                        </a>
-                        <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text2);font-style:italic;">
-                            "@r.SituationDescription"
-                        </div>
                     </div>
-                    <div class="p-3" style="border-top:1px solid var(--border);flex-shrink:0;">
-                        <form asp-action="AcceptRequest" asp-route-id="@r.Id" method="post">
+
+                    <!-- Accept -->
+                    <div class="ir-card-foot">
+                        <form id="accept-form-@r.Id" asp-action="AcceptRequest" method="post">
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="btn-sos w-100 justify-content-center" style="animation:none;">
-                                <i class="fas fa-handshake"></i> @L["ShopIR.AcceptRequest"]
+                            <input type="hidden" name="ServiceRequestId" value="@r.Id" />
+                            <input type="hidden" name="CustomerName" value="@(r.Customer?.FullName ?? "")" />
+                            <input type="hidden" name="SituationDescription" value="@r.SituationDescription" />
+                            <input type="hidden" name="CustomerLatitude" value="@r.CustomerLatitude" />
+                            <input type="hidden" name="CustomerLongitude" value="@r.CustomerLongitude" />
+                            <button type="submit" class="btn-ir-accept" @(!hasMechanics ? "disabled" : "")>
+                                <i class="fas fa-handshake" style="font-size:15px;"></i>
+                                @L["ShopIR.AcceptRequest"]
                             </button>
                         </form>
                     </div>
@@ -48,4 +402,16 @@ else
     </div>
 }
 
-@section Scripts { <script>setTimeout(() => location.reload(), 20000);</script> }
+@section Scripts {
+<script>
+(function () {
+    let t = 20;
+    const el = document.getElementById('irCountdown');
+    const iv = setInterval(() => {
+        t--;
+        if (el) el.textContent = t;
+        if (t <= 0) { clearInterval(iv); location.reload(); }
+    }, 1000);
+})();
+</script>
+}

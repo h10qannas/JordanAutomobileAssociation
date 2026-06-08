@@ -236,49 +236,114 @@
             </div>
           }
 
-          <div class="detail-card">
-            <div class="detail-card-head">
+          @* ── Tabs: Reviews | Testimonials ── *@
+          @{
+            var activeTab = Context.Request.Query.ContainsKey("tab") ? Context.Request.Query["tab"].ToString() : "reviews";
+          }
+          <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:12px 12px 0 0;overflow:hidden;margin-bottom:-1px;">
+            <a href="?tab=reviews" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.7rem 1rem;font-size:.78rem;font-weight:700;text-decoration:none;border-right:1px solid var(--border);@(activeTab != "testimonials" ? "background:rgba(255,255,255,.04);color:var(--white);" : "color:var(--muted);background:transparent;")">
               <i class="fas fa-star"></i> @L["ShopDtl.CustomerReviews"]
-              <span style="background:rgba(255,255,255,.06);border-radius:999px;font-size:.7rem;color:var(--muted);padding:.18rem .6rem;margin-left:.25rem;">@Model.Feedbacks.Count</span>
-            </div>
-            <div class="detail-card-body" style="padding: @(Model.Feedbacks.Any() ? "1rem 1.4rem" : "0");">
-              @if (!Model.Feedbacks.Any())
-              {
-                <div class="reviews-empty">
-                  <i class="fas fa-comment-dots"></i>
-                  @L["ShopDtl.NoReviewsFirst"]
-                </div>
-              }
-              else
-              {
-                @foreach (var f in Model.Feedbacks)
+              <span style="background:rgba(255,255,255,.08);border-radius:999px;font-size:.65rem;padding:.1rem .45rem;">@Model.Feedbacks.Count</span>
+            </a>
+            <a href="?tab=testimonials" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.7rem 1rem;font-size:.78rem;font-weight:700;text-decoration:none;@(activeTab == "testimonials" ? "background:rgba(255,255,255,.04);color:var(--white);" : "color:var(--muted);background:transparent;")">
+              <i class="fas fa-quote-left"></i> Testimonials
+              <span style="background:rgba(255,255,255,.08);border-radius:999px;font-size:.65rem;padding:.1rem .45rem;">@Model.Testimonials.Count</span>
+            </a>
+          </div>
+
+          @if (activeTab == "testimonials")
+          {
+            <div class="detail-card" style="border-radius:0 0 16px 16px;">
+              <div class="detail-card-body" style="padding: @(Model.Testimonials.Any() ? "1rem 1.4rem" : "0");">
+                @if (!Model.Testimonials.Any())
                 {
-                  var initial = f.Customer?.FullName?.Length > 0 ? char.ToUpper(f.Customer.FullName[0]).ToString() : "C";
-                  <div class="review-item">
-                    <div class="review-avatar">@initial</div>
-                    <div class="flex-grow-1">
-                      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                        <div>
-                          <div class="review-name">@f.Customer?.FullName</div>
-                          <div class="review-date">@f.CreatedAt.ToLocalTime().ToString("d MMM yyyy")</div>
-                        </div>
-                        <div class="review-stars">
-                          @for (int i = 1; i <= 5; i++)
-                          {
-                            <i class="fas fa-star" style="color:@(i <= f.Rating ? "#fbbf24" : "rgba(255,255,255,.12)");"></i>
-                          }
-                        </div>
-                      </div>
-                      @if (!string.IsNullOrEmpty(f.Comment))
-                      {
-                        <p class="review-comment">"@f.Comment"</p>
-                      }
-                    </div>
+                  <div class="reviews-empty">
+                    <i class="fas fa-quote-left"></i>
+                    No approved testimonials yet.
                   </div>
                 }
-              }
+                else
+                {
+                  @foreach (var t in Model.Testimonials)
+                  {
+                    var initial = t.CustomerName.Length > 0 ? char.ToUpper(t.CustomerName[0]).ToString() : "C";
+                    <div class="review-item">
+                      <div class="review-avatar">@initial</div>
+                      <div class="flex-grow-1">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                          <div>
+                            <div class="review-name">@t.CustomerName</div>
+                            <div class="review-date">@t.ServiceDate.ToString("d MMM yyyy")</div>
+                          </div>
+                          <div style="display:flex;align-items:center;gap:.5rem;">
+                            @if (t.IsFeatured)
+                            {
+                              <span style="font-size:.6rem;font-weight:700;background:rgba(251,191,36,.1);color:#d4a017;border:1px solid rgba(251,191,36,.2);border-radius:999px;padding:.15rem .5rem;">
+                                <i class="fas fa-star"></i> Featured
+                              </span>
+                            }
+                            <div class="review-stars">
+                              @for (int i = 1; i <= 5; i++)
+                              {
+                                <i class="fas fa-star" style="color:@(i <= t.Rating ? "#fbbf24" : "rgba(255,255,255,.12)");"></i>
+                              }
+                            </div>
+                          </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(t.Title))
+                        {
+                          <div style="font-size:.84rem;font-weight:700;color:var(--white);margin:.35rem 0 .15rem;">"@t.Title"</div>
+                        }
+                        <p class="review-comment">"@t.Message"</p>
+                      </div>
+                    </div>
+                  }
+                }
+              </div>
             </div>
-          </div>
+          }
+          else
+          {
+            <div class="detail-card" style="border-radius:0 0 16px 16px;">
+              <div class="detail-card-body" style="padding: @(Model.Feedbacks.Any() ? "1rem 1.4rem" : "0");">
+                @if (!Model.Feedbacks.Any())
+                {
+                  <div class="reviews-empty">
+                    <i class="fas fa-comment-dots"></i>
+                    @L["ShopDtl.NoReviewsFirst"]
+                  </div>
+                }
+                else
+                {
+                  @foreach (var f in Model.Feedbacks)
+                  {
+                    var initial = f.Customer?.FullName?.Length > 0 ? char.ToUpper(f.Customer.FullName[0]).ToString() : "C";
+                    <div class="review-item">
+                      <div class="review-avatar">@initial</div>
+                      <div class="flex-grow-1">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                          <div>
+                            <div class="review-name">@f.Customer?.FullName</div>
+                            <div class="review-date">@f.CreatedAt.ToLocalTime().ToString("d MMM yyyy")</div>
+                          </div>
+                          <div class="review-stars">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                              <i class="fas fa-star" style="color:@(i <= f.Rating ? "#fbbf24" : "rgba(255,255,255,.12)");"></i>
+                            }
+                          </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(f.Comment))
+                        {
+                          <p class="review-comment">"@f.Comment"</p>
+                        }
+                      </div>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          }
 
         </div>
 

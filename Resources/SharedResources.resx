@@ -236,6 +236,9 @@
   <data name="Track.YourCarIsFixed"><value>Your car is fixed!</value></data>
   <data name="Track.JobCompletedBy"><value>Job completed by</value></data>
   <data name="Track.RequestNoLongerActive"><value>This request is no longer active.</value></data>
+  <data name="Track.CancelTitle"><value>Cancel Request?</value></data>
+  <data name="Track.CancelConfirmMsg"><value>Are you sure you want to cancel this request? This cannot be undone.</value></data>
+  <data name="Track.YesCancelIt"><value>Yes, Cancel It</value></data>
   <data name="Track.WasRequest"><value>This request was</value></data>
   <data name="Track.Progress"><value>Progress</value></data>
   <data name="Track.PageAutoRefreshes"><value>Page auto-refreshes every 15 seconds</value></data>
@@ -250,6 +253,12 @@
   <data name="Track.FeedbackHelps"><value>Your feedback helps other drivers choose the right shop.</value></data>
   <data name="Track.RateThisService"><value>Rate This Service</value></data>
   <data name="Track.FeedbackSubmitted"><value>Feedback submitted</value></data>
+  <data name="Track.AwaitingConfirmationTitle"><value>Waiting for your payment confirmation</value></data>
+  <data name="Track.AwaitingConfirmationSub"><value>The mechanic has reported the final repair amount. Please confirm what you actually paid to complete this job.</value></data>
+  <data name="Track.UnderReviewTitle"><value>Payment dispute under admin review</value></data>
+  <data name="Track.UnderReviewSub"><value>There was a discrepancy between the reported and confirmed amounts. Our admin team is reviewing this and will resolve it shortly.</value></data>
+  <data name="Track.ConfirmPaymentBtn"><value>Confirm Payment Amount</value></data>
+  <data name="Track.UnderReviewAdminNote"><value>Admin has been notified and will resolve this dispute.</value></data>
 
   <!-- Home page -->
   <data name="Home.HeroTag"><value>Jordan's Roadside Assistance Platform</value></data>
@@ -592,6 +601,11 @@
   <data name="ShopIR.RequestsAppearHere"><value>Customer help requests appear here in real time.</value></data>
   <data name="ShopIR.ViewLocationOnMap"><value>View Location on Map</value></data>
   <data name="ShopIR.AcceptRequest"><value>Accept Request</value></data>
+  <data name="ShopIR.AutoRefresh"><value>Auto-refresh in</value></data>
+  <data name="ShopIR.AssignMechanic"><value>Assign Mechanic</value></data>
+  <data name="ShopIR.SelectMechanic"><value>— Select a mechanic —</value></data>
+  <data name="ShopIR.NoMechanicsAvailable"><value>No mechanics available.</value></data>
+  <data name="ShopIR.AddOne"><value>Add one →</value></data>
 
   <!-- Shop ActiveJobs -->
   <data name="ShopAJ.NoActiveJobs"><value>No active jobs</value></data>
@@ -611,6 +625,10 @@
   <data name="ShopAJ.MarkAsCompleted"><value>Mark as Completed?</value></data>
   <data name="ShopAJ.CannotBeUndone"><value>This action cannot be undone.</value></data>
   <data name="ShopAJ.Cancel"><value>Cancel</value></data>
+  <data name="ShopAJ.QuotationApprovedNote"><value>Customer approved the quotation — repair in progress.</value></data>
+  <data name="ShopAJ.AwaitingCustomerApproval"><value>Waiting for customer to approve the repair quotation.</value></data>
+  <data name="ShopAJ.ReportCompletion"><value>Report Completion</value></data>
+  <data name="ShopAJ.AwaitingCustomerConfirmation"><value>Waiting for customer to confirm payment amount.</value></data>
 
   <!-- Shop CompletedJobs -->
   <data name="ShopCJ.NoJobsYet"><value>No completed jobs yet</value></data>
@@ -644,6 +662,8 @@
   <data name="ShopRev.TotalReviews"><value>Total Reviews</value></data>
   <data name="ShopRev.NoReviewsYet"><value>No reviews yet</value></data>
   <data name="ShopRev.NoReviewsDesc"><value>Customer feedback appears here after completed jobs.</value></data>
+  <data name="ShopRev.CustomerFeedback"><value>Customer Feedback</value></data>
+  <data name="ShopRev.NoComment"><value>No written comment.</value></data>
 
   <!-- Shop Mechanics -->
   <data name="ShopMech.Title"><value>My Mechanics</value></data>
@@ -731,10 +751,45 @@
 
   <!-- Shop AddMechanic -->
   <data name="ShopAM.PageSub"><value>New mechanics require admin approval before they can receive jobs</value></data>
+  <data name="ShopAM.PersonalInfo"><value>Personal Information</value></data>
+  <data name="ShopAM.Experience"><value>Experience</value></data>
+  <data name="ShopAM.FullName"><value>Full Name</value></data>
+  <data name="ShopAM.FullNamePlaceholder"><value>Enter mechanic's full name</value></data>
+  <data name="ShopAM.NationalId"><value>National ID Number</value></data>
+  <data name="ShopAM.NationalIdPlaceholder"><value>e.g. 1234567890</value></data>
+  <data name="ShopAM.YearsOfExperience"><value>Years of Experience</value></data>
   <data name="ShopAM.ProfilePhoto"><value>Profile Photo (optional)</value></data>
+  <data name="ShopAM.ClickToUpload"><value>Click to upload or drag &amp; drop</value></data>
+  <data name="ShopAM.PhotoFormats"><value>PNG, JPG or WEBP — max 5 MB</value></data>
+  <data name="ShopAM.PendingNoteTitle"><value>Awaiting Admin Approval.</value></data>
   <data name="ShopAM.PendingNote"><value>This mechanic will be Pending until an admin approves them.</value></data>
   <data name="ShopAM.SubmitForApproval"><value>Submit for Approval</value></data>
   <data name="ShopAM.Cancel"><value>Cancel</value></data>
+
+  <!-- Shop ReportCompletion -->
+  <data name="RC.Title"><value>Report Job Completion</value></data>
+  <data name="RC.SubTitle"><value>Enter the final amount charged to the customer</value></data>
+  <data name="RC.CustomerInfo"><value>Customer Information</value></data>
+  <data name="RC.OriginalQuote"><value>Original Quotation</value></data>
+  <data name="RC.QuotedAmount"><value>Quoted Amount</value></data>
+  <data name="RC.QuoteReference"><value>This was the amount the customer approved</value></data>
+  <data name="RC.FinalAmountSection"><value>Final Amount Charged</value></data>
+  <data name="RC.NoticeTitle"><value>Important:</value></data>
+  <data name="RC.NoticeBody"><value>The amount you enter here must match what the customer actually paid. The customer will be asked to confirm this amount. Any discrepancy will be flagged for admin review.</value></data>
+  <data name="RC.FinalAmountLabel"><value>Final Amount (JOD)</value></data>
+  <data name="RC.NotesLabel"><value>Mechanic Notes (optional)</value></data>
+  <data name="RC.NotesPlaceholder"><value>Any additional notes about the repair...</value></data>
+  <data name="RC.SubmitButton"><value>Submit Completion Report</value></data>
+
+  <!-- Customer ConfirmPayment -->
+  <data name="CP.Title"><value>Confirm Payment</value></data>
+  <data name="CP.SubTitle"><value>Verify the amount you actually paid for this repair</value></data>
+  <data name="CP.MechanicReported"><value>Mechanic Reported Amount</value></data>
+  <data name="CP.HowMuchDidYouPay"><value>How much did you actually pay?</value></data>
+  <data name="CP.HowMuchHint"><value>Enter the exact amount you paid the mechanic. If it matches what was reported, the job will be completed. If it differs, the case will be reviewed by our admin team.</value></data>
+  <data name="CP.DisputeHint"><value>Entering a different amount will trigger an admin review to resolve the discrepancy.</value></data>
+  <data name="CP.ConfirmButton"><value>Confirm &amp; Complete Job</value></data>
+  <data name="CP.ProtectionNote"><value>JAA protects customers from overcharging. Your confirmation is encrypted and stored securely. If there is a discrepancy, our team will review and resolve it within 24 hours.</value></data>
 
   <!-- Shop EditMechanic -->
   <data name="ShopEM.PendingApproval"><value>Pending admin approval</value></data>
@@ -912,12 +967,23 @@
   <data name="APM.ShopLabel"><value>Shop</value></data>
 
   <!-- Admin Reports -->
-  <data name="ARep.TotalRevenue"><value>Total Revenue (JOD)</value></data>
+  <data name="ARep.TotalRevenue"><value>JAA Platform Revenue</value></data>
   <data name="ARep.CompletedJobs"><value>Completed Jobs</value></data>
   <data name="ARep.AvgRating"><value>Avg Rating</value></data>
   <data name="ARep.RecentFeedback"><value>Recent Feedback</value></data>
   <data name="ARep.NoCompleted"><value>No completed jobs yet.</value></data>
   <data name="ARep.NoFeedback"><value>No feedback yet.</value></data>
+  <data name="ARep.CommissionBreakdown"><value>Commission Breakdown</value></data>
+  <data name="ARep.RepairJobsOnly"><value>Repair jobs only</value></data>
+  <data name="ARep.TotalRepairRevenue"><value>Total Repair Revenue</value></data>
+  <data name="ARep.CustomersPaid"><value>customers paid</value></data>
+  <data name="ARep.JAACommission"><value>JAA Commission</value></data>
+  <data name="ARep.PlatformEarnings"><value>platform earnings</value></data>
+  <data name="ARep.ShopRevenue"><value>Shop Revenue</value></data>
+  <data name="ARep.ShopsNetEarned"><value>shops net earned</value></data>
+  <data name="ARep.RevenueDistribution"><value>Revenue Distribution</value></data>
+  <data name="ARep.Shops"><value>Shops</value></data>
+  <data name="Inv.RepairAmount"><value>Repair Amount</value></data>
 
   <!-- Admin Refunds -->
   <data name="ARef.PendingRefunds"><value>Pending Refunds</value></data>
@@ -967,6 +1033,7 @@
   <data name="Sidebar.PendingShops"><value>Pending Shops</value></data>
   <data name="Sidebar.PendingMechanics"><value>Pending Mechanics</value></data>
   <data name="Sidebar.Refunds"><value>Refunds</value></data>
+  <data name="Sidebar.PaymentVerifications"><value>Payment Disputes</value></data>
   <data name="Sidebar.AllRequests"><value>All Requests</value></data>
   <data name="Sidebar.AllShops"><value>All Shops</value></data>
   <data name="Sidebar.IncomingRequests"><value>Incoming Requests</value></data>
@@ -1003,6 +1070,7 @@
   <data name="StepDesc.QuotationSent"><value>Review the repair quotation</value></data>
   <data name="StepDesc.RepairApproved"><value>Repair in progress</value></data>
   <data name="StepDesc.Completed"><value>Your vehicle has been repaired</value></data>
+  <data name="StepDesc.AwaitingConfirmation"><value>Confirm the amount you paid to complete this job</value></data>
 
   <!-- Controller messages -->
   <data name="Msg.AccountDeactivated"><value>Your account has been deactivated. Please contact support at support@jaa.jo</value></data>
@@ -1040,6 +1108,12 @@
   <data name="Msg.MechanicAdded"><value>Mechanic added and pending admin approval.</value></data>
   <data name="Msg.MechanicUpdated"><value>Mechanic updated.</value></data>
   <data name="Msg.NationalIdExists"><value>A mechanic with this National ID already exists.</value></data>
+  <data name="Msg.RepairReported"><value>Completion reported. Waiting for customer confirmation.</value></data>
+  <data name="Msg.PaymentVerified"><value>Payment confirmed — job completed and invoice generated.</value></data>
+  <data name="Msg.AmountMismatchFlagged"><value>Amount mismatch detected. This job has been flagged for admin review.</value></data>
+  <data name="Msg.InvalidAmount"><value>Please enter a valid positive amount.</value></data>
+  <data name="Msg.VerificationResolved"><value>Dispute resolved. Invoice generated.</value></data>
+  <data name="Msg.VerificationNotFound"><value>Verification record not found.</value></data>
 
   <!-- AdminController messages -->
   <data name="Msg.UserActivated"><value>User {0} activated.</value></data>
@@ -1054,4 +1128,21 @@
   <data name="Msg.RefundApproved"><value>Refund approved.</value></data>
   <data name="Msg.RefundRejected"><value>Refund rejected.</value></data>
   <data name="Msg.SettingUpdated"><value>Setting &apos;{0}&apos; updated.</value></data>
+  <data name="Status.InProgress"><value>In Progress</value></data>
+  <data name="Status.QuotationRejected"><value>Quotation Rejected</value></data>
+  <data name="Status.AwaitingConfirmation"><value>Awaiting Confirmation</value></data>
+  <data name="Status.UnderReview"><value>Under Review</value></data>
+  <data name="Login.Password"><value>Password</value></data>
+  <data name="Login.PhoneNumber"><value>Phone Number</value></data>
+  <data name="Login.SignInButton"><value>Sign In</value></data>
+  <data name="Login.SignInSub"><value>Welcome back — sign in to your account</value></data>
+  <data name="Login.ForgotPassword"><value>Forgot password?</value></data>
+  <data name="Register.FullName"><value>Full Name</value></data>
+  <data name="Register.FullNamePlaceholder"><value>Your full name</value></data>
+  <data name="Register.PasswordPlaceholder"><value>Create a password</value></data>
+  <data name="Register.ConfirmPassword"><value>Confirm Password</value></data>
+  <data name="Register.ConfirmPasswordPlaceholder"><value>Repeat your password</value></data>
+  <data name="Register.JoinJAA"><value>Join JAA — get help whenever you need it</value></data>
+  <data name="Shop.ManageShop"><value>Manage Shop</value></data>
+  <data name="Shop.PendingApproval"><value>Pending Approval</value></data>
 </root>

@@ -59,11 +59,13 @@
       <a asp-area="Admin" asp-controller="Admin" asp-action="PendingShops"     class="sidebar-link @(act=="PendingShops"?"active":"")"><i class="bi bi-shop-window"></i> @L["Sidebar.PendingShops"]</a>
       <a asp-area="Admin" asp-controller="Admin" asp-action="PendingMechanics" class="sidebar-link @(act=="PendingMechanics"?"active":"")"><i class="bi bi-person-gear"></i> @L["Sidebar.PendingMechanics"]</a>
       <a asp-area="Admin" asp-controller="Admin" asp-action="Refunds"          class="sidebar-link @(act=="Refunds"?"active":"")"><i class="bi bi-arrow-counterclockwise"></i> @L["Sidebar.Refunds"]</a>
+      <a asp-area="Admin" asp-controller="Admin" asp-action="PaymentVerifications" class="sidebar-link @(act=="PaymentVerifications"?"active":"")"><i class="bi bi-shield-exclamation"></i> @L["Sidebar.PaymentVerifications"]</a>
       <div class="nav-group-label">@L["Sidebar.Manage"]</div>
       <a asp-area="Admin" asp-controller="Admin" asp-action="Requests"         class="sidebar-link @(act=="Requests"?"active":"")"><i class="bi bi-list-ul"></i> @L["Sidebar.AllRequests"]</a>
       <a asp-area="Admin" asp-controller="Admin" asp-action="Shops"            class="sidebar-link @(act=="Shops"?"active":"")"><i class="bi bi-building"></i> @L["Sidebar.AllShops"]</a>
       <a asp-area="Admin" asp-controller="Admin" asp-action="Users"            class="sidebar-link @(act=="Users"?"active":"")"><i class="bi bi-people-fill"></i> @L["Admin.Users"]</a>
       <div class="nav-group-label">@L["Sidebar.System"]</div>
+      <a asp-area="Admin" asp-controller="Admin" asp-action="Testimonials"     class="sidebar-link @(act=="Testimonials"?"active":"")"><i class="bi bi-chat-quote-fill"></i> Testimonials</a>
       <a asp-area="Admin" asp-controller="Admin" asp-action="Settings"         class="sidebar-link @(act=="Settings"?"active":"")"><i class="bi bi-gear-fill"></i> @L["Admin.Settings"]</a>
       <a asp-area="Admin" asp-controller="Admin" asp-action="Reports"          class="sidebar-link @(act=="Reports"?"active":"")"><i class="bi bi-bar-chart-line-fill"></i> @L["Admin.Reports"]</a>
     }
@@ -80,6 +82,7 @@
       <a asp-controller="Shop" asp-action="ManageShop"       class="sidebar-link @(act=="ManageShop"?"active":"")"><i class="bi bi-shop-window"></i> @L["Sidebar.MyShop"]</a>
       <a asp-controller="Shop" asp-action="Earnings"         class="sidebar-link @(act=="Earnings"?"active":"")"><i class="bi bi-wallet2"></i> @L["Shop.Earnings"]</a>
       <a asp-controller="Shop" asp-action="Reviews"          class="sidebar-link @(act=="Reviews"?"active":"")"><i class="bi bi-star-fill"></i> @L["Shop.Reviews"]</a>
+      <a asp-controller="Shop" asp-action="Testimonials"     class="sidebar-link @(act=="Testimonials"?"active":"")"><i class="bi bi-chat-quote-fill"></i> Testimonials</a>
     }
     else
     {
@@ -98,6 +101,7 @@
       }
       <a asp-controller="Customer" asp-action="Map"           class="sidebar-link @(act=="Map"?"active":"")"><i class="bi bi-map-fill"></i> @L["Sidebar.FindShop"]</a>
       <a asp-controller="Customer" asp-action="History"       class="sidebar-link @(act=="History"?"active":"")"><i class="bi bi-clock-history"></i> @L["Sidebar.MyRequests"]</a>
+      <a asp-controller="Testimonial" asp-action="My"        class="sidebar-link @(ctrl=="Testimonial"?"active":"")"><i class="bi bi-chat-quote-fill"></i> My Testimonials</a>
       <div class="nav-group-label">@L["Sidebar.Account"]</div>
       <a asp-controller="Customer" asp-action="Profile"       class="sidebar-link @(act=="Profile"?"active":"")"><i class="bi bi-person-fill"></i> @L["Sidebar.MyProfile"]</a>
     }

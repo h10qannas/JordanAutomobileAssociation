@@ -1,5 +1,6 @@
 using JAA.Data;
 using JAA.Models;
+using JAA.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace JAA.Services
@@ -19,6 +20,53 @@ namespace JAA.Services
                 .OrderByDescending(s => s.Feedbacks.Any()
                     ? s.Feedbacks.Average(f => (double)f.Rating) : 0)
                 .ToListAsync();
+
+        public async Task<List<NearbyShop>> GetNearbyShopsAsync(
+            double? customerLat, double? customerLng,
+            string? city = null, double radiusKm = 150)
+        {
+            var shops = await _db.RepairShops
+                .Where(s => s.ShopStatus == ShopStatus.Approved &&
+                            (city == null || s.City == city))
+                .Include(s => s.Feedbacks)
+                .Include(s => s.Mechanics)
+                .ToListAsync();
+
+            return shops
+                .Select(s =>
+                {
+                    double? dist = null;
+                    if (customerLat.HasValue && customerLng.HasValue
+                        && s.Latitude.HasValue && s.Longitude.HasValue)
+                        dist = GeoService.HaversineKm(
+                            customerLat.Value, customerLng.Value,
+                            s.Latitude.Value, s.Longitude.Value);
+
+                    var availCount = s.Mechanics.Count(
+                        m => m.Status == MechanicStatus.Approved && m.IsAvailable);
+                    var avgRating = s.Feedbacks.Any()
+                        ? s.Feedbacks.Average(f => (double)f.Rating) : 0.0;
+
+                    return new NearbyShop
+                    {
+                        Shop                = s,
+                        DistanceKm          = dist,
+                        EstimatedArrivalMin = dist.HasValue
+                            ? GeoService.EstimatedArrivalMin(dist.Value) : null,
+                        AvgRating           = avgRating,
+                        ReviewCount         = s.Feedbacks.Count,
+                        AvailableMechanics  = availCount,
+                        IsAvailable         = availCount > 0
+                    };
+                })
+                .Where(ns => !customerLat.HasValue
+                          || !ns.DistanceKm.HasValue
+                          || ns.DistanceKm <= radiusKm)
+                .OrderBy(ns => ns.DistanceKm ?? double.MaxValue)
+                .ThenByDescending(ns => ns.IsAvailable)
+                .ThenByDescending(ns => ns.AvgRating)
+                .ToList();
+        }
 
         public async Task<List<RepairShop>> GetAllShopsForMapAsync() =>
             await _db.RepairShops
