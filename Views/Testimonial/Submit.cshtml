@@ -8,59 +8,256 @@
 
 @section Styles {
 <style>
-.star-picker { display: flex; gap: .4rem; flex-direction: row-reverse; justify-content: flex-end; }
+/* ── Card ── */
+.testimonial-card {
+  background: linear-gradient(135deg, rgba(255,255,255,.03) 0%, rgba(255,255,255,.01) 100%);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 20px;
+  padding: 2rem 2.2rem;
+  box-shadow: 0 8px 40px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.04) inset;
+  backdrop-filter: blur(6px);
+}
+
+/* ── Section headers ── */
+.form-section-label {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--muted);
+  margin-bottom: .6rem;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.form-section-label .req { color: var(--red); font-size: .9rem; line-height: 1; }
+
+/* ── Star picker ── */
+.star-section {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 14px;
+  padding: 1.4rem 1.6rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  transition: border-color .2s;
+}
+.star-section:hover { border-color: rgba(245,158,11,.2); }
+
+.star-picker { display: flex; gap: .6rem; flex-direction: row-reverse; justify-content: center; margin: .5rem 0 .6rem; }
 .star-picker input[type="radio"] { display: none; }
 .star-picker label {
-  font-size: 1.6rem; cursor: pointer; color: rgba(255,255,255,.12);
-  transition: color .15s;
+  font-size: 2.2rem;
+  cursor: pointer;
+  color: rgba(255,255,255,.1);
+  transition: color .15s, transform .15s;
+  line-height: 1;
 }
+.star-picker label:hover { transform: scale(1.15); }
 .star-picker input[type="radio"]:checked ~ label,
 .star-picker label:hover,
 .star-picker label:hover ~ label { color: #f59e0b; }
 
+.star-label-text {
+  font-size: .8rem;
+  font-weight: 600;
+  color: #f59e0b;
+  min-height: 1.2em;
+  transition: opacity .15s;
+  letter-spacing: .3px;
+}
+
+/* ── Service ref ── */
 .service-ref-box {
-  background: rgba(255,255,255,.02); border: 1px solid var(--border);
-  border-radius: 12px; padding: .9rem 1.1rem;
-  display: flex; align-items: center; gap: .85rem; flex-wrap: wrap;
+  background: linear-gradient(90deg, rgba(230,57,70,.07) 0%, rgba(230,57,70,.02) 100%);
+  border: 1px solid rgba(230,57,70,.18);
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.6rem;
 }
 .service-ref-icon {
-  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
-  background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.2);
+  width: 44px; height: 44px; border-radius: 11px; flex-shrink: 0;
+  background: rgba(230,57,70,.15);
+  border: 1px solid rgba(230,57,70,.3);
   display: flex; align-items: center; justify-content: center;
-  color: var(--red); font-size: .95rem;
+  color: var(--red); font-size: 1.1rem;
+  box-shadow: 0 4px 12px rgba(230,57,70,.15);
 }
-.service-ref-label { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
-.service-ref-val   { font-size: .84rem; font-weight: 600; color: var(--white); margin-top: 1px; }
+.service-ref-label { font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.service-ref-val   { font-size: .85rem; font-weight: 600; color: var(--white); margin-top: 2px; }
+.service-ref-divider {
+  width: 1px; height: 36px; background: rgba(255,255,255,.08); flex-shrink: 0;
+}
+
+/* ── Form controls ── */
+.field-wrapper {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+}
+.field-wrapper:focus-within {
+  border-color: rgba(230,57,70,.5);
+  box-shadow: 0 0 0 3px rgba(230,57,70,.08);
+}
+.field-wrapper input,
+.field-wrapper textarea {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  width: 100%;
+  color: var(--white);
+  font-size: .88rem;
+  padding: .75rem 1rem;
+  resize: none;
+}
+.field-wrapper input::placeholder,
+.field-wrapper textarea::placeholder { color: rgba(255,255,255,.25); }
+
+.field-icon {
+  padding: .75rem 0 .75rem 1rem;
+  color: rgba(255,255,255,.2);
+  font-size: .85rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Char counter bar ── */
+.char-bar-wrap {
+  padding: .4rem 1rem .5rem;
+  border-top: 1px solid rgba(255,255,255,.05);
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+}
+.char-bar-bg {
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(255,255,255,.07);
+  overflow: hidden;
+}
+.char-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #22c55e, #f59e0b 70%, #ef4444 100%);
+  width: 0%;
+  transition: width .2s;
+}
+.char-count-num {
+  font-size: .68rem;
+  color: var(--muted);
+  flex-shrink: 0;
+  min-width: 52px;
+  text-align: right;
+}
+
+/* ── Privacy note ── */
+.privacy-note {
+  background: rgba(88,166,255,.04);
+  border: 1px solid rgba(88,166,255,.12);
+  border-radius: 11px;
+  padding: .7rem 1rem;
+  font-size: .75rem;
+  color: rgba(255,255,255,.45);
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  margin-bottom: 1.4rem;
+  line-height: 1.5;
+}
+.privacy-note i { color: #58a6ff; flex-shrink: 0; font-size: .9rem; margin-top: 1px; }
+
+/* ── Action buttons ── */
+.btn-cancel {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.6);
+  border-radius: 10px;
+  padding: .6rem 1.3rem;
+  font-size: .84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+}
+.btn-cancel:hover {
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.85);
+  text-decoration: none;
+}
+.btn-submit {
+  background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  padding: .6rem 1.6rem;
+  font-size: .84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  box-shadow: 0 4px 16px rgba(230,57,70,.3);
+  letter-spacing: .2px;
+}
+.btn-submit:hover {
+  box-shadow: 0 6px 22px rgba(230,57,70,.45);
+  transform: translateY(-1px);
+  color: #fff;
+}
+.btn-submit:active { transform: translateY(0); }
+
+/* ── Validation ── */
+.val-msg { font-size: .71rem; color: #f87171; margin-top: .3rem; display: block; }
+
+/* ── Divider ── */
+.form-divider { height: 1px; background: rgba(255,255,255,.06); margin: 1.4rem 0; }
 </style>
 }
 
 <div class="row justify-content-center">
-  <div class="col-lg-7">
+  <div class="col-lg-7 col-xl-6">
 
-    <!-- Service reference info -->
-    <div class="service-ref-box mb-4">
+    <!-- Service reference -->
+    <div class="service-ref-box">
       <div class="service-ref-icon"><i class="bi bi-lightning-charge-fill"></i></div>
       <div style="flex:1;min-width:0;">
-        <div class="service-ref-label">Your JAA Service</div>
-        <div class="service-ref-val" style="white-space:normal;">@(Model.SituationDescription.Length > 100 ? Model.SituationDescription[..100] + "…" : Model.SituationDescription)</div>
+        <div class="service-ref-label">Reviewing service</div>
+        <div class="service-ref-val" style="white-space:normal;">@(Model.SituationDescription.Length > 90 ? Model.SituationDescription[..90] + "…" : Model.SituationDescription)</div>
       </div>
-      <div style="border-left:1px solid var(--border);padding-left:.85rem;flex-shrink:0;">
+      <div class="service-ref-divider d-none d-sm-block"></div>
+      <div style="flex-shrink:0;" class="d-none d-sm-block">
         <div class="service-ref-label">Date</div>
         <div class="service-ref-val">@Model.ServiceDate.ToString("d MMM yyyy")</div>
       </div>
     </div>
 
-    <div class="card-jaa">
-      <form asp-action="Submit" method="post">
+    <div class="testimonial-card">
+      <form asp-action="Submit" method="post" id="testimonialForm">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="ServiceRequestId" />
         <input type="hidden" asp-for="ShopId" />
         <input type="hidden" asp-for="MechanicId" />
 
-        <!-- Rating -->
-        <div class="form-group mb-4">
-          <label class="form-label" style="margin-bottom:.6rem;">Your Rating <span style="color:var(--red);">*</span></label>
-          <div class="star-picker">
+        <!-- ── Star Rating ── -->
+        <div class="star-section mb-4">
+          <div class="form-section-label justify-content-center" style="font-size:.7rem;">
+            <i class="bi bi-star" style="color:#f59e0b;"></i>
+            How was your experience? <span class="req">*</span>
+          </div>
+          <div class="star-picker" id="starPicker">
             @for (int i = 5; i >= 1; i--)
             {
               var sid = $"star{i}";
@@ -68,39 +265,59 @@
               <label for="@sid" title="@i star@(i > 1 ? "s" : "")"><i class="bi bi-star-fill"></i></label>
             }
           </div>
-          <span asp-validation-for="Rating" class="text-danger" style="font-size:.73rem;"></span>
-        </div>
-
-        <!-- Title (optional) -->
-        <div class="form-group mb-3">
-          <label asp-for="Title" class="form-label">Title <span style="color:var(--muted);font-weight:400;font-size:.75rem;">(optional)</span></label>
-          <input asp-for="Title" class="form-control-jaa" placeholder='e.g. "Fast and professional service"' maxlength="200" />
-          <span asp-validation-for="Title" class="text-danger" style="font-size:.73rem;"></span>
-        </div>
-
-        <!-- Message -->
-        <div class="form-group mb-4">
-          <label asp-for="Message" class="form-label">Your Experience <span style="color:var(--red);">*</span></label>
-          <textarea asp-for="Message" class="form-control-jaa" rows="5" maxlength="2000"
-                    placeholder="Describe your experience using JAA — how quickly help arrived, how the team treated you, and whether you'd recommend the service to others…"></textarea>
-          <div style="display:flex;justify-content:space-between;margin-top:.3rem;">
-            <span asp-validation-for="Message" class="text-danger" style="font-size:.73rem;"></span>
-            <span id="charCount" style="font-size:.68rem;color:var(--muted);">0 / 2000</span>
+          <div class="star-label-text" id="starLabelText">
+            @(Model.Rating switch { 5 => "Excellent", 4 => "Very Good", 3 => "Good", 2 => "Fair", 1 => "Poor", _ => "" })
           </div>
+          <span asp-validation-for="Rating" class="val-msg text-center d-block"></span>
         </div>
 
-        <!-- Privacy note -->
-        <div style="background:rgba(88,166,255,.05);border:1px solid rgba(88,166,255,.15);border-radius:9px;padding:.6rem .9rem;font-size:.72rem;color:var(--muted);display:flex;align-items:flex-start;gap:.5rem;margin-bottom:1.2rem;">
-          <i class="bi bi-shield-check" style="color:#58a6ff;flex-shrink:0;margin-top:1px;"></i>
-          Your testimonial will be reviewed before being published. Only your first name will appear publicly.
+        <!-- ── Title ── -->
+        <div class="mb-3">
+          <div class="form-section-label">
+            <i class="bi bi-pen"></i> Title
+            <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;font-size:.72rem;">(optional)</span>
+          </div>
+          <div class="field-wrapper d-flex align-items-center">
+            <span class="field-icon"><i class="bi bi-type"></i></span>
+            <input asp-for="Title" placeholder='e.g. "Fast and professional service"' maxlength="200" autocomplete="off" />
+          </div>
+          <span asp-validation-for="Title" class="val-msg"></span>
         </div>
 
+        <div class="form-divider"></div>
+
+        <!-- ── Message ── -->
+        <div class="mb-3">
+          <div class="form-section-label">
+            <i class="bi bi-chat-left-text"></i> Your Experience <span class="req">*</span>
+          </div>
+          <div class="field-wrapper">
+            <textarea asp-for="Message" rows="6" maxlength="2000" id="msgArea"
+                      placeholder="Describe your experience using JAA — how quickly help arrived, how the team treated you, and whether you'd recommend the service to others…"></textarea>
+            <div class="char-bar-wrap">
+              <div class="char-bar-bg"><div class="char-bar-fill" id="charBarFill"></div></div>
+              <span class="char-count-num" id="charCount">0 / 2000</span>
+            </div>
+          </div>
+          <span asp-validation-for="Message" class="val-msg"></span>
+        </div>
+
+        <!-- ── Privacy note ── -->
+        <div class="privacy-note">
+          <i class="bi bi-shield-check"></i>
+          <span>Your testimonial will be reviewed by our team before being published. Only your first name will appear publicly.</span>
+        </div>
+
+        <!-- ── Actions ── -->
         <div class="d-flex gap-2 justify-content-end flex-wrap">
-          <a asp-controller="Testimonial" asp-action="My" class="btn-jaa btn-outline">Cancel</a>
-          <button type="submit" class="btn-jaa btn-primary">
+          <a asp-controller="Testimonial" asp-action="My" class="btn-cancel">
+            <i class="bi bi-x"></i> Cancel
+          </a>
+          <button type="submit" class="btn-submit">
             <i class="bi bi-send-fill"></i> Submit Testimonial
           </button>
         </div>
+
       </form>
     </div>
 
@@ -110,10 +327,38 @@
 @section Scripts {
 <partial name="_ValidationScriptsPartial" />
 <script>
-const msg = document.querySelector('textarea[name="Message"]');
+// ── Character counter ──
+const msg     = document.getElementById('msgArea');
 const counter = document.getElementById('charCount');
-function updateCount() { counter.textContent = msg.value.length + ' / 2000'; }
+const fill    = document.getElementById('charBarFill');
+const MAX     = 2000;
+function updateCount() {
+  const n = msg.value.length;
+  counter.textContent = n + ' / ' + MAX;
+  fill.style.width = (n / MAX * 100) + '%';
+}
 msg.addEventListener('input', updateCount);
 updateCount();
+
+// ── Star label ──
+const labels = { 1: 'Poor', 2: 'Fair', 3: 'Good', 4: 'Very Good', 5: 'Excellent' };
+const labelEl = document.getElementById('starLabelText');
+const picker  = document.getElementById('starPicker');
+
+picker.querySelectorAll('label').forEach(lbl => {
+  lbl.addEventListener('mouseenter', () => {
+    const val = parseInt(lbl.getAttribute('for').replace('star', ''));
+    labelEl.textContent = labels[val] || '';
+  });
+  lbl.addEventListener('mouseleave', () => {
+    const checked = picker.querySelector('input[type="radio"]:checked');
+    labelEl.textContent = checked ? (labels[parseInt(checked.value)] || '') : '';
+  });
+});
+picker.querySelectorAll('input[type="radio"]').forEach(inp => {
+  inp.addEventListener('change', () => {
+    labelEl.textContent = labels[parseInt(inp.value)] || '';
+  });
+});
 </script>
 }
