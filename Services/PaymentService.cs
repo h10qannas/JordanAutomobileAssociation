@@ -47,9 +47,9 @@ namespace JAA.Services
                 ShopShare          = shopShare,
                 PlatformShare      = platShare,
                 Method             = method,
-                Status             = method == PaymentMethod.Cash ? PaymentStatus.Paid : PaymentStatus.Pending,
+                Status             = PaymentStatus.Pending,
                 TransactionReference = transactionRef,
-                PaidAt             = method == PaymentMethod.Cash ? DateTime.UtcNow : null,
+                PaidAt             = null,
                 CreatedAt          = DateTime.UtcNow
             };
 
@@ -66,6 +66,21 @@ namespace JAA.Services
             payment.Status               = PaymentStatus.Paid;
             payment.TransactionReference = transactionRef;
             payment.PaidAt               = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> ConfirmCashInspectionPaymentAsync(int requestId)
+        {
+            var payment = await _db.InspectionPayments
+                .FirstOrDefaultAsync(p => p.ServiceRequestId == requestId);
+
+            if (payment == null || payment.Method != PaymentMethod.Cash
+                || payment.Status == PaymentStatus.Paid)
+                return false;
+
+            payment.Status = PaymentStatus.Paid;
+            payment.PaidAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
             return true;
         }

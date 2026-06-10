@@ -88,4 +88,13 @@ namespace JAA.Models
         Rejected = 2,
         Hidden   = 3
     }
+
+    public enum DeclineReason
+    {
+        TooExpensive      = 0,
+        RepairElsewhere   = 1,
+        NotUrgent         = 2,
+        NeedSecondOpinion = 3,
+        Other             = 4
+    }
 }

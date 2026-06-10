@@ -16,6 +16,8 @@ namespace JAA.ViewModels
         public double AverageRating { get; set; }
         public int PendingMechanicsCount { get; set; }
         public int PendingRefundsCount { get; set; }
+        public int DeclinedRequests { get; set; }
+        public double DeclinedRepairRate { get; set; }
         public List<ServiceRequest> LiveRequests { get; set; } = new();
         public List<RepairShop> UnverifiedShops { get; set; } = new();
     }

@@ -231,7 +231,7 @@ namespace JAA.Controllers
                 return View(model);
             }
 
-            var rawToken    = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var rawToken     = await _userManager.GeneratePasswordResetTokenAsync(user);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
 
             return RedirectToAction("ResetPassword", new { userId = user.Id, token = encodedToken });

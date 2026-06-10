@@ -325,7 +325,7 @@ namespace JAA.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RejectQuotation(int requestId, int quotationId, string? reason)
+        public async Task<IActionResult> RejectQuotation(int requestId, int quotationId, DeclineReason declineReason, string? reason)
         {
             var userId  = _userManager.GetUserId(User)!;
             var request = await _db.ServiceRequests
@@ -341,9 +341,17 @@ namespace JAA.Controllers
 
             request.RepairQuotation.Status                  = QuotationStatus.Rejected;
             request.RepairQuotation.CustomerResponseAt      = DateTime.UtcNow;
-            request.RepairQuotation.CustomerRejectionReason = reason;
+            request.RepairQuotation.DeclineReason           = declineReason;
+            request.RepairQuotation.CustomerRejectionReason = declineReason == DeclineReason.Other ? reason : null;
             request.Status    = RequestStatus.QuotationRejected;
             request.UpdatedAt = DateTime.UtcNow;
+
+            if (request.MechanicId.HasValue)
+            {
+                var mechanic = await _db.Mechanics.FindAsync(request.MechanicId.Value);
+                if (mechanic != null) mechanic.IsAvailable = true;
+            }
+
             await _db.SaveChangesAsync();
 
             TempData["Info"] = _l["Msg.QuotationRejected"].Value;
@@ -473,6 +481,7 @@ namespace JAA.Controllers
                 RequestStatus.Accepted               => 2,
                 RequestStatus.MechanicArrived        => 3,
                 RequestStatus.Diagnosed              => 4,
+                RequestStatus.QuotationRejected      => 4,
                 RequestStatus.QuotationApproved      => 5,
                 RequestStatus.AwaitingConfirmation   => 6,
                 RequestStatus.UnderReview            => 6,

@@ -537,6 +537,20 @@
   <data name="Quot.RejectionPlaceholder"><value>أخبر الورشة لماذا ترفض...</value></data>
   <data name="Quot.RejectQuotation"><value>رفض العرض</value></data>
   <data name="Quot.RejectConfirm"><value>هل تريد رفض عرض سعر الإصلاح؟</value></data>
+  <data name="Quot.DeclineRepair"><value>رفض الإصلاح</value></data>
+  <data name="Quot.WhyDeclining"><value>لماذا ترفض هذا الإصلاح؟</value></data>
+  <data name="Quot.ConfirmDecline"><value>تأكيد الرفض</value></data>
+  <data name="Quot.OtherNotesPlaceholder"><value>يرجى وصف سببك...</value></data>
+  <data name="Quot.Decline.TooExpensive"><value>تكلفة الإصلاح مرتفعة جداً</value></data>
+  <data name="Quot.Decline.RepairElsewhere"><value>سأصلحه في مكان آخر</value></data>
+  <data name="Quot.Decline.NotUrgent"><value>الإصلاح ليس عاجلاً الآن</value></data>
+  <data name="Quot.Decline.NeedSecondOpinion"><value>أريد رأياً ثانياً أولاً</value></data>
+  <data name="Quot.Decline.Other"><value>سبب آخر</value></data>
+  <data name="Quot.RepairDeclinedTitle"><value>تم رفض الإصلاح</value></data>
+  <data name="Quot.QuotedRepairCost"><value>تكلفة الإصلاح المعروضة</value></data>
+  <data name="Quot.DeclineReasonLabel"><value>سبب الرفض</value></data>
+  <data name="Quot.DeclineNotes"><value>ملاحظات إضافية</value></data>
+  <data name="Quot.OnlyInspectionCharged"><value>تم احتساب رسوم الفحص فقط. تم إلغاء الإصلاح.</value></data>
 
   <!-- Shops list -->
   <data name="Shops.FindAShop"><value>ابحث عن ورشة</value></data>
@@ -614,6 +628,9 @@
   <data name="ShopAJ.ViewCustomerLocation"><value>عرض موقع العميل</value></data>
   <data name="ShopAJ.Diagnosis"><value>التشخيص</value></data>
   <data name="ShopAJ.IveArrived"><value>لقد وصلت</value></data>
+  <data name="ShopAJ.CashPendingTitle"><value>في انتظار تأكيد الدفع النقدي</value></data>
+  <data name="ShopAJ.CashPendingDesc"><value>اختار هذا العميل الدفع نقداً. يرجى تأكيد استلام رسوم الفحص قبل المتابعة.</value></data>
+  <data name="ShopAJ.ConfirmCashReceived"><value>تأكيد استلام النقد</value></data>
   <data name="ShopAJ.AddDiagnosisPrice"><value>إضافة تشخيص وسعر</value></data>
   <data name="ShopAJ.DiagnosisNotes"><value>ملاحظات التشخيص</value></data>
   <data name="ShopAJ.DiagnosisPlaceholder"><value>ماذا وجدت؟</value></data>
@@ -641,6 +658,14 @@
   <data name="ShopCJ.Diagnosis"><value>التشخيص</value></data>
   <data name="ShopCJ.Resolution"><value>الحل</value></data>
   <data name="ShopCJ.TotalEarnedFooter"><value>إجمالي الأرباح</value></data>
+  <data name="ShopRQ.Title"><value>العروض المرفوضة</value></data>
+  <data name="ShopRQ.NoRejected"><value>لا توجد عروض مرفوضة</value></data>
+  <data name="ShopRQ.NoRejectedDesc"><value>ستظهر هنا العروض التي رفضها العملاء.</value></data>
+  <data name="ShopRQ.CustomerReason"><value>سبب الرفض</value></data>
+  <data name="ShopRQ.QuotedAmount"><value>المبلغ المقترح</value></data>
+  <data name="ShopRQ.Mechanic"><value>الميكانيكي</value></data>
+  <data name="ShopRQ.RejectedOn"><value>تاريخ الرفض</value></data>
+  <data name="ShopRQ.JobHistory"><value>سجل الرفض</value></data>
 
   <!-- Shop Earnings -->
   <data name="ShopEarn.PaymentHistory"><value>سجل مدفوعاتك</value></data>
@@ -677,6 +702,8 @@
   <data name="ShopMech.Available"><value>متاح</value></data>
   <data name="ShopMech.OnJob"><value>في مهمة</value></data>
   <data name="ShopMech.Edit"><value>تعديل</value></data>
+  <data name="ShopMech.Delete"><value>حذف</value></data>
+  <data name="ShopMech.ConfirmDelete"><value>هل تريد حذف الميكانيكي؟ لا يمكن التراجع عن هذا الإجراء.</value></data>
 
   <!-- Shop ManageShop -->
   <data name="ShopMS.ManageDetails"><value>إدارة ملف ورشتك والتفاصيل</value></data>
@@ -809,10 +836,23 @@
   <data name="FP.BackToSignIn"><value>العودة لتسجيل الدخول</value></data>
   <data name="FP.ResetPassword"><value>إعادة تعيين كلمة المرور</value></data>
   <data name="FP.Sub"><value>أدخل رقم هاتفك لإعادة تعيين كلمة المرور</value></data>
-  <data name="FP.Hint"><value>أدخل رقم الهاتف المرتبط بحسابك. سيتم توجيهك مباشرةً إلى صفحة إعادة التعيين.</value></data>
+  <data name="FP.Hint"><value>أدخل رقم الهاتف المرتبط بحسابك. سيُرسَل رمز تحقق لمرة واحدة لتأكيد هويتك.</value></data>
   <data name="FP.Continue"><value>متابعة</value></data>
   <data name="FP.RememberedIt"><value>تذكرتها؟</value></data>
   <data name="FP.SignIn"><value>← تسجيل الدخول</value></data>
+
+  <!-- VerifyOtp -->
+  <data name="OTP.Title"><value>التحقق من هويتك</value></data>
+  <data name="OTP.Sub"><value>أدخل الرمز المكوّن من 6 أرقام المرسل إلى هاتفك</value></data>
+  <data name="OTP.Label"><value>رمز التحقق</value></data>
+  <data name="OTP.Verify"><value>تحقق ومتابعة</value></data>
+  <data name="OTP.BackToPhone"><value>رجوع</value></data>
+  <data name="OTP.SimCard"><value>رسالة تجريبية (ديمو)</value></data>
+  <data name="OTP.Phone"><value>أُرسل إلى</value></data>
+  <data name="OTP.ExpiresNote"><value>ينتهي هذا الرمز خلال 10 دقائق.</value></data>
+  <data name="OTP.Invalid"><value>الرمز غير صحيح أو منتهي الصلاحية. حاول مجدداً.</value></data>
+  <data name="OTP.SmsSent"><value>تم إرسال الرمز عبر رسالة نصية</value></data>
+  <data name="Msg.SmsFailed"><value>تعذّر إرسال الرسالة النصية. تحقق من رقم هاتفك وحاول مجدداً.</value></data>
 
   <!-- ResetPassword -->
   <data name="RP.Title"><value>تعيين كلمة مرور جديدة</value></data>
@@ -947,6 +987,8 @@
   <data name="ADB.Customers"><value>عملاء</value></data>
   <data name="ADB.AllTime"><value>الإجمالي</value></data>
   <data name="ADB.InProgress"><value>قيد التنفيذ حالياً</value></data>
+  <data name="ADB.DeclinedRepairs"><value>إصلاحات مرفوضة</value></data>
+  <data name="ADB.OfDiagnosed"><value>من المشخّصة</value></data>
 
   <!-- Admin PendingShops -->
   <data name="APS.NoPendingShops"><value>لا توجد ورش قيد المراجعة</value></data>
@@ -1039,6 +1081,7 @@
   <data name="Sidebar.IncomingRequests"><value>الطلبات الواردة</value></data>
   <data name="Sidebar.ActiveJobs"><value>الأعمال النشطة</value></data>
   <data name="Sidebar.Completed"><value>المكتملة</value></data>
+  <data name="Sidebar.RejectedQuotations"><value>العروض المرفوضة</value></data>
   <data name="Sidebar.MyShop"><value>ورشتي</value></data>
   <data name="Sidebar.RequestHelp"><value>طلب مساعدة</value></data>
   <data name="Sidebar.FindShop"><value>ابحث عن ورشة</value></data>
@@ -1084,6 +1127,8 @@
   <data name="Msg.InvalidRequest"><value>طلب غير صالح.</value></data>
   <data name="Msg.InvalidOperation"><value>عملية غير صالحة.</value></data>
   <data name="Msg.InspectionFeePaid"><value>تم دفع رسوم الفحص. طلبك مرئي الآن للورشات القريبة.</value></data>
+  <data name="Msg.CashPaymentConfirmed"><value>تم تأكيد الدفع النقدي. يمكنك الآن المتابعة بالفحص.</value></data>
+  <data name="Msg.CashNotConfirmedYet"><value>يرجى تأكيد الدفع النقدي للعميل قبل المتابعة.</value></data>
   <data name="Msg.RepairApproved"><value>تمت الموافقة على الإصلاح. سيتابع الميكانيكي العمل.</value></data>
   <data name="Msg.QuotationRejected"><value>تم رفض عرض الإصلاح. تم إبلاغ الورشة.</value></data>
   <data name="Msg.RequestCancelledSuccess"><value>تم إلغاء الطلب.</value></data>
@@ -1105,8 +1150,10 @@
   <data name="Msg.StatusUpdated"><value>تم تحديث الحالة.</value></data>
   <data name="Msg.QuotationTiming"><value>لا يمكن تقديم العرض إلا بعد وصول الميكانيكي.</value></data>
   <data name="Msg.QuotationSubmitted"><value>تم تقديم العرض. في انتظار موافقة العميل.</value></data>
-  <data name="Msg.MechanicAdded"><value>تمت إضافة الميكانيكي وهو قيد مراجعة المسؤول.</value></data>
+  <data name="Msg.MechanicAdded"><value>تمت إضافة الميكانيكي بنجاح.</value></data>
   <data name="Msg.MechanicUpdated"><value>تم تحديث بيانات الميكانيكي.</value></data>
+  <data name="Msg.MechanicDeleted"><value>تم حذف الميكانيكي بنجاح.</value></data>
+  <data name="Msg.MechanicOnJob"><value>لا يمكن حذف ميكانيكي في مهمة حالياً.</value></data>
   <data name="Msg.NationalIdExists"><value>يوجد ميكانيكي بهذا الرقم الوطني مسبقاً.</value></data>
   <data name="Msg.RepairReported"><value>تم الإبلاغ عن الإنجاز. في انتظار تأكيد العميل.</value></data>
   <data name="Msg.PaymentVerified"><value>تم تأكيد الدفع — اكتملت المهمة وتم إنشاء الفاتورة.</value></data>

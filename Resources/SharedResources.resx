@@ -537,6 +537,20 @@
   <data name="Quot.RejectionPlaceholder"><value>Tell the shop why you're rejecting...</value></data>
   <data name="Quot.RejectQuotation"><value>Reject Quotation</value></data>
   <data name="Quot.RejectConfirm"><value>Reject this repair quotation?</value></data>
+  <data name="Quot.DeclineRepair"><value>Decline Repair</value></data>
+  <data name="Quot.WhyDeclining"><value>Why are you declining this repair?</value></data>
+  <data name="Quot.ConfirmDecline"><value>Confirm Decline</value></data>
+  <data name="Quot.OtherNotesPlaceholder"><value>Please describe your reason...</value></data>
+  <data name="Quot.Decline.TooExpensive"><value>The repair cost is too expensive</value></data>
+  <data name="Quot.Decline.RepairElsewhere"><value>I will have it repaired elsewhere</value></data>
+  <data name="Quot.Decline.NotUrgent"><value>The repair is not urgent right now</value></data>
+  <data name="Quot.Decline.NeedSecondOpinion"><value>I want a second opinion first</value></data>
+  <data name="Quot.Decline.Other"><value>Other reason</value></data>
+  <data name="Quot.RepairDeclinedTitle"><value>Repair Declined</value></data>
+  <data name="Quot.QuotedRepairCost"><value>Quoted Repair Cost</value></data>
+  <data name="Quot.DeclineReasonLabel"><value>Reason for Declining</value></data>
+  <data name="Quot.DeclineNotes"><value>Additional Notes</value></data>
+  <data name="Quot.OnlyInspectionCharged"><value>Only the inspection fee was charged. The repair has been cancelled.</value></data>
 
   <!-- Shops list -->
   <data name="Shops.FindAShop"><value>Find a Shop</value></data>
@@ -614,6 +628,9 @@
   <data name="ShopAJ.ViewCustomerLocation"><value>View Customer Location</value></data>
   <data name="ShopAJ.Diagnosis"><value>Diagnosis</value></data>
   <data name="ShopAJ.IveArrived"><value>I've Arrived</value></data>
+  <data name="ShopAJ.CashPendingTitle"><value>Cash Payment Pending Confirmation</value></data>
+  <data name="ShopAJ.CashPendingDesc"><value>This customer selected Cash payment. Confirm you have received the inspection fee before proceeding.</value></data>
+  <data name="ShopAJ.ConfirmCashReceived"><value>Confirm Cash Received</value></data>
   <data name="ShopAJ.AddDiagnosisPrice"><value>Add Diagnosis &amp; Price</value></data>
   <data name="ShopAJ.DiagnosisNotes"><value>Diagnosis Notes</value></data>
   <data name="ShopAJ.DiagnosisPlaceholder"><value>What did you find?</value></data>
@@ -641,6 +658,14 @@
   <data name="ShopCJ.Diagnosis"><value>Diagnosis</value></data>
   <data name="ShopCJ.Resolution"><value>Resolution</value></data>
   <data name="ShopCJ.TotalEarnedFooter"><value>Total Earned</value></data>
+  <data name="ShopRQ.Title"><value>Rejected Quotations</value></data>
+  <data name="ShopRQ.NoRejected"><value>No rejected quotations</value></data>
+  <data name="ShopRQ.NoRejectedDesc"><value>Quotations rejected by customers will appear here.</value></data>
+  <data name="ShopRQ.CustomerReason"><value>Customer's Reason</value></data>
+  <data name="ShopRQ.QuotedAmount"><value>Quoted Amount</value></data>
+  <data name="ShopRQ.Mechanic"><value>Mechanic</value></data>
+  <data name="ShopRQ.RejectedOn"><value>Rejected On</value></data>
+  <data name="ShopRQ.JobHistory"><value>Rejection History</value></data>
 
   <!-- Shop Earnings -->
   <data name="ShopEarn.PaymentHistory"><value>Your payment history</value></data>
@@ -677,6 +702,8 @@
   <data name="ShopMech.Available"><value>Available</value></data>
   <data name="ShopMech.OnJob"><value>On Job</value></data>
   <data name="ShopMech.Edit"><value>Edit</value></data>
+  <data name="ShopMech.Delete"><value>Remove</value></data>
+  <data name="ShopMech.ConfirmDelete"><value>Remove mechanic? This cannot be undone.</value></data>
 
   <!-- Shop ManageShop -->
   <data name="ShopMS.ManageDetails"><value>Manage your shop profile and details</value></data>
@@ -809,10 +836,23 @@
   <data name="FP.BackToSignIn"><value>Back to Sign In</value></data>
   <data name="FP.ResetPassword"><value>Reset Password</value></data>
   <data name="FP.Sub"><value>Enter your phone number to reset your password</value></data>
-  <data name="FP.Hint"><value>Enter the phone number associated with your account. You will be taken directly to the password reset screen.</value></data>
+  <data name="FP.Hint"><value>Enter the phone number linked to your account. A one-time verification code will be sent to confirm your identity.</value></data>
   <data name="FP.Continue"><value>Continue</value></data>
   <data name="FP.RememberedIt"><value>Remembered it?</value></data>
   <data name="FP.SignIn"><value>Sign in →</value></data>
+
+  <!-- VerifyOtp -->
+  <data name="OTP.Title"><value>Verify Your Identity</value></data>
+  <data name="OTP.Sub"><value>Enter the 6-digit code sent to your phone</value></data>
+  <data name="OTP.Label"><value>Verification Code</value></data>
+  <data name="OTP.Verify"><value>Verify &amp; Continue</value></data>
+  <data name="OTP.BackToPhone"><value>Back</value></data>
+  <data name="OTP.SimCard"><value>Simulated SMS (Demo)</value></data>
+  <data name="OTP.Phone"><value>Sent to</value></data>
+  <data name="OTP.ExpiresNote"><value>This code expires in 10 minutes.</value></data>
+  <data name="OTP.Invalid"><value>Invalid or expired code. Please try again.</value></data>
+  <data name="OTP.SmsSent"><value>Code sent via SMS</value></data>
+  <data name="Msg.SmsFailed"><value>We could not send the SMS. Please check your phone number and try again.</value></data>
 
   <!-- ResetPassword -->
   <data name="RP.Title"><value>Set New Password</value></data>
@@ -947,6 +987,8 @@
   <data name="ADB.Customers"><value>customers</value></data>
   <data name="ADB.AllTime"><value>all-time</value></data>
   <data name="ADB.InProgress"><value>Currently in progress</value></data>
+  <data name="ADB.DeclinedRepairs"><value>Declined Repairs</value></data>
+  <data name="ADB.OfDiagnosed"><value>of diagnosed</value></data>
 
   <!-- Admin PendingShops -->
   <data name="APS.NoPendingShops"><value>No pending shops</value></data>
@@ -1039,6 +1081,7 @@
   <data name="Sidebar.IncomingRequests"><value>Incoming Requests</value></data>
   <data name="Sidebar.ActiveJobs"><value>Active Jobs</value></data>
   <data name="Sidebar.Completed"><value>Completed</value></data>
+  <data name="Sidebar.RejectedQuotations"><value>Rejected Quotations</value></data>
   <data name="Sidebar.MyShop"><value>My Shop</value></data>
   <data name="Sidebar.RequestHelp"><value>Request Help</value></data>
   <data name="Sidebar.FindShop"><value>Find a Shop</value></data>
@@ -1084,6 +1127,8 @@
   <data name="Msg.InvalidRequest"><value>Invalid request.</value></data>
   <data name="Msg.InvalidOperation"><value>Invalid operation.</value></data>
   <data name="Msg.InspectionFeePaid"><value>Inspection fee paid. Your request is now visible to nearby shops.</value></data>
+  <data name="Msg.CashPaymentConfirmed"><value>Cash payment confirmed. You can now proceed with the inspection.</value></data>
+  <data name="Msg.CashNotConfirmedYet"><value>Please confirm the customer's cash payment before proceeding.</value></data>
   <data name="Msg.RepairApproved"><value>Repair approved. The mechanic will proceed with the repair.</value></data>
   <data name="Msg.QuotationRejected"><value>Repair quotation rejected. The shop has been notified.</value></data>
   <data name="Msg.RequestCancelledSuccess"><value>Request cancelled.</value></data>
@@ -1105,8 +1150,10 @@
   <data name="Msg.StatusUpdated"><value>Status updated.</value></data>
   <data name="Msg.QuotationTiming"><value>Quotation can only be submitted after mechanic arrives.</value></data>
   <data name="Msg.QuotationSubmitted"><value>Quotation submitted. Waiting for customer approval.</value></data>
-  <data name="Msg.MechanicAdded"><value>Mechanic added and pending admin approval.</value></data>
+  <data name="Msg.MechanicAdded"><value>Mechanic added successfully.</value></data>
   <data name="Msg.MechanicUpdated"><value>Mechanic updated.</value></data>
+  <data name="Msg.MechanicDeleted"><value>Mechanic removed successfully.</value></data>
+  <data name="Msg.MechanicOnJob"><value>Cannot remove a mechanic who is currently on a job.</value></data>
   <data name="Msg.NationalIdExists"><value>A mechanic with this National ID already exists.</value></data>
   <data name="Msg.RepairReported"><value>Completion reported. Waiting for customer confirmation.</value></data>
   <data name="Msg.PaymentVerified"><value>Payment confirmed — job completed and invoice generated.</value></data>

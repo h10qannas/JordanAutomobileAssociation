@@ -239,11 +239,34 @@ else
 
                         @if (job.Status == RequestStatus.Accepted)
                         {
+                            var cashPending = job.InspectionPayment?.Method == PaymentMethod.Cash
+                                          && job.InspectionPayment?.Status  != PaymentStatus.Paid;
+
+                            @if (cashPending)
+                            {
+                                <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:.75rem 1rem;margin-bottom:.5rem;">
+                                    <div style="display:flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:700;color:#fbbf24;margin-bottom:.45rem;">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        @L["ShopAJ.CashPendingTitle"]
+                                    </div>
+                                    <div style="font-size:.72rem;color:var(--muted);margin-bottom:.6rem;line-height:1.5;">
+                                        @L["ShopAJ.CashPendingDesc"]
+                                    </div>
+                                    <form asp-action="ConfirmCashPayment" method="post" style="margin:0;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="requestId" value="@job.Id" />
+                                        <button type="submit" class="btn-aj btn-aj-green" style="font-size:.8rem;padding:.6rem;">
+                                            <i class="fas fa-hand-holding-usd"></i> @L["ShopAJ.ConfirmCashReceived"]
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+
                             <form asp-action="UpdateStatus" method="post" style="margin:0;">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="requestId" value="@job.Id" />
                                 <input type="hidden" name="newStatus" value="@((int)RequestStatus.MechanicArrived)" />
-                                <button type="submit" class="btn-aj btn-aj-blue">
+                                <button type="submit" class="btn-aj btn-aj-blue" @(cashPending ? "disabled style=\"opacity:.4;cursor:not-allowed;\"" : "")>
                                     <i class="fas fa-map-marker-alt"></i> @L["ShopAJ.IveArrived"]
                                 </button>
                             </form>

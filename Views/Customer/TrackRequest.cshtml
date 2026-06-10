@@ -671,15 +671,81 @@
                                 <i class="bi bi-credit-card-fill"></i> Approve &amp; Pay Online
                             </button>
                         </form>
-                        <form method="post" asp-action="RejectQuotation"
-                              asp-route-requestId="@Model.Request.Id"
-                              asp-route-quotationId="@q.Id">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn-trk-reject"
-                                    onclick="return confirm('Are you sure you want to decline this quotation?')">
-                                <i class="bi bi-x-lg"></i> Decline Quotation
-                            </button>
-                        </form>
+                        <!-- Decline — toggle section -->
+                        <div id="declineSection" style="display:none;margin-top:.8rem;padding:1rem;background:rgba(230,57,70,.04);border:1px solid rgba(230,57,70,.2);border-radius:10px;">
+                            <div style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.7rem;">@L["Quot.WhyDeclining"]</div>
+                            <form method="post" asp-action="RejectQuotation"
+                                  asp-route-requestId="@Model.Request.Id"
+                                  asp-route-quotationId="@q.Id" id="declineForm">
+                                @Html.AntiForgeryToken()
+                                @foreach (DeclineReason dr in Enum.GetValues(typeof(DeclineReason)))
+                                {
+                                    <label style="display:flex;align-items:center;gap:.55rem;padding:.45rem .3rem;cursor:pointer;font-size:.84rem;color:var(--text2);">
+                                        <input type="radio" name="declineReason" value="@((int)dr)" onchange="document.getElementById('otherNotesBox').style.display='@(dr == DeclineReason.Other ? "block" : "none")'" required />
+                                        @L["Quot.Decline." + dr.ToString()]
+                                    </label>
+                                }
+                                <div id="otherNotesBox" style="display:none;margin-top:.5rem;">
+                                    <textarea name="reason" rows="2"
+                                              style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:.5rem .7rem;font-size:.83rem;resize:vertical;"
+                                              placeholder="@L["Quot.OtherNotesPlaceholder"]"></textarea>
+                                </div>
+                                <div style="display:flex;gap:.6rem;margin-top:.85rem;">
+                                    <button type="button"
+                                            onclick="document.getElementById('declineSection').style.display='none';document.getElementById('declineToggleBtn').style.display='block';"
+                                            style="flex:1;padding:.55rem;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:8px;font-size:.8rem;cursor:pointer;">
+                                        @L["Modal.Cancel"]
+                                    </button>
+                                    <button type="submit"
+                                            style="flex:1;padding:.55rem;border:none;background:var(--red);color:#fff;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;">
+                                        <i class="bi bi-x-circle-fill me-1"></i>@L["Quot.ConfirmDecline"]
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <button id="declineToggleBtn" type="button" class="btn-trk-reject"
+                                onclick="document.getElementById('declineSection').style.display='block';this.style.display='none';">
+                            <i class="bi bi-x-lg"></i> @L["Quot.DeclineRepair"]
+                        </button>
+                    </div>
+                </div>
+            }
+
+            <!-- Repair Declined Card (status = QuotationRejected) -->
+            @if (status == RequestStatus.QuotationRejected && Model.Request.RepairQuotation != null)
+            {
+                var q = Model.Request.RepairQuotation;
+                var drLabel = q.DeclineReason.HasValue ? L["Quot.Decline." + q.DeclineReason.Value.ToString()].Value : "—";
+                <div class="trk-card" style="border-color:rgba(139,148,158,.25);">
+                    <div class="trk-card-head" style="border-bottom-color:rgba(139,148,158,.15);">
+                        <div class="trk-ch-icon" style="background:rgba(139,148,158,.1);color:var(--muted);"><i class="bi bi-x-circle-fill"></i></div>
+                        @L["Quot.RepairDeclinedTitle"]
+                    </div>
+                    <div class="trk-card-body">
+                        @if (!string.IsNullOrEmpty(q.DiagnosisNotes))
+                        {
+                            <div class="trk-fl">@L["Track.MechanicDiagnosis"]</div>
+                            <div class="trk-diagnosis" style="opacity:.75;">@q.DiagnosisNotes</div>
+                        }
+                        <div class="trk-amount-box" style="background:rgba(139,148,158,.06);border-color:rgba(139,148,158,.2);">
+                            <div>
+                                <div class="trk-amount-lbl">@L["Quot.QuotedRepairCost"]</div>
+                                <div class="trk-amount-val" style="color:var(--muted);">@q.QuotedAmount.ToString("F2") <span>JOD</span></div>
+                            </div>
+                            <div class="trk-amount-ico" style="background:rgba(139,148,158,.08);border-color:rgba(139,148,158,.2);color:var(--muted);">
+                                <i class="bi bi-x-circle"></i>
+                            </div>
+                        </div>
+                        <div class="trk-fl">@L["Quot.DeclineReasonLabel"]</div>
+                        <div style="font-size:.88rem;color:var(--text2);margin-bottom:.6rem;">@drLabel</div>
+                        @if (!string.IsNullOrWhiteSpace(q.CustomerRejectionReason))
+                        {
+                            <div class="trk-fl">@L["Quot.DeclineNotes"]</div>
+                            <div class="trk-quote" style="opacity:.75;">@q.CustomerRejectionReason</div>
+                        }
+                        <div style="font-size:.76rem;color:var(--muted);margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border);">
+                            <i class="bi bi-info-circle me-1"></i>@L["Quot.OnlyInspectionCharged"]
+                        </div>
                     </div>
                 </div>
             }

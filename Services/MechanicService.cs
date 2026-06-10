@@ -12,13 +12,14 @@ namespace JAA.Services
 
         public async Task<List<Mechanic>> GetShopMechanicsAsync(int shopId) =>
             await _db.Mechanics
-                .Where(m => m.ShopId == shopId)
+                .Where(m => m.ShopId == shopId && !m.IsDeleted)
                 .OrderBy(m => m.FullName)
                 .ToListAsync();
 
         public async Task<List<Mechanic>> GetApprovedAvailableMechanicsAsync(int shopId) =>
             await _db.Mechanics
                 .Where(m => m.ShopId == shopId &&
+                            !m.IsDeleted &&
                             m.Status == MechanicStatus.Approved &&
                             m.IsAvailable)
                 .OrderBy(m => m.FullName)
@@ -33,6 +34,7 @@ namespace JAA.Services
         {
             return await _db.Mechanics
                 .AnyAsync(m => m.ShopId == shopId &&
+                               !m.IsDeleted &&
                                m.Status == MechanicStatus.Approved &&
                                m.IsAvailable);
         }
@@ -40,6 +42,7 @@ namespace JAA.Services
         public async Task<int> GetAvailableMechanicCountAsync(int shopId) =>
             await _db.Mechanics
                 .CountAsync(m => m.ShopId == shopId &&
+                                 !m.IsDeleted &&
                                  m.Status == MechanicStatus.Approved &&
                                  m.IsAvailable);
 
@@ -81,10 +84,21 @@ namespace JAA.Services
 
         public async Task<List<Mechanic>> GetPendingMechanicsAsync() =>
             await _db.Mechanics
-                .Where(m => m.Status == MechanicStatus.Pending)
+                .Where(m => m.Status == MechanicStatus.Pending && !m.IsDeleted)
                 .Include(m => m.Shop)
                 .OrderBy(m => m.CreatedAt)
                 .ToListAsync();
+
+        public async Task SoftDeleteMechanicAsync(int mechanicId)
+        {
+            var mechanic = await _db.Mechanics.FindAsync(mechanicId);
+            if (mechanic != null)
+            {
+                mechanic.IsDeleted    = true;
+                mechanic.IsAvailable  = false;
+                await _db.SaveChangesAsync();
+            }
+        }
 
         public async Task ApproveMechanicAsync(int mechanicId)
         {

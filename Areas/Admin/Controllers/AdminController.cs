@@ -71,6 +71,20 @@ namespace JAA.Areas.Admin.Controllers
             var avgRating = await _db.Feedbacks.AnyAsync()
                 ? await _db.Feedbacks.AverageAsync(f => (double)f.Rating) : 0;
 
+            var diagnosedOrBeyond = await _db.ServiceRequests
+                .CountAsync(r => r.Status == RequestStatus.Diagnosed ||
+                                 r.Status == RequestStatus.QuotationApproved ||
+                                 r.Status == RequestStatus.QuotationRejected ||
+                                 r.Status == RequestStatus.AwaitingConfirmation ||
+                                 r.Status == RequestStatus.Completed);
+
+            var declinedCount = await _db.ServiceRequests
+                .CountAsync(r => r.Status == RequestStatus.QuotationRejected);
+
+            var declinedRate = diagnosedOrBeyond > 0
+                ? Math.Round((double)declinedCount / diagnosedOrBeyond * 100, 1)
+                : 0;
+
             var vm = new AdminDashboardViewModel
             {
                 TotalUsers             = await _db.Users.CountAsync(),
@@ -85,6 +99,8 @@ namespace JAA.Areas.Admin.Controllers
                 UnverifiedShops        = pendingShops,
                 PendingMechanicsCount  = pendingMechanicsCount,
                 PendingRefundsCount    = pendingRefundsCount,
+                DeclinedRequests       = declinedCount,
+                DeclinedRepairRate     = declinedRate,
                 ActiveRequestsToday    = await _db.ServiceRequests
                     .CountAsync(r => r.CreatedAt >= today && r.Status != RequestStatus.Cancelled),
                 CompletedToday         = await _db.ServiceRequests

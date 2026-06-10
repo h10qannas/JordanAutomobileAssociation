@@ -225,10 +225,34 @@ namespace JAA.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmCashPayment(int requestId)
+        {
+            var shop    = await GetCurrentShopAsync();
+            var request = await _db.ServiceRequests
+                .Include(r => r.InspectionPayment)
+                .FirstOrDefaultAsync(r => r.Id == requestId && r.ShopId == shop!.Id);
+
+            if (request == null || request.Status != RequestStatus.Accepted
+                || request.InspectionPayment?.Method != PaymentMethod.Cash
+                || request.InspectionPayment?.Status == PaymentStatus.Paid)
+            {
+                TempData["Error"] = _l["Msg.InvalidOperation"].Value;
+                return RedirectToAction("ActiveJobs");
+            }
+
+            await _paymentService.ConfirmCashInspectionPaymentAsync(requestId);
+
+            TempData["Success"] = _l["Msg.CashPaymentConfirmed"].Value;
+            return RedirectToAction("ActiveJobs");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateStatus(int requestId, RequestStatus newStatus)
         {
             var shop    = await GetCurrentShopAsync();
             var request = await _db.ServiceRequests
+                .Include(r => r.InspectionPayment)
                 .FirstOrDefaultAsync(r => r.Id == requestId && r.ShopId == shop!.Id);
 
             if (request == null) return NotFound();
@@ -238,6 +262,14 @@ namespace JAA.Controllers
             if (request.Status != RequestStatus.Accepted || newStatus != RequestStatus.MechanicArrived)
             {
                 TempData["Error"] = _l["Msg.InvalidTransition"].Value;
+                return RedirectToAction("ActiveJobs");
+            }
+
+            // Block progression if cash inspection payment has not been confirmed yet.
+            if (request.InspectionPayment?.Method == PaymentMethod.Cash
+                && request.InspectionPayment?.Status != PaymentStatus.Paid)
+            {
+                TempData["Error"] = _l["Msg.CashNotConfirmedYet"].Value;
                 return RedirectToAction("ActiveJobs");
             }
 
@@ -421,6 +453,16 @@ namespace JAA.Controllers
             return View(jobs);
         }
 
+        public async Task<IActionResult> RejectedQuotations()
+        {
+            var shop = await GetCurrentShopAsync();
+            if (shop == null) return RedirectToAction("ManageShop");
+            if (shop.ShopStatus != ShopStatus.Approved) return View("PendingApproval", shop);
+
+            var jobs = await _shopService.GetRejectedQuotationsAsync(shop.Id);
+            return View(jobs);
+        }
+
         public async Task<IActionResult> Earnings()
         {
             var shop = await GetCurrentShopAsync();
@@ -535,7 +577,7 @@ namespace JAA.Controllers
                 PhoneNumber       = model.PhoneNumber,
                 YearsOfExperience = model.YearsOfExperience,
                 ProfileImageUrl   = profileUrl,
-                Status            = MechanicStatus.Pending,
+                Status            = MechanicStatus.Approved,
                 IsAvailable       = true
             });
 
@@ -602,6 +644,27 @@ namespace JAA.Controllers
 
             await _mechanicService.UpdateMechanicAsync(mechanic);
             TempData["Success"] = _l["Msg.MechanicUpdated"].Value;
+            return RedirectToAction("Mechanics");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteMechanic(int id)
+        {
+            var shop     = await GetCurrentShopAsync();
+            var mechanic = await _mechanicService.GetMechanicByIdAsync(id);
+
+            if (mechanic == null || mechanic.ShopId != shop?.Id)
+                return NotFound();
+
+            if (!mechanic.IsAvailable)
+            {
+                TempData["Error"] = _l["Msg.MechanicOnJob"].Value;
+                return RedirectToAction("Mechanics");
+            }
+
+            await _mechanicService.SoftDeleteMechanicAsync(id);
+            TempData["Success"] = _l["Msg.MechanicDeleted"].Value;
             return RedirectToAction("Mechanics");
         }
 

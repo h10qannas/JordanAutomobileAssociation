@@ -1,0 +1,202 @@
+@model JAA.ViewModels.VerifyOtpViewModel
+@{ Layout = "_Layout"; ViewData["Title"] = L["OTP.Title"].Value; }
+
+@section Styles {
+<style>
+.auth-page {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 90px 1rem 3rem; position: relative; overflow: hidden; background: var(--dark);
+}
+.auth-page::before {
+  content: ''; position: fixed; top: -160px; right: -160px;
+  width: 520px; height: 520px;
+  background: radial-gradient(circle, rgba(230,57,70,.13) 0%, transparent 65%);
+  border-radius: 50%; pointer-events: none; z-index: 0;
+}
+.auth-page::after {
+  content: ''; position: fixed; bottom: -120px; left: -120px;
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(88,166,255,.07) 0%, transparent 65%);
+  border-radius: 50%; pointer-events: none; z-index: 0;
+}
+.auth-wrap  { width: 100%; max-width: 420px; position: relative; z-index: 1; }
+.auth-back  { display: inline-flex; align-items: center; gap: .4rem; color: var(--muted); font-size: .78rem; text-decoration: none; margin-bottom: 1.25rem; transition: color .2s; }
+.auth-back:hover { color: var(--light); }
+.auth-card  { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem 2.25rem 2rem; box-shadow: 0 0 0 1px rgba(230,57,70,.06), 0 24px 64px rgba(0,0,0,.55); }
+.ac-brand   { display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; }
+.ac-brand-logo { width: 48px; height: 48px; background: var(--red); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; font-weight: 900; color: #fff; letter-spacing: -1px; box-shadow: 0 6px 20px rgba(230,57,70,.35); }
+.ac-title   { font-size: 1.45rem; font-weight: 800; color: var(--white); text-align: center; margin-bottom: .3rem; letter-spacing: -.4px; }
+.ac-sub     { font-size: .83rem; color: var(--muted); text-align: center; margin-bottom: 1.9rem; }
+.ac-divider { height: 1px; background: var(--border); margin: 0 -2.25rem 1.9rem; }
+.field-label { display: block; font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: .65rem; text-align: center; }
+.field-err  { font-size: .72rem; color: #ff6b74; margin-top: .3rem; display: block; text-align: center; }
+.btn-auth   { width: 100%; display: flex; align-items: center; justify-content: center; gap: .5rem; background: var(--red); color: #fff; border: none; border-radius: 10px; font-size: .95rem; font-weight: 700; font-family: var(--font); padding: .82rem; cursor: pointer; margin-top: 1.25rem; transition: background .2s, transform .15s, box-shadow .2s; letter-spacing: .1px; }
+.btn-auth:hover { background: var(--red-d); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(230,57,70,.35); }
+.btn-auth:active { transform: translateY(0); box-shadow: none; }
+.auth-alert { background: rgba(230,57,70,.08); border: 1px solid rgba(230,57,70,.2); border-radius: 10px; padding: .72rem .9rem; font-size: .8rem; color: #ff6b74; display: flex; align-items: flex-start; gap: .5rem; margin-bottom: 1.25rem; }
+
+/* Simulated SMS card */
+.sms-card {
+  background: rgba(88,166,255,.06);
+  border: 1px solid rgba(88,166,255,.2);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1.6rem;
+}
+.sms-header {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .7rem; font-weight: 700; color: #58a6ff;
+  text-transform: uppercase; letter-spacing: .5px; margin-bottom: .6rem;
+}
+.sms-phone { font-size: .78rem; color: var(--muted); margin-bottom: .55rem; }
+.sms-otp   {
+  font-size: 1.7rem; font-weight: 900; letter-spacing: .35rem;
+  color: var(--white); text-align: center;
+  background: rgba(255,255,255,.04); border: 1px solid var(--border);
+  border-radius: 10px; padding: .55rem .5rem; font-family: monospace;
+}
+.sms-note  { font-size: .68rem; color: var(--muted); margin-top: .55rem; display: flex; align-items: center; gap: .35rem; }
+
+/* OTP digit boxes */
+.otp-boxes { display: flex; gap: .55rem; justify-content: center; margin-bottom: .3rem; }
+.otp-box {
+  width: 48px; height: 58px;
+  background: rgba(13,17,23,.7); border: 1px solid var(--border);
+  border-radius: 12px; color: var(--white); font-size: 1.3rem; font-weight: 700;
+  font-family: monospace; text-align: center; outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  caret-color: var(--red);
+}
+.otp-box:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(230,57,70,.15); background: var(--dark); }
+.otp-box.filled { border-color: rgba(88,166,255,.4); }
+</style>
+}
+
+<div class="auth-page">
+  <div class="auth-wrap">
+
+    <a asp-action="ForgotPassword" class="auth-back">
+      <i class="bi bi-arrow-left"></i> @L["OTP.BackToPhone"]
+    </a>
+
+    <div class="auth-card">
+
+      <div class="ac-brand">
+        <div class="ac-brand-logo">JAA</div>
+      </div>
+
+      <div class="ac-title">@L["OTP.Title"]</div>
+      <div class="ac-sub">@L["OTP.Sub"]</div>
+
+      <div class="ac-divider"></div>
+
+      @if (TempData["OtpCode"] != null)
+      {
+        <div class="sms-card">
+          <div class="sms-header">
+            <i class="bi bi-phone-fill"></i> @L["OTP.SimCard"]
+          </div>
+          @if (TempData["OtpPhone"] != null)
+          {
+            <div class="sms-phone">@L["OTP.Phone"]: @TempData["OtpPhone"]</div>
+          }
+          <div class="sms-otp" id="displayOtp">@TempData["OtpCode"]</div>
+          <div class="sms-note">
+            <i class="bi bi-clock-fill" style="color:#58a6ff;flex-shrink:0;"></i>
+            @L["OTP.ExpiresNote"]
+          </div>
+        </div>
+      }
+
+      @if (!ViewData.ModelState.IsValid)
+      {
+        <div class="auth-alert">
+          <i class="bi bi-exclamation-circle-fill" style="flex-shrink:0;margin-top:.05rem;"></i>
+          <div>@Html.ValidationSummary(true)</div>
+        </div>
+      }
+
+      <form asp-action="VerifyOtp" method="post" novalidate id="otpForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="UserId" />
+        <input type="hidden" asp-for="Code" id="hiddenCode" />
+
+        <label class="field-label">@L["OTP.Label"]</label>
+
+        <div class="otp-boxes">
+          <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" id="d0" />
+          <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="d1" />
+          <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="d2" />
+          <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="d3" />
+          <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="d4" />
+          <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="d5" />
+        </div>
+
+        <span asp-validation-for="Code" class="field-err"></span>
+
+        <button type="submit" class="btn-auth" id="verifyBtn">
+          <i class="bi bi-shield-check-fill"></i> @L["OTP.Verify"]
+        </button>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+@await Html.PartialAsync("_ValidationScriptsPartial")
+<script>
+(function () {
+  const boxes   = Array.from(document.querySelectorAll('.otp-box'));
+  const hidden  = document.getElementById('hiddenCode');
+  const form    = document.getElementById('otpForm');
+
+  function updateHidden() {
+    hidden.value = boxes.map(b => b.value).join('');
+    boxes.forEach(b => b.classList.toggle('filled', b.value !== ''));
+  }
+
+  boxes.forEach((box, i) => {
+    box.addEventListener('input', e => {
+      const val = box.value.replace(/\D/g, '');
+      box.value = val.slice(-1);
+      updateHidden();
+      if (val && i < 5) boxes[i + 1].focus();
+    });
+
+    box.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !box.value && i > 0) {
+        boxes[i - 1].focus();
+        boxes[i - 1].value = '';
+        updateHidden();
+      }
+    });
+
+    box.addEventListener('paste', e => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+      text.slice(0, 6).split('').forEach((ch, j) => {
+        if (boxes[j]) boxes[j].value = ch;
+      });
+      updateHidden();
+      const next = Math.min(text.length, 5);
+      boxes[next].focus();
+    });
+  });
+
+  form.addEventListener('submit', () => updateHidden());
+
+  // Pre-fill boxes from display OTP if shown (auto-fill for demo convenience)
+  const display = document.getElementById('displayOtp');
+  if (display) {
+    const code = display.textContent.trim().replace(/\s/g, '');
+    if (/^\d{6}$/.test(code)) {
+      code.split('').forEach((ch, i) => { if (boxes[i]) boxes[i].value = ch; });
+      updateHidden();
+    }
+  }
+
+  boxes[0].focus();
+})();
+</script>
+}

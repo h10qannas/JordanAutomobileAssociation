@@ -5,7 +5,6 @@
     ViewData["Title"] = L["Quot.RepairQuotation"].Value;
     ViewData["PageTitle"] = L["Quot.RepairQuotation"].Value;
     ViewData["PageSub"] = L["Quot.ReviewApprove"].Value;
-    var jsRejectConfirm = L["Quot.RejectConfirm"].Value;
 }
 
 <div class="row justify-content-center">
@@ -82,21 +81,46 @@
         </div>
       </div>
 
-      <form asp-action="RejectQuotation" method="post">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="requestId" value="@Model.ServiceRequestId" />
-        <input type="hidden" name="quotationId" value="@Model.QuotationId" />
-        <div class="mb-3">
-          <label style="font-size:.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:.4rem;">@L["Quot.RejectionReason"]</label>
-          <textarea name="reason" rows="2" class="form-control" style="background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2);border-radius:8px;font-size:.85rem;"
-            placeholder="@L["Quot.RejectionPlaceholder"]"></textarea>
-        </div>
-        <button type="submit" class="btn-jaa btn-ghost btn-full"
-          style="border-color:rgba(230,57,70,.3);color:var(--red);"
-          onclick="return confirm('@Html.Raw(jsRejectConfirm.Replace("'", "\\'"))')">
-          <i class="bi bi-x-circle-fill"></i> @L["Quot.RejectQuotation"]
+      <!-- Decline section (toggle) -->
+      <div style="border:1px solid rgba(230,57,70,.2);border-radius:12px;overflow:hidden;">
+        <button type="button" id="declineToggle"
+                onclick="document.getElementById('declinePanel').style.display=document.getElementById('declinePanel').style.display==='none'?'block':'none'"
+                style="width:100%;padding:.9rem 1.2rem;background:rgba(230,57,70,.04);border:none;color:var(--red);font-size:.88rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;">
+          <i class="bi bi-x-circle-fill"></i> @L["Quot.DeclineRepair"]
         </button>
-      </form>
+        <div id="declinePanel" style="display:none;padding:1rem 1.2rem;border-top:1px solid rgba(230,57,70,.15);">
+          <form asp-action="RejectQuotation" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestId" value="@Model.ServiceRequestId" />
+            <input type="hidden" name="quotationId" value="@Model.QuotationId" />
+            <div style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.75rem;">@L["Quot.WhyDeclining"]</div>
+            @foreach (DeclineReason dr in Enum.GetValues(typeof(DeclineReason)))
+            {
+              <label style="display:flex;align-items:center;gap:.55rem;padding:.45rem .3rem;cursor:pointer;font-size:.85rem;color:var(--text2);">
+                <input type="radio" name="declineReason" value="@((int)dr)"
+                       onchange="document.getElementById('otherNotesBox').style.display='@(dr == DeclineReason.Other ? "block" : "none")'" required />
+                @L["Quot.Decline." + dr.ToString()]
+              </label>
+            }
+            <div id="otherNotesBox" style="display:none;margin-top:.5rem;">
+              <textarea name="reason" rows="2" class="form-control"
+                        style="background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2);border-radius:8px;font-size:.85rem;"
+                        placeholder="@L["Quot.OtherNotesPlaceholder"]"></textarea>
+            </div>
+            <div style="display:flex;gap:.6rem;margin-top:.85rem;">
+              <button type="button"
+                      onclick="document.getElementById('declinePanel').style.display='none'"
+                      style="flex:1;padding:.6rem;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:8px;font-size:.82rem;cursor:pointer;">
+                @L["Modal.Cancel"]
+              </button>
+              <button type="submit"
+                      style="flex:1;padding:.6rem;border:none;background:var(--red);color:#fff;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer;">
+                <i class="bi bi-x-circle-fill me-1"></i>@L["Quot.ConfirmDecline"]
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
   </div>

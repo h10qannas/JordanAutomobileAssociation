@@ -75,7 +75,8 @@
       <a asp-controller="Shop" asp-action="Dashboard"        class="sidebar-link @(act=="Dashboard"?"active":"")"><i class="bi bi-grid-fill"></i> @L["Nav.Dashboard"]</a>
       <a asp-controller="Shop" asp-action="IncomingRequests" class="sidebar-link @(act=="IncomingRequests"?"active":"")"><i class="bi bi-inbox-fill"></i> @L["Sidebar.IncomingRequests"]</a>
       <a asp-controller="Shop" asp-action="ActiveJobs"       class="sidebar-link @(act=="ActiveJobs"?"active":"")"><i class="bi bi-tools"></i> @L["Sidebar.ActiveJobs"]</a>
-      <a asp-controller="Shop" asp-action="CompletedJobs"    class="sidebar-link @(act=="CompletedJobs"?"active":"")"><i class="bi bi-check-circle-fill"></i> @L["Sidebar.Completed"]</a>
+      <a asp-controller="Shop" asp-action="CompletedJobs"       class="sidebar-link @(act=="CompletedJobs"?"active":"")"><i class="bi bi-check-circle-fill"></i> @L["Sidebar.Completed"]</a>
+      <a asp-controller="Shop" asp-action="RejectedQuotations" class="sidebar-link @(act=="RejectedQuotations"?"active":"")"><i class="bi bi-x-circle-fill" style="color:#f87171;"></i> @L["Sidebar.RejectedQuotations"]</a>
       <div class="nav-group-label">@L["Sidebar.Team"]</div>
       <a asp-controller="Shop" asp-action="Mechanics"        class="sidebar-link @(act=="Mechanics"||act=="AddMechanic"||act=="EditMechanic"?"active":"")"><i class="bi bi-person-gear"></i> @L["Shop.Mechanics"]</a>
       <div class="nav-group-label">@L["Sidebar.ShopGroup"]</div>

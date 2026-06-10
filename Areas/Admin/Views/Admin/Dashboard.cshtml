@@ -10,6 +10,16 @@
   }; }
   @foreach (var s in stats)
   { <div class="col-6 col-xl-3"><div class="stat-card"><div class="stat-icon @s.Item2"><i class="bi @s.Item1"></i></div><div><div class="stat-num">@s.Item4</div><div class="stat-label">@s.Item3</div></div></div></div> }
+  <div class="col-6 col-xl-3">
+    <div class="stat-card" style="border-color:rgba(139,148,158,.15);">
+      <div class="stat-icon" style="background:rgba(139,148,158,.1);color:var(--muted);"><i class="bi bi-x-circle-fill"></i></div>
+      <div>
+        <div class="stat-num">@Model.DeclinedRequests</div>
+        <div class="stat-label">@L["ADB.DeclinedRepairs"]</div>
+        <div style="font-size:.68rem;color:var(--muted);margin-top:.1rem;">@Model.DeclinedRepairRate% @L["ADB.OfDiagnosed"]</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 @if (Model.PendingMechanicsCount > 0 || Model.PendingRefundsCount > 0 || Model.UnverifiedShops.Any())

@@ -29,6 +29,8 @@ namespace JAA.Models
         [StringLength(500)]
         public string? CustomerRejectionReason { get; set; }
 
+        public DeclineReason? DeclineReason { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation

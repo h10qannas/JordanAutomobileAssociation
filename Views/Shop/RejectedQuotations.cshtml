@@ -1,0 +1,173 @@
+@model List<JAA.Models.ServiceRequest>
+@using JAA.Models
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"]     = L["ShopRQ.Title"].Value;
+    ViewData["PageTitle"] = L["ShopRQ.Title"].Value;
+    ViewData["PageSub"]   = $"{Model.Count} {L["ShopRQ.Title"].Value.ToLower()}";
+}
+
+@section Styles {
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+.rq-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+}
+.rq-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .9rem 1.3rem; border-bottom: 1px solid var(--border);
+    font-size: .85rem; font-weight: 700; color: var(--white);
+}
+.rq-card-head i { color: #f87171; margin-right: .45rem; }
+
+.rq-row {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    align-items: start;
+    gap: 1rem;
+    padding: 1.1rem 1.3rem;
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+}
+.rq-row:last-child { border-bottom: none; }
+.rq-row:hover { background: rgba(255,255,255,.02); }
+
+.rq-index {
+    width: 36px; height: 36px; flex-shrink: 0;
+    background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.2);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem; font-weight: 800; color: #f87171;
+}
+
+.rq-main { min-width: 0; }
+.rq-header-row { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .5rem; }
+.rq-customer  { font-size: .9rem; font-weight: 700; color: var(--white); }
+.rq-date-badge {
+    display: inline-flex; align-items: center; gap: .3rem;
+    font-size: .68rem; color: var(--muted);
+    background: rgba(255,255,255,.04); border: 1px solid var(--border);
+    border-radius: 999px; padding: .18rem .65rem;
+}
+
+.rq-fields { display: flex; flex-direction: column; gap: .35rem; }
+.rq-field  { display: flex; align-items: flex-start; gap: .5rem; font-size: .8rem; }
+.rq-field-icon  { width: 16px; flex-shrink: 0; color: var(--muted); font-size: .72rem; margin-top: .15rem; text-align: center; }
+.rq-field-label { font-size: .65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; min-width: 70px; flex-shrink: 0; padding-top: .05rem; }
+.rq-field-val   { color: var(--light); line-height: 1.5; }
+.rq-field-val.muted { color: var(--muted); font-style: italic; }
+
+.rq-amount {
+    text-align: right; flex-shrink: 0; min-width: 90px;
+}
+.rq-amount-val {
+    display: inline-flex; align-items: center; gap: .3rem;
+    background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.2);
+    border-radius: 999px; padding: .28rem .85rem;
+    font-size: .85rem; font-weight: 800; color: #f87171;
+    white-space: nowrap;
+}
+
+.rq-empty {
+    text-align: center; padding: 3.5rem 1rem;
+}
+.rq-empty-icon {
+    width: 60px; height: 60px; margin: 0 auto 1rem;
+    background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.15);
+    border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: var(--muted);
+}
+.rq-empty h5 { font-size: .95rem; font-weight: 700; color: var(--white); margin-bottom: .4rem; }
+.rq-empty p  { font-size: .82rem; color: var(--muted); }
+</style>
+}
+
+@if (!Model.Any())
+{
+    <div class="rq-card">
+        <div class="rq-empty">
+            <div class="rq-empty-icon"><i class="fas fa-times-circle"></i></div>
+            <h5>@L["ShopRQ.NoRejected"]</h5>
+            <p>@L["ShopRQ.NoRejectedDesc"]</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="rq-card">
+        <div class="rq-card-head">
+            <span><i class="fas fa-times-circle"></i> @L["ShopRQ.JobHistory"]</span>
+            <span style="font-size:.72rem;color:var(--muted);">@Model.Count</span>
+        </div>
+
+        @foreach (var job in Model)
+        {
+            var rejectedAt = job.UpdatedAt.ToLocalTime();
+            var quoted = job.RepairQuotation?.QuotedAmount;
+
+            <div class="rq-row">
+
+                <div class="rq-index">#@job.Id</div>
+
+                <div class="rq-main">
+                    <div class="rq-header-row">
+                        <span class="rq-customer">@(job.Customer?.FullName ?? "—")</span>
+                        <span class="rq-date-badge">
+                            <i class="fas fa-calendar-alt"></i>
+                            @rejectedAt.ToString("d MMM yyyy")
+                        </span>
+                    </div>
+                    <div class="rq-fields">
+                        <div class="rq-field">
+                            <i class="fas fa-car rq-field-icon"></i>
+                            <span class="rq-field-label">@L["ShopCJ.Situation"]</span>
+                            <span class="rq-field-val">@(job.SituationDescription ?? "—")</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(job.DiagnosisNotes))
+                        {
+                            <div class="rq-field">
+                                <i class="fas fa-stethoscope rq-field-icon"></i>
+                                <span class="rq-field-label">@L["ShopCJ.Diagnosis"]</span>
+                                <span class="rq-field-val">@job.DiagnosisNotes</span>
+                            </div>
+                        }
+                        @if (job.Mechanic != null)
+                        {
+                            <div class="rq-field">
+                                <i class="fas fa-user-cog rq-field-icon"></i>
+                                <span class="rq-field-label">@L["ShopRQ.Mechanic"]</span>
+                                <span class="rq-field-val">@job.Mechanic.FullName</span>
+                            </div>
+                        }
+                        @if (job.RepairQuotation?.DeclineReason != null)
+                        {
+                            <div class="rq-field">
+                                <i class="fas fa-comment-slash rq-field-icon" style="color:#f87171;"></i>
+                                <span class="rq-field-label">@L["ShopRQ.CustomerReason"]</span>
+                                <span class="rq-field-val" style="color:#f87171;">
+                                    @L["Quot.Decline." + job.RepairQuotation.DeclineReason.Value.ToString()]
+                                    @if (!string.IsNullOrWhiteSpace(job.RepairQuotation.CustomerRejectionReason))
+                                    {
+                                        <span style="color:var(--muted);font-size:.78rem;display:block;margin-top:.2rem;">@job.RepairQuotation.CustomerRejectionReason</span>
+                                    }
+                                </span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="rq-amount">
+                    @if (quoted.HasValue)
+                    {
+                        <span class="rq-amount-val">
+                            <i class="fas fa-times-circle" style="font-size:.7rem;"></i>
+                            @quoted.Value.ToString("F2") JOD
+                        </span>
+                    }
+                </div>
+
+            </div>
+        }
+    </div>
+}

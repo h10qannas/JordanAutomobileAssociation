@@ -109,7 +109,17 @@ namespace JAA.Services
                 .Include(r => r.Customer)
                 .Include(r => r.Mechanic)
                 .Include(r => r.RepairQuotation)
+                .Include(r => r.InspectionPayment)
                 .OrderBy(r => r.UpdatedAt)
+                .ToListAsync();
+
+        public async Task<List<ServiceRequest>> GetRejectedQuotationsAsync(int shopId) =>
+            await _db.ServiceRequests
+                .Where(r => r.ShopId == shopId && r.Status == RequestStatus.QuotationRejected)
+                .Include(r => r.Customer)
+                .Include(r => r.Mechanic)
+                .Include(r => r.RepairQuotation)
+                .OrderByDescending(r => r.UpdatedAt)
                 .ToListAsync();
 
         public async Task<List<ServiceRequest>> GetCompletedJobsAsync(int shopId) =>
